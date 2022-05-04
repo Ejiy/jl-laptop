@@ -1,4 +1,11 @@
 <script>
+    import { createEventDispatcher } from 'svelte'
+    let showRightside = false
+    let dispatcher = createEventDispatcher()
+    let toggleRightside = () => {
+        showRightside = !showRightside
+        dispatcher('toggleRightside', showRightside)
+    }
     let shit = () => {
         console.log('shit')
     }
@@ -20,7 +27,7 @@
             <span id="date">5/3/2022</span>
         </div>
         <!-- windows chat bubble -->
-        <i class="fa-regular fa-message" style="cursor: pointer;"></i>
+        <i class="fa-regular fa-message" style="cursor: pointer;" on:click={toggleRightside}></i>
         <!-- 
         <i class="fas fa-wifi"></i>
         <i id="volume" class="fas fa-volume-up"></i>
@@ -64,8 +71,8 @@
         height: 40px;
         position: absolute;
         bottom: 0;
-        background: rgba(30, 34, 81, 0.508);
-        backdrop-filter: blur(10px);
+        background: rgba(75, 77, 91, 0.459);
+        backdrop-filter: blur(30px);
         /* border-top: 1px solid rgba(28, 27, 27, 0.3); */
         display: flex;
         bottom: 0;

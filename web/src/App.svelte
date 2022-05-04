@@ -2,8 +2,10 @@
 	import Apps from './components/Apps.svelte';
 	import Icons from './components/Icons.svelte'
 	import Winmanager from './components/Winmanager.svelte'
+	import Notification from './components/Notification.svelte';
 	import axios from 'axios'
-	import {fly} from 'svelte/transition'
+	import { fly } from 'svelte/transition'
+	import ShittyRightSide from './components/ShittyRightSide.svelte';
 	export let appdata = {}
 	appdata = {
 		config: 'test'
@@ -12,10 +14,15 @@
 	let toggleActive = () => {
 		active = !active
 	}
-
+	let showRightside = false
 	let closeLaptop = () => {
 		active = false
 		axios.post('https://tnj-laptop/close', JSON.parse({}))
+	}
+
+
+	let toggleRightside = (e) => {
+		showRightside = e.detail
 	}
 
 	window.addEventListener('message', function (event) { 
@@ -42,13 +49,14 @@
 	}
 </script>
 <div id="app">
-	<button on:click={toggleActive}>SHEESH</button>
-	{#if active}
-
+	<!-- <button on:click={toggleActive}>SHEESH</button> -->
+	{#if active} 
 		<div class="desktop" transition:fly="{{y: 1000, duration: 1000}}">
 			<Icons/>
-			<Apps appdata/>
-			<Winmanager/>
+			<Apps left={50} top={50}/>
+			<Notification/>
+			<ShittyRightSide showRightside={showRightside}/>
+			<Winmanager on:toggleRightside={toggleRightside}/>
 		</div>
 	{/if}
 </div>
@@ -65,7 +73,7 @@
 		/* visibility: hidden; */
 		background-image: url('/images/wp.jpg');
 		background-color: rgb(41, 41, 41);
-		border: 7px solid rgb(0, 0, 0);
+		border: 5px solid rgb(0, 0, 0);
 		border-radius: 5px;
 		background-size: cover;
 		background-position: center;

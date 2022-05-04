@@ -1,7 +1,9 @@
 <script>
 import { text } from 'svelte/internal';
 
+
     // export let icons
+    let showapp
     import { config } from '../config'
     console.log(config.subscribe(v => v.apps))
     let icons = [
@@ -78,6 +80,21 @@ import { text } from 'svelte/internal';
         align-items: center;
         margin: 10px;
         cursor: pointer;
+    }
+
+    /* make media for 720p */
+    @media screen and (max-width: 1280px) {
+        .icon-back {
+            width: 40px;
+            height: 40px;
+        }
+
+        i {
+            font-size: 15px;
+        }
+        .text {
+            font-size: 10px;
+        }
     }
 
 </style>
