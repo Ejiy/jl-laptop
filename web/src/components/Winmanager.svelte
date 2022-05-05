@@ -15,7 +15,7 @@
     <div class="left-icons">
         <div class="start-icon">
             <div class="icon-start">
-                <img class="start" src="/images/logo.png" alt="icon">
+                <img class="start" src="./images/logo.png" alt="icon">
             </div>
         </div>
     </div>
@@ -71,8 +71,8 @@
         height: 40px;
         position: absolute;
         bottom: 0;
-        background: rgba(75, 77, 91, 0.459);
-        backdrop-filter: blur(30px);
+        background: rgba(75, 77, 91, 0.353);
+        backdrop-filter: blur(10px);
         /* border-top: 1px solid rgba(28, 27, 27, 0.3); */
         display: flex;
         bottom: 0;

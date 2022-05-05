@@ -1,42 +1,14 @@
 <script>
-import { text } from 'svelte/internal';
-
-
-    // export let icons
-    let showapp
-    import { config } from '../config'
-    console.log(config.subscribe(v => v.apps))
-    let icons = [
-        {
-            name: "garage",
-            icon: "fa-solid fa-warehouse",
-            text: "Garage App",
-            color: "#fff",
-            background: "#494570",
-        },
-        {
-            name: "unknown",
-            icon: "fa-solid fa-mask",
-            text: "Unknown",
-            color: "#fff",
-            background: "#000",
-        },
-
-
-    ]
-    console.log(icons)
-    let clicked = (e, data) => {
-        console.log('clicked')
-    }
+    import { apps } from '../store/config'
 </script>
 
 <div class="icons">
-    {#each icons as icon (icon.name)}
+    {#each $apps as icon (icon.name)}
     <div class="icon">
-        <div class="icon-back" style="color: {icon.color}; background-color: {icon.background}" on:click={(e) => {
-            clicked(e, icon)
+        <div class="icon-back" style="background-color: {icon.background}" on:click={(e) => {
+            // clicked(e, icon)
         }}>
-            <i class={icon.icon}></i>
+            <i class={icon.icon} style="color: {icon.color};"></i>
         </div>
         <p class="text">{icon.text}</p>
     </div>
@@ -47,15 +19,20 @@ import { text } from 'svelte/internal';
 
 <style>
     .text {
-        color: rgb(255, 255, 255);
+        /* color: rgb(255, 255, 255); */
         font-size: 12px;
         font-family: "Segoe UI", sans-serif;
-        font-weight: bold;
+        font-weight: 600;
     }
+
     .icons {
         display: grid ;
         justify-content: left;
         margin: 10px;
+    }
+
+    .sheesh {
+        color: rgb(13, 32, 69);
     }
 
     i {

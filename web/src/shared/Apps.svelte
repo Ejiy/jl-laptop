@@ -1,16 +1,12 @@
 <script>
-    import Garages from './apps/Garages.svelte';
-    import { config } from '../config'
     import { fade } from 'svelte/transition'
-    let app = ['garages']
-    let activeapp = 'garages'
     let moving = false
-    let showapp = false
+    export let showapp = true
     export let left = 100
     export let top = 100
-    $ :{
-        // console.log(left)
-        // console.log(top)
+    export let topdata = {
+        title: "Unknown",
+        color: "#fff",
     }
     function onMouseDown() {
         moving = true
@@ -32,26 +28,22 @@
     function SHOW() {
         showapp = !showapp
     }
-    // console.log(appdata)
 </script>
-<button on:click={SHOW}>TEST</button>
 {#if showapp}
-
 <div class="apps" style="left: {left}; top: {top};"  transition:fade="{{duration: 100}}">
     <div class="actual-app">
-        <div class="top {moving ? 'ondrag' : ''}" on:mousedown={onMouseDown}>
+        <div class="top {moving ? 'ondrag' : ''}" on:mousedown={onMouseDown} style="background: {topdata.color};">
             <div class="title">
-                <span class="title-text">Garages</span>
+                <span class="title-text">{topdata.title}</span>
             </div>
             <div class="controls">
                 <div class="exit" on:click={SHOW}>
                     <i class="fa-solid fa-circle-xmark" style="color: rgb(245, 105, 105); font-size: 15px;"></i>
                 </div>
             </div>
+         
         </div>
-        <!-- {#if  app['garages']} -->
-        <Garages/>
-        <!-- {/if} -->
+        <slot></slot>
     </div>
 </div>
 {/if}
@@ -64,13 +56,13 @@
         font-family: "Segoe UI", sans-serif;
     }
     .apps {
-        border-radius: 2px;
+        border-radius: 6px;
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 70%;
-        height: 70%;
+        width: 80%;
+        height: 80%;
     }
 
     .ondrag {
@@ -80,20 +72,21 @@
     .actual-app {
         width: 100%;
         height: 100%;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
         /* background: rgba(37, 31, 64, 0.978);
         filter: blur(); */
     }
 
     .top {
-        
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 0 15px;
         width: 100%;
         height: 30px;
-        background: rgba(20, 14, 49, 0.978);
-        filter: blur();
+        backdrop-filter: blur(10px);
     }
 
     .exit {

@@ -4,6 +4,14 @@ game 'gta5'
 
 author 'T&J, JL, Fjamzoo and others'
 
+client_scripts {
+    'client/*.lua'
+}
+
+server_scripts {
+    'server/*.lua'
+}
+
 ui_page 'web/public/index.html'
 
 files {
