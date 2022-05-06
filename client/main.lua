@@ -10,6 +10,18 @@ function SetDisplay(bool)
     })
 end
 
+function GetApps()
+    local apps = {}
+    for i = 1, #Config.Apps, 1 do
+        local app = Config.Apps[i]
+        if app.items then
+            if type(app.items) == "table" then
+                
+            end
+        end
+    end
+end
+
 
 RegisterNetEvent('tnj-laptop:client:openlaptop', function ()
     SetDisplay(true)
