@@ -20,7 +20,7 @@ let toggleRightside = () => {
     <Icons/>
     <!-- <Apps left={50} top={50} showapp={false}/> -->
     <Boosting/>
-    <Garages/>
+    <!-- <Garages/> -->
     <Notification/>
     <ShittyRightSide showRightside={showRightside}/>
     <Winmanager on:toggleRightside={toggleRightside}/>

@@ -1,10 +1,12 @@
 <script>
     import { apps } from '../store/config'
+    import { flip } from 'svelte/animate'
+    import { fade } from 'svelte/transition'
 </script>
 
 <div class="icons">
     {#each $apps as icon (icon.name)}
-    <div class="icon">
+    <div class="icon" animate:flip="{{duration: 500}}" transition:fade>
         <div class="icon-back" style="background-color: {icon.background}" on:click={(e) => {
             // clicked(e, icon)
         }}>
