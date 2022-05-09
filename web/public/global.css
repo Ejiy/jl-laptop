@@ -22,3 +22,11 @@ html {
   border-radius: 2px;
   background-color: rgba(60, 60, 60, 1);
 }
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 2px;
+  background-color: rgba(60, 60, 60, 1);
+}
