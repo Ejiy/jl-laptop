@@ -36,4 +36,11 @@ export const apps = writable([
     color: "#fff",
     background: "rgb(13, 32, 69)",
   },
+  {
+    name: "boosting",
+    icon: "fa-solid fa-bolt",
+    text: "Boosting",
+    color: "#fff",
+    background: "rgb(255, 0, 0)",
+  },
 ]);

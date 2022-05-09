@@ -92,6 +92,19 @@
   dependencies:
     "@types/node" "*"
 
+"@untemps/dom-observer@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@untemps/dom-observer/-/dom-observer-2.0.0.tgz#5b86b091f62905a6f18b0280bbf9067f2949716f"
+  integrity sha512-oZBj7j9hYSbuveNFvyPLamRfNh15KvGJC5pLGGpWVcO61EzISMESL0wudwP0UZETEu+0WfaJ16rGXtEZHsq+xw==
+
+"@untemps/svelte-use-tooltip@^2.7.0":
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/@untemps/svelte-use-tooltip/-/svelte-use-tooltip-2.7.0.tgz#4467f4b99becf0d8756b35d005d1a51e26ceaa7e"
+  integrity sha512-Vi5dWBfrDlv+GgoqIxA4xxH4pJFns3JN1KeKQpJ27UMgIGBf81oiLjJ3CpVig+tlaPcW5+mUAQIcakPKGYoaKw==
+  dependencies:
+    "@untemps/dom-observer" "^2.0.0"
+    svelte "3.39.0"
+
 acorn@^8.5.0:
   version "8.7.1"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.7.1.tgz#0197122c843d1bf6d0a5e83220a788f278f63c30"
@@ -672,6 +685,11 @@ supports-preserve-symlinks-flag@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
+
+svelte@3.39.0:
+  version "3.39.0"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.39.0.tgz#35d1f18ea9be9109ff7cb54c29a913eddd151453"
+  integrity sha512-dcJCongL0cRkZWe9q+fde0T4HX8PksBywz2+EGDVIrdYdJaxTzrJu0RVeuDtL8Mx2hs4yn3W8zKPScuzG63hTg==
 
 svelte@^3.0.0:
   version "3.48.0"

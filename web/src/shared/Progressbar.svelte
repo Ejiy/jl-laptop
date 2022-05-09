@@ -1,7 +1,7 @@
 <script>
     import { tweened } from 'svelte/motion'
     import { cubicOut } from 'svelte/easing'
-import { onMount } from 'svelte';
+    import { onMount } from 'svelte';
     export let value = tweened(0, {
         duration: 2000,
         easing: cubicOut,
@@ -11,9 +11,6 @@ import { onMount } from 'svelte';
         value.set($value + 50)
     }
 
-    $: {
-        console.log($value)
-    }
     onMount(() => {
         value.set(40)
     })
@@ -25,19 +22,22 @@ import { onMount } from 'svelte';
 
 <style>
     .inner, .outer {
-        height: 15px;
+        height: 10px;
         border-radius: 5px;
+        overflow-y: hidden;
     }
+
+
 
     .inner {
         width: 40%;
-        background: linear-gradient(90deg, #d53369 0%, #daae51 100%);;
+        background: linear-gradient(90deg, #d47fa2 10%, #b6abb7 50%, #80e5cb 100%);;
     }
 
     .outer {
         width: 90vh;
         margin: 30px auto;
-        background-color: #fff;
+        background-color: transparent;
         border: 1px solid #222;
     }
 

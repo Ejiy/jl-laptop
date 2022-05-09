@@ -75,16 +75,19 @@ import Desktop from './components/Desktop.svelte';
 		}
 	}
 </script>
-<div id="app">
-	<button on:click={toggleActive}>SHEESH</button>
-	<button on:click={addIcons}>ADD ICONS</button>
-	<button>SHOWAPP</button>
-	{#if active} 
-		<Desktop/>
-	{/if}
-</div>
+
+<main>
+	<div id="app">
+		<button on:click={toggleActive}>SHEESH</button>
+		<button on:click={addIcons}>ADD ICONS</button>
+		<button>SHOWAPP</button>
+		{#if active} 
+			<Desktop/>
+		{/if}
+	</div>
+</main>
+
 
 <style>
 	
-
 </style>

@@ -76,6 +76,7 @@
         /* border-top: 1px solid rgba(28, 27, 27, 0.3); */
         display: flex;
         bottom: 0;
+        overflow-y: hidden;
         align-items: center;
         z-index: 98;
     }

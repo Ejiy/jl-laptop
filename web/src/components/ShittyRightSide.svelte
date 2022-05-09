@@ -1,40 +1,61 @@
 <script>
-
-
-     import { fade } from 'svelte/transition'
-     export let showRightside = true
+     import { useTooltip } from '@untemps/svelte-use-tooltip'
+     import { fade, fly } from 'svelte/transition'
+     import { cubicOut, cubicInOut, cubicIn } from 'svelte/easing'
+     import {flip, } from 'svelte/animate'
+     export let showRightside = false
      let notifications = [
-        //  {text: 'Test 1', icon: 'fa-solid fa-car-side', color: '#fff', background: '#494570'},
+         {text: 'You have new message from this app', icon: 'fa-solid fa-car-side', color: '#fff', background: '#424570', id: 1},
+         {text: 'Test3412340i23 jlsejflsekjf 2930123', icon: 'fa-solid fa-mask', color: '#fff', background: '#494570', id: 2},
      ]
+     let ClearNotification = () => {
+        notifications.forEach(notification => {
+            notifications = notifications.filter(n => n.id !== notification.id)
+        })
+     }
 
-     let foo = () => {
-        console.log('foo')
+     let RemoveNotification = (id) => {
+         notifications = notifications.filter(n => n.id !== id)
      }
 </script>
 
-{#if showRightside}                       
-<div class="right-side" transition:fade="{{duration:100}}">
+<svelte:window on:click={(e) => {
+   
+}}/>
+
+{#if showRightside}                  
+
+<div class="right-side" in:fly|local="{{x: 500, easing:cubicOut}}" out:fly|local="{{x: 500, duration: 300, easing: cubicInOut}}" >
     <div class="controls">
         <div class="title">               
             Notifications
         </div>
         {#if notifications.length > 0}                                
-        <button class="clear" on:click={foo}>
+        <button class="clear" on:click={ClearNotification}>
             Clear all
         </button>
         {/if}
-      
     </div>
     <div class="notifications">
-        
-        {#each notifications as notificaton }
-            <div class="notif">
-                <div class="icon">
-                    <i class={notificaton.icon}></i>
+        {#each notifications as notification, index (notification.id) }
+            <div class="notif" out:fly|local="{{x: 300, }}" animate:flip="{{easing: cubicOut, duration: 100}}">
+                <div class="icon" style="background-color: {notification.background};">
+                    <i class={notification.icon}></i>
+                </div>
+                <div class="information">
+                    <div class="description" >
+                        {notification.text.length > 15 ? notification.text.substring(0, 15) + '...' : notification.text}
+                    </div>
+                </div>
+                <div class="top">
+                    <!-- x icon -->
+                    <i class="fa-solid fa-xmark" on:click={() => {
+                        RemoveNotification(notification.id)
+                    }}></i>
                 </div>
             </div>
             {:else}
-            <div class="error-notif">
+            <div class="error-notif" transition:fade>
                 <div class="error-text">
                     No notifications
                 </div>
@@ -45,6 +66,27 @@
 </div>
 {/if}
 <style>
+    .top {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        flex: 3;
+    }
+    .icon {
+        margin: 0px 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 3px;
+        background-color: #494570;
+    }
+
+    .text {
+        font-size: 1.2rem;
+        font-family: "Noto Sans", sans-serif;
+    }
     .error-notif {
         font-family: "Segoe UI", sans-serif;
         position: absolute;
@@ -58,9 +100,14 @@
     .notif {
         display: flex;
         flex-direction: row;
-        justify-content: center;
+        /* justify-content: center; */
         align-items: center;
-        background: rgba(37, 31, 64, 0.978);
+        background: transparent;
+        margin-top: 3px;
+        padding: 10px;
+        /* border-top: #fff .5px solid; */
+        min-height: 80px;
+        width: 99%;
         backdrop-filter: blur(10px);
     }
 
@@ -88,18 +135,15 @@
         height: 90%;
         background: rgba(75, 77, 91, 0.508);
         backdrop-filter: blur(10px);
+        overflow-x: hidden;
     }
     .notifications {
-        margin-top: 20%;
+        /* margin-top: 5px; */
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: safe;
-        width: 100%;
-        height: 100%;
+        justify-content: center;
         overflow-y: auto;
-        overflow-x: hidden;
-        /* background-color: #494570; */
     }
     /* make media for 720p screen */
     @media screen and (max-width: 1280px) {
@@ -107,36 +151,31 @@
             height: 80%;
             min-width: 280px;
         }
-     /* @media only screen and (max-width: px) {
-        .right-side {
-            position: absolute;
-            top: 50%;
-            right: 0;
-            transform: translate(0, -50%);
-            border-radius: 5px;
-            min-width: 300px;
-            max-width: 600px;
-            height: 70%;
-            background: rgba(0, 30, 255, 0.508);
-            backdrop-filter: blur(10px);
-        } */
+    }
+    .description {
+        font-size: .9rem;
+        font-family: "Noto Sans", sans-serif;
+        cursor: pointer;
     }
     .title {
-        font-family: "Segoe UI", sans-serif;
+        font-family: "Noto", sans-serif;
         font-size: 15px;
         font-weight: bold;
 
     }
     .controls {
-        position: absolute;
+        position: sticky;
         padding: 10px;
         top: 0;
         display: flex;
         justify-content: space-between;
+        overflow-y: hidden;
         align-items: center;
         background: rgba(19, 21, 36, 0.508);
-        width: 100%;
         height: 40px;
         z-index: 10;
+    }
+    ::-webkit-scrollbar {
+        display: none;
     }
 </style>
