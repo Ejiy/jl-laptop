@@ -168,6 +168,7 @@ let setActivePage = (e, page) => {
         box-sizing: border-box;
         overflow-x: hidden;
         overflow-y: auto;
+        height: 50vh;
     }
     .first-data {
         width: 100%;

@@ -5,7 +5,18 @@
   padding: 0;
   box-sizing: border-box;
   user-select: none;
+  color: white;
+}
+
+html {
   overflow-y: hidden;
   overflow-x: hidden;
-  color: white;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 2px;
+  background-color: rgba(60, 60, 60, 1);
 }

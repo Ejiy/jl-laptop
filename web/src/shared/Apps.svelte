@@ -61,8 +61,6 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 80%;
-        height: 80%;
     }
 
     .ondrag {
@@ -75,6 +73,7 @@
         box-sizing: border-box;
         margin: 0;
         padding: 0;
+        background: rgba(50, 48, 60, 0.978);
         /* background: rgba(37, 31, 64, 0.978);
         filter: blur(); */
     }
