@@ -1,21 +1,23 @@
 <script>
-     import { useTooltip } from '@untemps/svelte-use-tooltip'
      import { fade, fly } from 'svelte/transition'
      import { cubicOut, cubicInOut, cubicIn } from 'svelte/easing'
      import {flip, } from 'svelte/animate'
+     import oldNotifications from '../store/oldnotification';
      export let showRightside = false
      let notifications = [
          {text: 'You have new message from this app', icon: 'fa-solid fa-car-side', color: '#fff', background: '#424570', id: 1},
          {text: 'Test3412340i23 jlsejflsekjf 2930123', icon: 'fa-solid fa-mask', color: '#fff', background: '#494570', id: 2},
      ]
      let ClearNotification = () => {
-        notifications.forEach(notification => {
-            notifications = notifications.filter(n => n.id !== notification.id)
-        })
+         oldNotifications.set([])
      }
 
      let RemoveNotification = (id) => {
-         notifications = notifications.filter(n => n.id !== id)
+         console.log(id)
+         oldNotifications.update(n => {
+            return n.filter(n => n.id !== id)
+         })
+        //  oldNotifications.set(oldNotifications.filter(n => n.id !== id))
      }
 </script>
 
@@ -37,14 +39,14 @@
         {/if}
     </div>
     <div class="notifications">
-        {#each notifications as notification, index (notification.id) }
-            <div class="notif" out:fly|local="{{x: 300, }}" animate:flip="{{easing: cubicOut, duration: 100}}">
-                <div class="icon" style="background-color: {notification.background};">
-                    <i class={notification.icon}></i>
+        {#each $oldNotifications as notification, index (notification.id) }
+            <div class="notif" out:fly|local="{{x: 300, }}" animate:flip="{{easing: cubicOut, duration: 300}}" in:fade>
+                <div class="icon" style="background-color: {notification.appdata.background};">
+                    <i class={notification.appdata.icon}></i>
                 </div>
                 <div class="information">
                     <div class="description" >
-                        {notification.text.length > 15 ? notification.text.substring(0, 15) + '...' : notification.text}
+                        {notification.message.length > 15 ? notification.message.substring(0, 15) + '...' : notification.message}
                     </div>
                 </div>
                 <div class="top">
@@ -100,12 +102,10 @@
     .notif {
         display: flex;
         flex-direction: row;
-        /* justify-content: center; */
         align-items: center;
         background: transparent;
         margin-top: 3px;
         padding: 10px;
-        /* border-top: #fff .5px solid; */
         min-height: 80px;
         width: 99%;
         backdrop-filter: blur(10px);
@@ -138,9 +138,8 @@
         overflow-x: hidden;
     }
     .notifications {
-        /* margin-top: 5px; */
         display: flex;
-        flex-direction: column;
+        flex-direction: column-reverse;
         align-items: center;
         justify-content: center;
         overflow-y: auto;
@@ -171,7 +170,7 @@
         justify-content: space-between;
         overflow-y: hidden;
         align-items: center;
-        background: rgba(19, 21, 36, 0.508);
+        background: rgb(19, 21, 36);
         height: 40px;
         z-index: 10;
     }

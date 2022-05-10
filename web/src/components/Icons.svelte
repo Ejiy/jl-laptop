@@ -7,15 +7,32 @@
     let openApp = (app) => {
         dispatch('openApp', app)
     }
-</script>
 
+    let iconExist = async(app) => {
+       const image_url = './images/apps/' + app + '.png'
+       const image = new Image()
+       image.onload = () => {
+           return true
+       }
+       image.onerror = () => {
+           return false
+      }
+      image.src = image_url
+      
+    }
+</script>
 <div class="icons">
     {#each $apps as icon (icon.name)}
-    <div class="icon" animate:flip="{{duration: 500}}" transition:fade>
+    <div class="icon" animate:flip="{{duration: 500}}" transition:fade|local>
         <div class="icon-back" style="background-color: {icon.background}" on:click={(e) => {
            openApp(icon.name)
         }}>
-            <i class={icon.icon} style="color: {icon.color};"></i>
+        {#if icon.useimage}
+            <img src="{'./images/apps/' + icon.name + '.png'}" alt="{icon.name}" class="image" />
+        {:else}
+             <i class={icon.icon} style="color: {icon.color};"></i>
+        {/if}
+           
         </div>
         <p class="text">{icon.text}</p>
     </div>
@@ -25,6 +42,14 @@
 </div>
 
 <style>
+
+
+
+    .image {
+        padding: 5px;
+        width: 80%;
+        height: 80%;
+    }
     .text {
         /* color: rgb(255, 255, 255); */
         font-size: 12px;

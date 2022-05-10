@@ -1,15 +1,20 @@
 <script>
     import { cubicInOut } from 'svelte/easing';
-
+    import { createEventDispatcher } from 'svelte'
     import { fade } from 'svelte/transition'
+    import { apps } from '../store/config';
+    
     let moving = false
-    let left = 150
+    let left = 200
     let top = 150
     export let showapp = true
+    export let appname = null
     export let topdata = {
         title: "Unknown",
         color: "#fff",
     }
+
+    const dispatch = createEventDispatcher()
 
     function onMouseDown() {
 		moving = true;
@@ -26,25 +31,31 @@
 		moving = false;
 	}
 
-
+    function closeApp() {
+        showapp = false
+        const filtered = $apps.filter(app => app.name === appname)
+        if(filtered.length > 0) {
+            filtered[0].isopen = false
+        }
+        apps.set($apps)
+    }
 
     function SHOW() {
         showapp = !showapp
     }
 </script>
 {#if showapp}
-    <div class="apps" style="left: {left}px; top: {top}px" transition:fade>
+    <div class="apps" style="left: {left}px; top: {top}px" in:fade out:fade|local="{{duration: 300}}">
         <div class="actual-app">
             <div class="top {moving ? 'ondrag' : ''}" on:mousedown={onMouseDown} style="background: {topdata.color};">
                 <div class="title">
                     <span class="title-text">{topdata.title}</span>
                 </div>
                 <div class="controls">
-                    <div class="exit" on:click={SHOW}>
+                    <div class="exit" on:click={closeApp}>
                         <i class="fa-solid fa-circle-xmark" style="color: rgb(245, 105, 105); font-size: 15px;"></i>
                     </div>
                 </div>
-             
             </div>
             <slot></slot>
         </div>

@@ -1,42 +1,30 @@
 <script>
 
-	import Apps from './shared/Apps.svelte';
-	import Icons from './components/Icons.svelte'
-	import Winmanager from './components/Winmanager.svelte'
-	import Notification from './components/Notification.svelte';
 	import axios from 'axios'
-	import { fly } from 'svelte/transition'
-	import ShittyRightSide from './components/ShittyRightSide.svelte';
 	import { onDestroy, onMount } from 'svelte';
-	import { apps } from './store/config'
-import Desktop from './components/Desktop.svelte';
-	export let appdata = {}
-	appdata = {
-		config: 'test'
-	}
+	import Desktop from './components/Desktop.svelte';
+	import { notifications } from "./store/notifications";
 	let active = true
-	let toggleActive = () => {
-		active = !active
+	let toggleActive = (boolean) => {
+		active = boolean === undefined ? !active : boolean
 	}
 	let showRightside = false
 	let closeLaptop = async() => {
 		await axios.post('https://tnj-laptop/close', JSON.parse({}))
 		active = false
-		
 	}
-
-	let addIcons = () => {
-		apps.update((currentdata) => {
-			let newvalue =   {
-			name: "taxi",
-			icon: "fa-solid fa-taxi",
-			text: "Taxi",
-			color: "#fff",
-			background: "#000",
-		}
-			return [newvalue, ...currentdata]
-		})
-	}
+	// let addIcons = () => {
+	// 	apps.update((currentdata) => {
+	// 		let newvalue =   {
+	// 		name: "taxi",
+	// 		icon: "fa-solid fa-taxi",
+	// 		text: "Taxi",
+	// 		color: "#fff",
+	// 		background: "#000",
+	// 	}
+	// 		return [newvalue, ...currentdata]
+	// 	})
+	// }
 
 	onMount(() => {
 		console.log('mounted')
@@ -49,8 +37,8 @@ import Desktop from './components/Desktop.svelte';
 
 	window.addEventListener('message', function (event) { 
 		switch(event.data.type) {
-			case 'toggle':
-				toggleActive();
+			case 'open':
+				toggleActive(true);
 				break;
 			case 'close':
 				closeLaptop()
@@ -74,13 +62,25 @@ import Desktop from './components/Desktop.svelte';
 				break;
 		}
 	}
+
+	function randomNotif() {
+		let randommessage = [
+			'The best part of marriage is animal crackers with peanut butter.',
+			'Happiness can be found in the depths of chocolate pudding.',
+			"There should have been a time and a place, but this wasn't it."
+		]
+		notifications.send(randommessage[Math.floor(Math.random() * randommessage.length)], 'browser', 2000)
+	}
 </script>
 
 <main>
 	<div id="app">
-		<button on:click={toggleActive}>SHEESH</button>
+		<!-- <button on:click={toggleActive}>SHEESH</button>
 		<button on:click={addIcons}>ADD ICONS</button>
-		<button>SHOWAPP</button>
+		<button on:click={randomNotif}>Notif</button>
+		<button on:click={
+			() => console.log($oldNotifications)
+		}>LOG</button> -->
 		{#if active} 
 			<Desktop/>
 		{/if}
