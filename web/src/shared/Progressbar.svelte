@@ -2,6 +2,7 @@
     import { tweened } from 'svelte/motion'
     import { cubicOut } from 'svelte/easing'
     import { onMount } from 'svelte';
+    export let defval = 60
     export let value = tweened(0, {
         duration: 2000,
         easing: cubicOut,
@@ -12,7 +13,7 @@
     }
 
     onMount(() => {
-        value.set(40)
+        value.set(defval)
     })
 </script>
 
@@ -26,8 +27,6 @@
         border-radius: 5px;
         overflow-y: hidden;
     }
-
-
 
     .inner {
         width: 40%;

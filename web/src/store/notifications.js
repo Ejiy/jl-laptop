@@ -19,6 +19,12 @@ function newNotifStore(timeout) {
         app: getAppData(app),
         timeout,
       };
+      const audio = new Audio("./audio/pop.ogg");
+      audio.play();
+      audio.volume = 0.5;
+      audio.onended = () => {
+        audio.remove();
+      };
       oldNotifications.update((old) => {
         return [...old, data];
       });

@@ -5,8 +5,9 @@ import { fly } from 'svelte/transition'
 import Progressbar from "../../shared/Progressbar.svelte";
 import { cubicOut } from "svelte/easing";
 import Modal from "../../shared/Modal.svelte";
-import { contracts } from '../../store/boosting'
+import { contracts, saledcontracts } from '../../store/boosting'
 import { notifications } from "../../store/notifications";
+import { dataset_dev } from "svelte/internal";
 let topdata = {
     title: "Car Boosting",
     color: "#2b2d42",
@@ -80,9 +81,9 @@ let setActivePage = (e, page) => {
         </div>
         <div class="body" >
             {#if activepage === "My Contracts"}
-                <div class="contracts"  >
+                <div class="contracts">
                     {#each $contracts as contract, index (contract.id)}
-                    <div class="contract-card" in:fly="{{duration: 300, y: -300, easing: cubicOut}}" out:fly|local="{{duration: 200, x: 300}}" animate:flip={{duration: 300}}>
+                    <div class="contract-card" in:fly|local="{{duration: 300, y: -300, easing: cubicOut}}" out:fly|local="{{duration: 200, x: 300}}" animate:flip={{duration: 300}}>
                         <div class="data">
                             <div class="first-data">
                                 <div class="boost-type">
@@ -120,7 +121,38 @@ let setActivePage = (e, page) => {
                     {/each}
                 </div>
                 {:else if activepage === "Buy Contracts"}
-                <p>A Y</p>
+                <div class="contracts">
+                    {#each $saledcontracts as contract, index (contract.id)}
+                    <div class="contract-card" in:fly|local="{{duration: 300, y: -300, easing: cubicOut}}" out:fly|local="{{duration: 200, x: 300}}" animate:flip={{duration: 300}}>
+                        <div class="data">
+                            <div class="first-data">
+                                <div class="boost-type">
+                                    Boost Type : <span style="color: {color[contract.data.boost.type]};">{contract.data.boost.type}</span>
+                                </div>
+                                <div class="boost-owner">
+                                    Owner : {contract.owner.name}
+                                </div>
+                            </div>
+                            <div class="second-data">
+                                <div class="vehicle">
+                                    <p>Vehicle : {contract.data.model}</p>
+                                    <p>Expires in : <span class="expire">{contract.data.expire}</span></p>
+                                    <p>Buy with: <span class="prices">{contract.data.price}</span> Crypto</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="control">
+                            <button class="green">
+                                Buy Contract
+                            </button>
+                        </div>
+                    </div>
+                    {:else}
+                    <div class="no-contract">
+                        No Contracts
+                    </div>
+                    {/each}
+                </div>
             {/if}
            
         </div>
@@ -128,6 +160,10 @@ let setActivePage = (e, page) => {
 </Apps>
 
 <style>
+
+    .prices {
+        color: #ff9800;
+    }
     .expire {
         color: #51f8b2;
     }

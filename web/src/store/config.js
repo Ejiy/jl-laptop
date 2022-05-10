@@ -48,6 +48,15 @@ export const apps = writable([
     useimage: true,
   },
   {
+    name: "shop",
+    icon: "fa-solid fa-shopping-cart",
+    text: "Shop",
+    color: "#fff",
+    background: "#cc6c6e",
+    isopen: false,
+    useimage: false,
+  },
+  {
     name: "browser",
     icon: "fa-solid fa-globe",
     text: "Browser",

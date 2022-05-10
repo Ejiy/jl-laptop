@@ -32,7 +32,7 @@
         <div class="title">               
             Notifications
         </div>
-        {#if notifications.length > 0}                                
+        {#if $oldNotifications.length > 0}                                
         <button class="clear" on:click={ClearNotification}>
             Clear all
         </button>
@@ -40,9 +40,13 @@
     </div>
     <div class="notifications">
         {#each $oldNotifications as notification, index (notification.id) }
-            <div class="notif" out:fly|local="{{x: 300, }}" animate:flip="{{easing: cubicOut, duration: 300}}" in:fade>
-                <div class="icon" style="background-color: {notification.appdata.background};">
-                    <i class={notification.appdata.icon}></i>
+            <div class="notif" out:fly|local="{{x: 300, }}" animate:flip="{{easing: cubicOut, duration: 300}}" in:fade|local>
+                <div class="icon" style="background-color: {notification.app.background};">
+                    {#if notification.app.useimage}
+                        <img src={`./images/apps/${notification.app.name}.png`} alt={notification.app.name}/>
+                        {:else}
+                        <i class={notification.app.icon}></i>
+                    {/if}
                 </div>
                 <div class="information">
                     <div class="description" >
@@ -79,10 +83,16 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 50px;
-        height: 50px;
+        width: 45px;
+        height: 45px;
         border-radius: 3px;
         background-color: #494570;
+    }
+
+    .icon img {
+        width: 100%;
+        height: 100%;
+        padding: 10px
     }
 
     .text {

@@ -44,7 +44,7 @@
         showapp = !showapp
     }
 </script>
-{#if showapp}
+<!-- {#if showapp} -->
     <div class="apps" style="left: {left}px; top: {top}px" in:fade out:fade|local="{{duration: 300}}">
         <div class="actual-app">
             <div class="top {moving ? 'ondrag' : ''}" on:mousedown={onMouseDown} style="background: {topdata.color};">
@@ -60,7 +60,7 @@
             <slot></slot>
         </div>
     </div>
-{/if}
+<!-- {/if} -->
 <svelte:window on:mouseup={onMouseUp} on:mousemove={onMouseMove} />
 <style>
     .title-text {

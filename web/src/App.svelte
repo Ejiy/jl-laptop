@@ -4,7 +4,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import Desktop from './components/Desktop.svelte';
 	import { notifications } from "./store/notifications";
-	let active = true
+	let active = false
 	let toggleActive = (boolean) => {
 		active = boolean === undefined ? !active : boolean
 	}

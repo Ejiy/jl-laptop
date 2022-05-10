@@ -9,6 +9,10 @@
     let shit = () => {
         console.log('shit')
     }
+    let showsetting = false
+    let showingSetting = () => {
+        showsetting = !showsetting
+    }
 </script>
 
 <div class="winmanager">
@@ -20,7 +24,7 @@
         </div>
     </div>
     <div class="right-icons">
-        <i id="setting" class="fas fa-duotone fa-gear"></i>
+        <i id="setting" class="fas fa-duotone fa-gear" class:fa-spin={showsetting} on:click={showingSetting}></i>
         <i class="fas fa-solid fa-wifi"></i>
         <div class="times">
             <span id="time">4:05 PM</span>
@@ -37,6 +41,9 @@
 
 <style>
 
+    #setting {
+        cursor: pointer;
+    }
     .times {
         display: flex;
         flex-direction: column;

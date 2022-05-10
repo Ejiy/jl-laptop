@@ -1,7 +1,6 @@
 <script>
 
 import { fly } from "svelte/transition";
-import Boosting from "./apps/Boosting.svelte";
 import Icons from "./Icons.svelte";
 import Notification from "./Notification.svelte";
 import ShittyRightSide from "./ShittyRightSide.svelte";
@@ -10,18 +9,21 @@ import { apps } from "../store/config";
 import { cubicIn, cubicInOut, cubicOut } from "svelte/easing";
 
 
-// const app = [
-// 	{ name: "boosting", component: Boosting },
-// ]
+// APP ZONE
+import Boosting from "./apps/Boosting.svelte";
+import Browser from "./apps/Browser.svelte";
 
-let registeredApp = [
-	{ name: "boosting", component: Boosting },
-]
+
+// Register your app component here
+let registeredApp = {
+	browser: Browser,
+	boosting: Boosting,
+}
 
 let openApp = (name) => {
 	let filtered = $apps.filter(app => app.name === name.detail)
+	console.log(filtered[0])
 	if(filtered.length > 0) {
-		if(filtered[0].isopen) return
 		filtered[0].isopen = true
 	}
 	apps.set($apps)
@@ -50,8 +52,8 @@ function log() {
     <Icons on:openApp={openApp}/>
 	{#each $apps as app (app.name)}
 		{#if app.isopen}
-			{#if registeredApp.filter(shh => shh.name === app.name).length > 0}
-				<svelte:component this={registeredApp.filter(app => app.name === app.name)[0].component}/>
+			{#if registeredApp[app.name]}
+				<svelte:component this={registeredApp[app.name]}/>
 			{/if}
 		{/if}
 	{/each}
