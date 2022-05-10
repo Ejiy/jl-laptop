@@ -6,25 +6,57 @@ import Icons from "./Icons.svelte";
 import Notification from "./Notification.svelte";
 import ShittyRightSide from "./ShittyRightSide.svelte";
 import Winmanager from "./Winmanager.svelte";
+import { apps } from "../store/config";
+import { cubicIn, cubicInOut, cubicOut } from "svelte/easing";
 
-const app = [
-	{name: "boosting", component: Boosting},
+
+// const app = [
+// 	{ name: "boosting", component: Boosting },
+// ]
+
+let registeredApp = [
+	{ name: "boosting", component: Boosting },
 ]
 
-let openApp = (app) => {
-	console.log(app.detail)
+let openApp = (name) => {
+	let filtered = $apps.filter(app => app.name === name.detail)
+	if(filtered.length > 0) {
+		if(filtered[0].isopen) return
+		filtered[0].isopen = true
+	}
+	apps.set($apps)
 }
+
+let getApp = (name) => {
+	const filtered = app.filter(app => app.name === name)
+	if(filtered.length > 0) {
+		console.log(filtered[0].component)
+	}
+}
+
 
 let showRightside = false
 let toggleRightside = () => {
     showRightside = !showRightside
 }
+
+function log() {
+	console.log($apps)
+}
+
 </script>
 
-<div class="desktop" transition:fly="{{y: 1000, duration: 1000}}">
+<div class="desktop" in:fly="{{y: 1000, duration: 1000, easing: cubicOut}}" out:fly="{{y: 1000, duration: 500, easing: cubicIn}}">
     <Icons on:openApp={openApp}/>
-	<svelte:component this={Boosting}/>
-    <Notification/>
+	{#each $apps as app (app.name)}
+		{#if app.isopen}
+			{#if registeredApp.filter(shh => shh.name === app.name).length > 0}
+				<svelte:component this={registeredApp.filter(app => app.name === app.name)[0].component}/>
+			{/if}
+		{/if}
+	{/each}
+	<Notification/>
+    <!-- <Notification/> -->
     <ShittyRightSide showRightside={showRightside}/>
     <Winmanager on:toggleRightside={toggleRightside}/>
 </div>
