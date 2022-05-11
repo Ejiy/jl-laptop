@@ -174,7 +174,8 @@ let setActivePage = (e, page) => {
 
     .text-pg {
         font-family: "Noto Sans", sans-serif;
-        font-size: .5rem
+        font-size: .5rem;
+        margin: 0 10px;
     }
 
     .progress {

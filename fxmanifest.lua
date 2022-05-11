@@ -19,10 +19,12 @@ files {
     'web/public/images/*.png',
     'web/public/images/*.jpg',
     'web/public/images/*.svg',
+    'web/public/images/apps/*.png',
     'web/public/global.css',
     'web/public/build/bundle.js',
     'web/public/build/bundle.css',
     'web/public/build/bundle.js.map',
+    'web/public/audio/*.ogg'
 }
 
 lua54 'yes'

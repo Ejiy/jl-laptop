@@ -5,7 +5,7 @@ function SetDisplay(bool)
     display = bool
     SetNuiFocus(bool, bool)
     SendNUIMessage({
-        type = "open",
+        type = "toggle",
         status = bool
     })
 end
@@ -22,15 +22,26 @@ function GetApps()
     end
 end
 
+RegisterCommand('openlaptop', function ()
+    SetDisplay(not display)
+end)
 
 RegisterNetEvent('tnj-laptop:client:openlaptop', function ()
     SetDisplay(true)
 end)
 
 RegisterNUICallback('close', function ()
+    print("TRIGGERED")
     SetDisplay(false)
 end)
 
 RegisterNUICallback('loadapps', function(data, cb)
     
+end)
+
+CreateThread(function ()
+    while display do
+        Wait(0)
+        DisableAllControlActions()
+    end
 end)

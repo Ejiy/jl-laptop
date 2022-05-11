@@ -4,27 +4,21 @@
 	import { onDestroy, onMount } from 'svelte';
 	import Desktop from './components/Desktop.svelte';
 	import { notifications } from "./store/notifications";
-	let active = false
+	let active = true
 	let toggleActive = (boolean) => {
 		active = boolean === undefined ? !active : boolean
 	}
 	let showRightside = false
-	let closeLaptop = async() => {
-		await axios.post('https://tnj-laptop/close', JSON.parse({}))
-		active = false
+	let closeLaptop = () => {
+		toggleActive(false)
+		fetch('https://tnj-laptop/close', {
+			method: 'POST',
+			body: JSON.stringify({}),
+			headers: {
+				"Content-type": "application/json"
+			}
+		}).catch()
 	}
-	// let addIcons = () => {
-	// 	apps.update((currentdata) => {
-	// 		let newvalue =   {
-	// 		name: "taxi",
-	// 		icon: "fa-solid fa-taxi",
-	// 		text: "Taxi",
-	// 		color: "#fff",
-	// 		background: "#000",
-	// 	}
-	// 		return [newvalue, ...currentdata]
-	// 	})
-	// }
 
 	onMount(() => {
 		console.log('mounted')
@@ -37,11 +31,8 @@
 
 	window.addEventListener('message', function (event) { 
 		switch(event.data.type) {
-			case 'open':
-				toggleActive(true);
-				break;
-			case 'close':
-				closeLaptop()
+			case 'toggle':
+				toggleActive(event.data.status);
 				break;
 		}
 	 })
@@ -55,10 +46,10 @@
 		if(data.repeat) return
 		switch(data.key) {
 			case "Escape":
-				if (active) toggleActive();
+				closeLaptop()
 				break;
 			case "Backspace":
-				if (active) toggleActive();
+				closeLaptop()
 				break;
 		}
 	}
