@@ -13,6 +13,7 @@
 html {
   overflow-y: hidden;
   overflow-x: hidden;
+  background-color: rgb(25, 27, 63);
 }
 
 ::-webkit-scrollbar {
