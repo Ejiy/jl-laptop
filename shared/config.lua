@@ -1,4 +1,9 @@
-Config = Config or {}
+Config = {}
+
+Config.PoliceJobs = {
+    "police",
+    "bcso"
+}
 
 Config.Apps = {
     ['boosting'] = {

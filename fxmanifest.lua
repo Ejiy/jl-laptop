@@ -4,11 +4,24 @@ game 'gta5'
 
 author 'T&J, JL, Fjamzoo and others'
 
+lua54 'yes' -- Add in case you want to use lua 5.4 (https://www.lua.org/manual/5.4/manual.html)
+
+shared_scripts {
+    'shared/config.lua',
+    'shared/boosting.lua'
+}
+
 client_scripts {
+    '@PolyZone/client.lua',
+    '@PolyZone/BoxZone.lua',
+    '@PolyZone/EntityZone.lua',
+    '@PolyZone/CircleZone.lua',
+    '@PolyZone/ComboZone.lua',
     'client/*.lua'
 }
 
 server_scripts {
+    '@oxmysql/lib/MySQL.lua',
     'server/*.lua'
 }
 
@@ -26,5 +39,3 @@ files {
     'web/public/build/bundle.js.map',
     'web/public/audio/*.ogg'
 }
-
-lua54 'yes'
