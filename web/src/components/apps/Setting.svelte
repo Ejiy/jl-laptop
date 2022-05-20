@@ -1,10 +1,7 @@
 <script>
-import Apps from "../../shared/Apps.svelte";
+  import Apps from "../../shared/Apps.svelte";
 </script>
 
-
 <Apps appname="setting">
-    <div class="body">
-        TEST
-    </div>
+  <div class="body">TEST</div>
 </Apps>

@@ -1,16 +1,12 @@
 <script>
-import Apps from "../../shared/Apps.svelte";
+  import Apps from "../../shared/Apps.svelte";
 
-let topdata = {
+  let topdata = {
     title: "Browser",
     color: "#1d2029",
-}
-
-
+  };
 </script>
 
-<Apps topdata={topdata} appname="browser">
-    <div class="body">
-        TEST
-    </div>
+<Apps {topdata} appname="browser">
+  <div class="body">TEST</div>
 </Apps>

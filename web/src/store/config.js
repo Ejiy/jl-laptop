@@ -22,22 +22,6 @@ export const config = writable({
 });
 
 export const apps = writable([
-  // {
-  //   name: "unknown",
-  //   icon: "fa-solid fa-mask",
-  //   text: "Unknown",
-  //   color: "#fff",
-  //   background: "#000",
-  //   isopen: false,
-  // },
-  // {
-  //   name: "darkweb",
-  //   icon: "fa-solid fa-user-secret",
-  //   text: "Darkweb",
-  //   color: "#fff",
-  //   background: "rgb(13, 32, 69)",
-  //   isopen: false,
-  // },
   {
     name: "boosting",
     icon: "fa-solid fa-bolt",

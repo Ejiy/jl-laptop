@@ -217,3 +217,8 @@ end)
 RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
     PlayerData.job = JobInfo
 end)
+
+-- NUI 
+RegisterNUICallback('boosting/queue', function (cb)
+    print(json.encode(cb))
+end)
