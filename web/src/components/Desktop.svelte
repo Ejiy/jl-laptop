@@ -2,12 +2,12 @@
   import { fly } from "svelte/transition";
   import Icons from "./Icons.svelte";
   import Notification from "./Notification.svelte";
-  import ShittyRightSide from "./ShittyRightSide.svelte";
+  import ShittyRightSide from "./RightSide.svelte";
   import Winmanager from "./Winmanager.svelte";
   import { apps } from "../store/config";
-  import { cubicIn, cubicInOut, cubicOut } from "svelte/easing";
+  import { cubicIn, cubicOut } from "svelte/easing";
 
-  // APP ZONE
+  // APP
   import Boosting from "./apps/Boosting.svelte";
   import Browser from "./apps/Browser.svelte";
 
@@ -57,7 +57,6 @@
     {/if}
   {/each}
   <Notification />
-  <!-- <Notification/> -->
   <ShittyRightSide {showRightside} />
   <Winmanager on:toggleRightside={toggleRightside} />
 </div>

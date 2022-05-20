@@ -35,16 +35,12 @@
       <span id="time">4:05 PM</span>
       <span id="date">5/3/2022</span>
     </div>
-    <!-- windows chat bubble -->
+
     <i
       class="fa-regular fa-message"
       style="cursor: pointer;"
       on:click={toggleRightside}
     />
-    <!-- 
-        <i class="fas fa-wifi"></i>
-        <i id="volume" class="fas fa-volume-up"></i>
-        <i class="fas fa-battery-half"></i> -->
   </div>
 </div>
 
