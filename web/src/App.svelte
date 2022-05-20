@@ -49,24 +49,8 @@
       case "Backspace":
         closeLaptop();
         break;
-      case "Enter":
-        toggleActive(true);
-        break;
     }
   };
-
-  function randomNotif() {
-    let randommessage = [
-      "The best part of marriage is animal crackers with peanut butter.",
-      "Happiness can be found in the depths of chocolate pudding.",
-      "There should have been a time and a place, but this wasn't it.",
-    ];
-    notifications.send(
-      randommessage[Math.floor(Math.random() * randommessage.length)],
-      "browser",
-      2000
-    );
-  }
 </script>
 
 <main>
