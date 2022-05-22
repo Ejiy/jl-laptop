@@ -1,5 +1,7 @@
 Config.Boosting = {}
 
+Config.Boosting.HackingDevice = "HackingDevice" -- Whatever item you use to hack a car with
+
 
 Config.Boosting.MinusOne = true -- true or false, detmains wheather the Z is minus 1 or not.
 Config.Boosting.Locations = {
@@ -12,7 +14,18 @@ Config.Boosting.Locations = {
             },
 
             isBusy = false
-        }
+        },
+
+        [2] = {
+            carCoords = vector4(-322.16, -752.79, 52.62, 162.03),
+
+            peds = {
+                [1] = {coords = vector4(-322.32, -775.02, 53.25, 42.39), health = 100, armor = 100, model = 'a_m_m_genfat_01', weapon = "weapon_bat"},
+                [2] = {coords = vector4(-324.21, -776.72, 53.25, 45.48), health = 100, armor = 100, model = 'a_m_m_genfat_01', weapon = "weapon_bat"},
+            },
+
+            isBusy = false
+        },
     },
 
     ["C"] = {

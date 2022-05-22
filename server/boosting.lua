@@ -61,7 +61,7 @@ local function SpawnCar(src, id)
 
 
         TriggerClientEvent('tnj-laptop:client:SyncPlates', -1, ActivePlates)
-        TriggerClientEvent('tnj-laptop:client:MissionStarted', src, currentRuns[CID].NetID, "D")
+        TriggerClientEvent('tnj-laptop:client:MissionStarted', src, currentRuns[CID].NetID, coords)
     end
 end
 
@@ -151,8 +151,6 @@ RegisterNetEvent('tnj-laptop:server:JoinQueue', function()
         skipped = 0,
         activeContracts = {}
     }
-
-
 end)
 
 
@@ -165,7 +163,7 @@ local function generateTier(src)
 
     print("stuck in loop")
 
-    -- We should also get their current metadata and based on their metadata increase this luck or even cap it so they cant get s+ if they just started
+    -- We should also get their current metadata and based on their metadata increase this luck or even cap it so they cant get s+ if they just startedt/
     if chance >= 99 then
         if boostData >= Config.Boosting.TiersPerRep["S"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
             tier = "S+"
@@ -182,7 +180,7 @@ local function generateTier(src)
         tier = "D"
     end
     print(MaxPools["D"], MaxPools["S"], MaxPools["S+"])
-    if MaxPools[tier] > 0 then
+    if MaxPools[tier] and MaxPools[tier] > 0 then
         MaxPools[tier] -= 1
         return tier
     else
@@ -216,7 +214,6 @@ end
 
 CreateThread(function()
     while true do
-        print(json.encode(LookingForContracts))
         if LookingForContracts then
             for k, v in pairs(LookingForContracts) do
                 if currentContracts[k] then

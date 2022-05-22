@@ -1,10 +1,10 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local display = false
+local PlayerData = {}
+local onDuty = false
 
 
 ---- ** Globalized Varaibles if we need them other parts of the client ** ----
-
-PlayerData = {}
 CurrentCops = 0
 
 
@@ -74,6 +74,19 @@ function haveItem(item) -- Trigger this like if haveItem("bread") then whatever 
     return hasItem
 end
 
+function isPolice()
+    local isPolice = false
+
+    local job = PlayerData.job.name
+    for i = 1, #Config.PoliceJobs do
+        if job == Config.PoliceJobs[i] then -- and onDuty didnt add this cuz testing
+            isPolice = true
+            break
+        end
+    end
+
+    return isPolice
+end
 
 
 
@@ -97,6 +110,10 @@ end)
 -- Everytime a cop goes on or off duty the cop count is updated.
 RegisterNetEvent('police:SetCopCount', function(amount)
     CurrentCops = amount
+end)
+
+RegisterNetEvent('QBCore:Client:SetDuty', function(duty)
+    onDuty = duty
 end)
 
 -- Handles state if resource is restarted live.

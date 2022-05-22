@@ -1,22 +1,12 @@
 local QBCore = exports['qb-core']:GetCoreObject()
-local PlayerData = {}
 local Contracts = {}
 local ActivePlates = {} -- Just using this for a quick check to see if a plate is already active on the client side to prevent server spam.
-local canHack = true
 local PZone = nil
-local AntiSpam = false
 local NetID = nil
+local missionBlip = nil
 local inZone = false
+local canHack = true
 
-
-local function isPolice()
-    local job = PlayerData.job.name
-    for i = 1, #Config.PoliceJobs do
-        if job == Config.PoliceJobs[i] then
-            return true
-        end
-    end
-end
 
 RegisterCommand('boost', function()
 
@@ -25,33 +15,13 @@ TriggerServerEvent('tnj-laptop:server:StartBoosting', 1)
 end, false)
 
 RegisterCommand('queue', function()
-    
+
     TriggerServerEvent('tnj-laptop:server:JoinQueue')
-    
+
 end, false)
 
-RegisterNetEvent('tnj-laptop:client:MissionStarted', function(netID) -- Pretty much just resets every boolean to make sure no issues will occour.
-    NetID = netID
-    AntiSpam = false
-    canHack = true
-    PZone = nil
-    inZone = false
-end)
 
-RegisterNetEvent('tnj-laptop:client:ReturnCar', function(coords)
-    PZone = CircleZone:Create(coords, 5, {
-        name = "NewChopShopWhoDis",
-        debugPoly = true,
-    })
-    
-    PZone:onPlayerInOut(function(isPointInside)
-        if isPointInside then
-            inZone = true
-        else
-            inZone = false
-        end
-    end)
-end)
+---- ** Local functions ** ----
 
 local function HackDelay(seconds)
     canHack = false
@@ -81,6 +51,7 @@ local function UpdateBlips()
                     -- return and cancel job as they failed and pd got them
                 end
             end
+
             TriggerServerEvent('tnj-laptop:server:SyncBlips', nil, Plate)
             TriggerServerEvent('tnj-laptop:server:FinalDestination')
             QBCore.Functions.Notify('Successfully removed tracker', 'success', 7500)
@@ -88,41 +59,83 @@ local function UpdateBlips()
     end
 end
 
+---- ** Register Net Events ** ----
+
+-- Sends information from server to client that it will start now
+RegisterNetEvent('tnj-laptop:client:MissionStarted', function(netID, coords) -- Pretty much just resets every boolean to make sure no issues will occour.
+    NetID = netID
+    AntiSpam = false
+    canHack = true
+    inZone = false
+
+    if PZone then PZone:destroy() PZone = nil end
+
+    if missionBlip then RemoveBlip(missionBlip) end
+
+    if coords then
+        missionBlip = AddBlipForRadius(coords.x, coords.y, coords.z, 35.0)
+        SetBlipHighDetail(missionBlip, true)
+        SetBlipColour(missionBlip, 1)
+        SetBlipAsShortRange(missionBlip, true)
+    end
+end)
+
+-- sends information from server to client that we found the car and we started lockpicking
+local AntiSpam = false -- Just a true / false boolean to not spam the shit out of the server.
 RegisterNetEvent('lockpicks:UseLockpick', function()
-    if NetID and DoesEntityExist(NetworkGetEntityFromNetworkId(NetID)) and not AntiSpam then
+    if AntiSpam then return end
+    if NetID and DoesEntityExist(NetworkGetEntityFromNetworkId(NetID)) then
         local carSpawned = NetworkGetEntityFromNetworkId(NetID)
         local dist = #(GetEntityCoords(carSpawned) - GetEntityCoords(PlayerPedId()))
-        if dist <= 3 then
+        if dist <= 2.5 then -- 2.5 is the distance in qbcore vehiclekeys if you use more or less then please edit this.
             TriggerServerEvent('tnj-laptop:server:SpawnPed')
             AntiSpam = true
+            RemoveBlip(missionBlip)
             AlertPoPo(GetEntityCoords(carSpawned))
             UpdateBlips()
         end
     end
 end)
 
-RegisterNetEvent('tnj-laptop:client:HackCar', function()
-    local ped = PlayerPedId()
-    if IsPedInAnyVehicle(ped, false) then
-        local vehicle = GetVehiclePedIsIn(ped, false)
-        local plate = GetVehicleNumberPlateText(vehicle)
-        print(ActivePlates[plate])
-        if ActivePlates[plate] and ActivePlates[plate] > 0 and canHack then
-            local success = exports['boostinghack']:StartHack()
-            if success then
-                TriggerServerEvent('tnj-laptop:server:SyncPlates', true)
-            else
-                QBCore.Functions.Notify('You failed nuub :)', 'error', 7500)
-            end
+-- Creates the PolyZone for when you return the car.
+RegisterNetEvent('tnj-laptop:client:ReturnCar', function(coords)
+    PZone = CircleZone:Create(coords, 5, {
+        name = "NewChopShopWhoDis",
+        debugPoly = true,
+    })
+
+    PZone:onPlayerInOut(function(isPointInside)
+        if isPointInside then
+            inZone = true
+        else
+            inZone = false
         end
-    end
+    end)
 end)
 
+-- The event where you can start to hack the vehicle
+RegisterNetEvent('tnj-laptop:client:HackCar', function()
+    local ped = PlayerPedId()
+    --if haveItem(Config.Boosting.HackingDevice) then
+        if IsPedInAnyVehicle(ped, false) then
+            local vehicle = GetVehiclePedIsIn(ped, false)
+            local plate = GetVehicleNumberPlateText(vehicle)
+            print(ActivePlates[plate])
+            if ActivePlates[plate] and ActivePlates[plate] > 0 and canHack then
+                local success = exports['boostinghack']:StartHack()
+                if success then
+                    TriggerServerEvent('tnj-laptop:server:SyncPlates', true)
+                else
+                    QBCore.Functions.Notify('You failed nuub :)', 'error', 7500)
+                end
+            end
+        end
+    --end
+end)
+
+-- Gets the ped from the server side and then gives them tasks and weapons on the client side.
 RegisterNetEvent('tnj-laptop:client:SpawnPeds', function(netIds, Location)
-    print(json.encode(netIds))
     for i = 1, #netIds do
-        print(netIds[i])
-        print(Location.carCoords.x, Location.carCoords.y, Location.carCoords.z)
         local APed = NetworkGetEntityFromNetworkId(netIds[i])
         SetPedDropsWeaponsWhenDead(APed, false)
         GiveWeaponToPed(APed, joaat(Location.peds[i].weapon), 250, false, true)
@@ -143,12 +156,39 @@ RegisterNetEvent('tnj-laptop:client:SpawnPeds', function(netIds, Location)
 end)
 
 
----- ALL THE SYNCS ----
+-- Sennds a event from target to client to say now the vehicle has been delivered.
+RegisterNetEvent('tnj-laptop:client:DeliverVehicle', function()
+    local car = NetworkGetEntityFromNetworkId(NetID)
+    FreezeEntityPosition(car, true)
+    PZone:destroy()
+    PZone = nil
+    Wait(5000)
+    QBCore.Functions.DeleteVehicle(car)
+end)
 
+exports['qb-target']:AddGlobalVehicle({
+    options = {
+        {
+        type = "client",
+        event = "tnj-laptop:client:DeliverVehicle",
+        icon = 'fas fa-example',
+        label = 'Turn in Vehicle',
+        canInteract = function(entity)
+            if inZone and entity == NetworkGetEntityFromNetworkId(NetID) then return true end
+        end,
+        }
+    },
+    distance = 2.5, -- This is the distance for you to be at for the target to turn blue, this is in GTA units and has to be a float value
+})
+
+
+---- ALL THE SYNCS ----
+-- This sync just makes it so anyone can hack a vehicle, that is hackable from boosting
 RegisterNetEvent('tnj-laptop:client:SyncPlates', function(data)
     ActivePlates = data
 end)
 
+-- Sends the information to client when their contracts update
 RegisterNetEvent('tnj-laptop:client:recieveContract', function(table)
     QBCore.Functions.Notify('You recieved a new contract!', 'success', 7500)
     Contracts = table
@@ -157,13 +197,14 @@ RegisterNetEvent('tnj-laptop:client:recieveContract', function(table)
 
 end)
 
---RegisterNetEvent()
+local blips = {} -- Stores all the blips in a table so that PD can see multiple blips at the same time
 
-local blips = {}
+-- The event that does everything for the blips, checks if the client is police then checks if the blip is active and if it is then remove it and spawn a new
 RegisterNetEvent('tnj-laptop:client:SyncBlips', function(coords, plate)
-    if blips[plate] then
-        RemoveBlip(blips[plate])
-    end
+    if not isPolice() then return end
+
+    if blips[plate] then RemoveBlip(blips[plate]) end
+
     if coords then
         blips[plate] = AddBlipForRadius(coords.x, coords.y, coords.z, 35.0)
         SetBlipHighDetail(blips[plate], true)
@@ -172,53 +213,9 @@ RegisterNetEvent('tnj-laptop:client:SyncBlips', function(coords, plate)
     end
 end)
 
-RegisterNetEvent('tnj-laptop:client:DeliverVehicle', function()
-    local car = NetworkGetEntityFromNetworkId(NetID)
-    FreezeEntityPosition(car, true)
-    PZone:destroy()
-    Wait(5000)
-    QBCore.Functions.DeleteVehicle(car)
-end)
-
-CreateThread(function()
-    exports['qb-target']:AddGlobalVehicle({
-    options = {
-        {
-        type = "client",
-        event = "tnj-laptop:client:DeliverVehicle",
-        icon = 'fas fa-example',
-        label = 'Turn in Vehicle',
-        canInteract = function(entity, distance, data)
-            if inZone and entity == NetworkGetEntityFromNetworkId(NetID) then return true end
-        end,
-        }
-    },
-    distance = 2.5, -- This is the distance for you to be at for the target to turn blue, this is in GTA units and has to be a float value
-    })
-end)
 
 
-
-
------ ** all the playerdata shit ** -----
-
-
--- Sets the playerdata when spawned
-RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    PlayerData = QBCore.Functions.GetPlayerData()
-end)
-
--- Sets the playerdata to an empty table when the player has quit or did /logout
-RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
-    PlayerData = {}
-end)
-
--- When the players job gets updated this will trigger and update the playerdata
-RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
-    PlayerData.job = JobInfo
-end)
-
--- NUI 
+---- ** NUI CALLBACKS ** ----
 RegisterNUICallback('boosting/queue', function (cb)
     print(json.encode(cb))
 end)
