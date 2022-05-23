@@ -10,13 +10,13 @@ local canHack = true
 
 RegisterCommand('boost', function()
 
-TriggerServerEvent('tnj-laptop:server:StartBoosting', 1)
+    TriggerServerEvent('ps-laptop:server:StartBoosting', 1)
 
 end, false)
 
 RegisterCommand('queue', function()
 
-    TriggerServerEvent('tnj-laptop:server:JoinQueue')
+    TriggerServerEvent('ps-laptop:server:JoinQueue')
 
 end, false)
 
@@ -44,7 +44,7 @@ local function UpdateBlips()
                     Wait(10000 / ActivePlates[Plate]) -- Max 10 seconds, the more times hacked the less time it updates
                     local pos = GetEntityCoords(car)
 
-                    TriggerServerEvent('tnj-laptop:server:SyncBlips', pos, Plate)
+                    TriggerServerEvent('ps-laptop:server:SyncBlips', pos, Plate)
                 else
                     Wait(25)
 
@@ -52,8 +52,8 @@ local function UpdateBlips()
                 end
             end
 
-            TriggerServerEvent('tnj-laptop:server:SyncBlips', nil, Plate)
-            TriggerServerEvent('tnj-laptop:server:FinalDestination')
+            TriggerServerEvent('ps-laptop:server:SyncBlips', nil, Plate)
+            TriggerServerEvent('ps-laptop:server:FinalDestination')
             QBCore.Functions.Notify('Successfully removed tracker', 'success', 7500)
         end)
     end
@@ -62,7 +62,7 @@ end
 ---- ** Register Net Events ** ----
 
 -- Sends information from server to client that it will start now
-RegisterNetEvent('tnj-laptop:client:MissionStarted', function(netID, coords) -- Pretty much just resets every boolean to make sure no issues will occour.
+RegisterNetEvent('ps-laptop:client:MissionStarted', function(netID, coords) -- Pretty much just resets every boolean to make sure no issues will occour.
     NetID = netID
     AntiSpam = false
     canHack = true
@@ -88,7 +88,7 @@ RegisterNetEvent('lockpicks:UseLockpick', function()
         local carSpawned = NetworkGetEntityFromNetworkId(NetID)
         local dist = #(GetEntityCoords(carSpawned) - GetEntityCoords(PlayerPedId()))
         if dist <= 2.5 then -- 2.5 is the distance in qbcore vehiclekeys if you use more or less then please edit this.
-            TriggerServerEvent('tnj-laptop:server:SpawnPed')
+            TriggerServerEvent('ps-laptop:server:SpawnPed')
             AntiSpam = true
             RemoveBlip(missionBlip)
             AlertPoPo(GetEntityCoords(carSpawned))
@@ -98,7 +98,7 @@ RegisterNetEvent('lockpicks:UseLockpick', function()
 end)
 
 -- Creates the PolyZone for when you return the car.
-RegisterNetEvent('tnj-laptop:client:ReturnCar', function(coords)
+RegisterNetEvent('ps-laptop:client:ReturnCar', function(coords)
     PZone = CircleZone:Create(coords, 5, {
         name = "NewChopShopWhoDis",
         debugPoly = true,
@@ -114,27 +114,27 @@ RegisterNetEvent('tnj-laptop:client:ReturnCar', function(coords)
 end)
 
 -- The event where you can start to hack the vehicle
-RegisterNetEvent('tnj-laptop:client:HackCar', function()
+RegisterNetEvent('ps-laptop:client:HackCar', function()
     local ped = PlayerPedId()
     --if haveItem(Config.Boosting.HackingDevice) then
-        if IsPedInAnyVehicle(ped, false) then
-            local vehicle = GetVehiclePedIsIn(ped, false)
-            local plate = GetVehicleNumberPlateText(vehicle)
-            print(ActivePlates[plate])
-            if ActivePlates[plate] and ActivePlates[plate] > 0 and canHack then
-                local success = exports['boostinghack']:StartHack()
-                if success then
-                    TriggerServerEvent('tnj-laptop:server:SyncPlates', true)
-                else
-                    QBCore.Functions.Notify('You failed nuub :)', 'error', 7500)
-                end
+    if IsPedInAnyVehicle(ped, false) then
+        local vehicle = GetVehiclePedIsIn(ped, false)
+        local plate = GetVehicleNumberPlateText(vehicle)
+        print(ActivePlates[plate])
+        if ActivePlates[plate] and ActivePlates[plate] > 0 and canHack then
+            local success = exports['boostinghack']:StartHack()
+            if success then
+                TriggerServerEvent('ps-laptop:server:SyncPlates', true)
+            else
+                QBCore.Functions.Notify('You failed nuub :)', 'error', 7500)
             end
         end
+    end
     --end
 end)
 
 -- Gets the ped from the server side and then gives them tasks and weapons on the client side.
-RegisterNetEvent('tnj-laptop:client:SpawnPeds', function(netIds, Location)
+RegisterNetEvent('ps-laptop:client:SpawnPeds', function(netIds, Location)
     for i = 1, #netIds do
         local APed = NetworkGetEntityFromNetworkId(netIds[i])
         SetPedDropsWeaponsWhenDead(APed, false)
@@ -157,7 +157,7 @@ end)
 
 
 -- Sennds a event from target to client to say now the vehicle has been delivered.
-RegisterNetEvent('tnj-laptop:client:DeliverVehicle', function()
+RegisterNetEvent('ps-laptop:client:DeliverVehicle', function()
     local car = NetworkGetEntityFromNetworkId(NetID)
     FreezeEntityPosition(car, true)
     PZone:destroy()
@@ -169,13 +169,13 @@ end)
 exports['qb-target']:AddGlobalVehicle({
     options = {
         {
-        type = "client",
-        event = "tnj-laptop:client:DeliverVehicle",
-        icon = 'fas fa-example',
-        label = 'Turn in Vehicle',
-        canInteract = function(entity)
-            if inZone and entity == NetworkGetEntityFromNetworkId(NetID) then return true end
-        end,
+            type = "client",
+            event = "ps-laptop:client:DeliverVehicle",
+            icon = 'fas fa-example',
+            label = 'Turn in Vehicle',
+            canInteract = function(entity)
+                if inZone and entity == NetworkGetEntityFromNetworkId(NetID) then return true end
+            end,
         }
     },
     distance = 2.5, -- This is the distance for you to be at for the target to turn blue, this is in GTA units and has to be a float value
@@ -184,27 +184,27 @@ exports['qb-target']:AddGlobalVehicle({
 
 ---- ALL THE SYNCS ----
 -- This sync just makes it so anyone can hack a vehicle, that is hackable from boosting
-RegisterNetEvent('tnj-laptop:client:SyncPlates', function(data)
+RegisterNetEvent('ps-laptop:client:SyncPlates', function(data)
     ActivePlates = data
 end)
 
 -- Sends the information to client when their contracts update
-RegisterNetEvent('tnj-laptop:client:recieveContract', function(table)
+RegisterNetEvent('ps-laptop:client:recieveContract', function(table)
     QBCore.Functions.Notify('You recieved a new contract!', 'success', 7500)
     Contracts = table
-
     print(json.encode(Contracts))
-
+    SendNUIMessage({
+        type = 'receivecontracts',
+        contracts = table
+    })
 end)
 
 local blips = {} -- Stores all the blips in a table so that PD can see multiple blips at the same time
 
 -- The event that does everything for the blips, checks if the client is police then checks if the blip is active and if it is then remove it and spawn a new
-RegisterNetEvent('tnj-laptop:client:SyncBlips', function(coords, plate)
+RegisterNetEvent('ps-laptop:client:SyncBlips', function(coords, plate)
     if not isPolice() then return end
-
     if blips[plate] then RemoveBlip(blips[plate]) end
-
     if coords then
         blips[plate] = AddBlipForRadius(coords.x, coords.y, coords.z, 35.0)
         SetBlipHighDetail(blips[plate], true)
@@ -216,6 +216,10 @@ end)
 
 
 ---- ** NUI CALLBACKS ** ----
-RegisterNUICallback('boosting/queue', function (cb)
-    print(json.encode(cb))
+RegisterNUICallback('boosting/queue', function(cb)
+    TriggerServerEvent('ps-laptop:server:JoinQueue', cb.status)
+end)
+
+RegisterNUICallback('boosting/start', function(id)
+    TriggerServerEvent('ps-laptop:server:StartBoosting', 1)
 end)

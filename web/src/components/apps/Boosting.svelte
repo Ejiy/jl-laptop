@@ -5,15 +5,18 @@
   import Progressbar from "../../shared/Progressbar.svelte";
   import { cubicOut } from "svelte/easing";
   import Modal from "../../shared/Modal.svelte";
-  import { contracts, saledcontracts } from "../../store/boosting";
+  import {
+    contracts,
+    saledcontracts,
+    queue,
+    started,
+  } from "../../store/boosting";
   import { notifications } from "../../store/notifications";
-  import { dataset_dev } from "svelte/internal";
+
   let topdata = {
     title: "Car Boosting",
     color: "#2b2d42",
   };
-
-  let joinqueue = false;
 
   let pages = ["My Contracts", "Buy Contracts"];
 
@@ -21,6 +24,7 @@
 
   let color = {
     ["S+"]: "#ff9800",
+    ["D"]: "#4caf50",
   };
   let handleRemove = (e, id) => {
     contracts.update((c) => c.filter((n) => n.id !== id));
@@ -31,13 +35,37 @@
     iswaiting = true;
     setTimeout(() => {
       iswaiting = false;
-      joinqueue = !joinqueue;
-      if (joinqueue) {
+      $queue = !$queue;
+      if ($queue) {
         notifications.send("You have joined the queue", "boosting", 5000);
       } else {
         notifications.send("You have left the queue", "boosting", 5000);
       }
+      fetch("https://ps-laptop/boosting/queue", {
+        method: "POST",
+        body: JSON.stringify({
+          status: $queue,
+        }),
+        headers: {
+          "Content-type": "application/json",
+        },
+      });
     }, 2000);
+  };
+
+  let startContract = (id) => {
+    if ($started) return;
+    fetch("https://ps-laptop/boosting/start", {
+      method: "POST",
+      body: JSON.stringify({
+        id: id,
+      }),
+      headers: {
+        "Content-type": "application/json",
+      },
+    });
+    started.set(true);
+    notifications.send("You just started a contract", "boosting", 5000);
   };
 
   let iswaiting = false;
@@ -71,7 +99,7 @@
           {#if iswaiting}
             <i class="fas fa-regular fa-circle-notch fa-spin" />
           {:else}
-            {joinqueue ? "Leave Queue" : "Join Queue"}
+            {$queue ? "Leave Queue" : "Join Queue"}
           {/if}
         </button>
       </div>
@@ -99,27 +127,33 @@
                 <div class="first-data">
                   <div class="boost-type">
                     Boost Type : <span
-                      style="color: {color[contract.data.boost.type]};"
-                      >{contract.data.boost.type}</span
+                      style="color: {color[contract.contract]};"
+                      >{contract.contract}</span
                     >
                   </div>
                   <div class="boost-owner">
-                    Owner : {contract.owner.name}
+                    Owner : {contract.owner}
                   </div>
                 </div>
                 <div class="second-data">
                   <div class="vehicle">
-                    <p>Vehicle : {contract.data.model}</p>
+                    <p>Vehicle : {contract.car}</p>
                     <p>
-                      Expires in : <span class="expire"
-                        >{contract.data.expire}</span
-                      >
+                      Expires in : <span class="expire">{contract.expire}</span>
                     </p>
                   </div>
                 </div>
               </div>
               <div class="control">
-                <button class="green"> Start Contract </button>
+                <button
+                  class="green"
+                  class:active={$started}
+                  on:click={() => {
+                    startContract(contract.id);
+                  }}
+                >
+                  Start Contract
+                </button>
                 <button
                   class="red"
                   on:click={(e) => {

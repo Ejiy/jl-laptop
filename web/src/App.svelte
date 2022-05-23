@@ -2,6 +2,7 @@
   import axios from "axios";
   import { onDestroy, onMount } from "svelte";
   import Desktop from "./components/Desktop.svelte";
+  import { contracts } from "./store/boosting";
   import { notifications } from "./store/notifications";
   let active = false;
   let toggleActive = (boolean) => {
@@ -27,10 +28,18 @@
     showRightside = e.detail;
   };
 
+  let HandleNewContracts = (table) => {
+    contracts.set([table[0], ...$contracts]);
+    console.log($contracts);
+  };
+
   window.addEventListener("message", function (event) {
     switch (event.data.type) {
       case "toggle":
         toggleActive(event.data.status);
+        break;
+      case "receivecontracts":
+        HandleNewContracts(event.data.contracts);
         break;
     }
   });

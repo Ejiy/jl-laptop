@@ -36,7 +36,7 @@ RegisterCommand('openlaptop', function ()
     SetDisplay(not display)
 end)
 
-RegisterNetEvent('tnj-laptop:client:openlaptop', function ()
+RegisterNetEvent('ps-laptop:client:openlaptop', function ()
     SetDisplay(true)
 end)
 

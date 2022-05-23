@@ -60,8 +60,8 @@ local function SpawnCar(src, id)
         currentRuns[CID].NetID = NetworkGetNetworkIdFromEntity(car)
 
 
-        TriggerClientEvent('tnj-laptop:client:SyncPlates', -1, ActivePlates)
-        TriggerClientEvent('tnj-laptop:client:MissionStarted', src, currentRuns[CID].NetID, coords)
+        TriggerClientEvent('ps-laptop:client:SyncPlates', -1, ActivePlates)
+        TriggerClientEvent('ps-laptop:client:MissionStarted', src, currentRuns[CID].NetID, coords)
     end
 end
 
@@ -69,27 +69,25 @@ QBCore.Functions.CreateUseableItem("hack", function(source, item)
     local Player = QBCore.Functions.GetPlayer(source)
     if Player.Functions.GetItemByName("hack") ~= nil then
         print("ok?")
-        TriggerClientEvent('tnj-laptop:client:HackCar', source)
+        TriggerClientEvent('ps-laptop:client:HackCar', source)
     end
 end)
 
-RegisterNetEvent('tnj-laptop:server:FinalDestination', function()
+RegisterNetEvent('ps-laptop:server:FinalDestination', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local CID = Player.PlayerData.citizenid
     if currentRuns[CID] and not currentRuns[CID].dropOff then
-        TriggerClientEvent('tnj-laptop:client:ReturnCar', src, GetRandomDropOff())
+        TriggerClientEvent('ps-laptop:client:ReturnCar', src, GetRandomDropOff())
     end
 end)
 
-RegisterNetEvent('tnj-laptop:server:StartBoosting', function(id)
+RegisterNetEvent('ps-laptop:server:StartBoosting', function(id)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local CID = Player.PlayerData.citizenid
-
     if currentRuns[CID] then return end
     if not currentContracts[CID][id] then return end
-
     currentRuns[CID] = {
         Location = GerRandomLocation(currentContracts[CID][id].contract),
         dropOff = nil,
@@ -97,12 +95,11 @@ RegisterNetEvent('tnj-laptop:server:StartBoosting', function(id)
         NetID = nil,
         PedSpawned = false,
     }
-
     SpawnCar(src, id)
 end)
 
 
-RegisterNetEvent('tnj-laptop:server:SpawnPed', function()
+RegisterNetEvent('ps-laptop:server:SpawnPed', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local CID = Player.PlayerData.citizenid
@@ -121,36 +118,40 @@ RegisterNetEvent('tnj-laptop:server:SpawnPed', function()
     Wait(300)
     print(json.encode(netIds))
 
-    TriggerClientEvent('tnj-laptop:client:SpawnPeds', src, netIds, currentRuns[CID].Location)
+    TriggerClientEvent('ps-laptop:client:SpawnPeds', src, netIds, currentRuns[CID].Location)
 end)
 
 
-RegisterNetEvent('tnj-laptop:server:SyncBlips', function(coords, plate)
+RegisterNetEvent('ps-laptop:server:SyncBlips', function(coords, plate)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local CID = Player.PlayerData.citizenid
 
 
     if currentRuns[CID] and currentRuns[CID].PedSpawned and currentRuns[CID].NetID then
-        TriggerClientEvent('tnj-laptop:client:SyncBlips', -1, coords, plate)
+        TriggerClientEvent('ps-laptop:client:SyncBlips', -1, coords, plate)
     end
 end)
 
 
 ----- ** Generate Contract things ** -----
 
-RegisterNetEvent('tnj-laptop:server:JoinQueue', function()
+RegisterNetEvent('ps-laptop:server:JoinQueue', function(status)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local CID = Player.PlayerData.citizenid
-    if not LookingForContracts[CID] then LookingForContracts[CID] = {} end
-    if not currentContracts[CID] then currentContracts[CID] = {} end
-
-    LookingForContracts[CID] = {
-        src = src,
-        skipped = 0,
-        activeContracts = {}
-    }
+    if status then
+        if not LookingForContracts[CID] then LookingForContracts[CID] = {} end
+        if not currentContracts[CID] then currentContracts[CID] = {} end
+        LookingForContracts[CID] = {
+            src = src,
+            skipped = 0,
+            activeContracts = {}
+        }
+    else
+        LookingForContracts[CID] = nil
+    end
+    
 end)
 
 
@@ -201,12 +202,14 @@ local function generateContract(src)
     local contract = generateTier(src)
     if contract then
         currentContracts[CID][#currentContracts[CID]+1] = {
+            id = math.floor(math.random(4, 6000)),
             contract = contract,
             car = generateCar(contract),
+            expire = "69 Hours",
+            owner = "PS"
         }
         LookingForContracts[CID].skipped = 0
-
-        TriggerClientEvent('tnj-laptop:client:recieveContract', src, currentContracts[CID])
+        TriggerClientEvent('ps-laptop:client:recieveContract', src, currentContracts[CID])
     else
         LookingForContracts[CID].skipped += 1
     end
