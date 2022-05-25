@@ -189,8 +189,13 @@ RegisterNetEvent('ps-laptop:client:SyncPlates', function(data)
 end)
 
 -- Sends the information to client when their contracts update
-RegisterNetEvent('ps-laptop:client:recieveContract', function(table)
-    QBCore.Functions.Notify('You recieved a new contract!', 'success', 7500)
+RegisterNetEvent('ps-laptop:client:recieveContract', function(table, recieved)
+    if recieved then
+        QBCore.Functions.Notify('You recieved a new contract!', 'success', 7500)
+    else
+        QBCore.Functions.Notify('Contract started!', 'success', 7500)
+    end
+
     Contracts = table
     print(json.encode(Contracts))
     SendNUIMessage({
@@ -214,12 +219,13 @@ RegisterNetEvent('ps-laptop:client:SyncBlips', function(coords, plate)
 end)
 
 
-
 ---- ** NUI CALLBACKS ** ----
 RegisterNUICallback('boosting/queue', function(cb)
     TriggerServerEvent('ps-laptop:server:JoinQueue', cb.status)
 end)
 
-RegisterNUICallback('boosting/start', function(id)
-    TriggerServerEvent('ps-laptop:server:StartBoosting', 1)
+RegisterNUICallback('boosting/start', function(data, cb)
+    print(data.id)
+    TriggerServerEvent('ps-laptop:server:StartBoosting', data.id)
+    cb("ok")
 end)

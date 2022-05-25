@@ -6,6 +6,10 @@ local ActivePlates = {} -- Handle all the active plates and syncs all the data s
 local currentContracts = {}
 local LookingForContracts = {}
 
+local function generateName()
+    return Config.Boosting.RandomNames[math.random(1, #Config.Boosting.RandomNames)]
+end
+
 local function GerRandomLocation(Tier)
     local Locations = {}
     for i = 1, #Config.Boosting.Locations[Tier] do
@@ -28,6 +32,16 @@ local function GetRandomDropOff()
     return Config.Boosting.ReturnLocation[Locations[math.random(1, #Locations)]].coords
 end
 
+local function canScratch()
+    local scratch = false
+
+    if math.random() <= 100 then
+        scratch = true
+    end
+
+    return scratch
+end
+
 local function GeneratePlate() -- Just makes sure we generate plates noone owns.
     local plate = QBCore.Shared.RandomInt(1) .. QBCore.Shared.RandomStr(2) .. QBCore.Shared.RandomInt(3) .. QBCore.Shared.RandomStr(2)
     local result = MySQL.Sync.fetchScalar('SELECT plate FROM player_vehicles WHERE plate = ?', {plate})
@@ -38,10 +52,10 @@ local function GeneratePlate() -- Just makes sure we generate plates noone owns.
     end
 end
 
-local function SpawnCar(src, id)
+local function SpawnCar(src)
     local Player = QBCore.Functions.GetPlayer(src)
     local CID = Player.PlayerData.citizenid
-    local carModel = currentContracts[CID][id].car
+    local carModel = currentRuns[CID].car
     local coords = currentRuns[CID].Location.carCoords
 
     local CreateAutomobile = joaat('CREATE_AUTOMOBILE')
@@ -88,14 +102,24 @@ RegisterNetEvent('ps-laptop:server:StartBoosting', function(id)
     local CID = Player.PlayerData.citizenid
     if currentRuns[CID] then return end
     if not currentContracts[CID][id] then return end
+
+
     currentRuns[CID] = {
         Location = GerRandomLocation(currentContracts[CID][id].contract),
+        car = currentContracts[CID][id].car,
         dropOff = nil,
         Plate = nil,
         NetID = nil,
         PedSpawned = false,
     }
-    SpawnCar(src, id)
+
+
+    --table.remove(currentContracts[CID], id) If i remove the contract the laptop errors out please fix this JustLazzy :sadge:
+    --TriggerClientEvent('ps-laptop:client:recieveContract', src, currentContracts[CID], false)
+
+
+
+    SpawnCar(src)
 end)
 
 
@@ -151,7 +175,7 @@ RegisterNetEvent('ps-laptop:server:JoinQueue', function(status)
     else
         LookingForContracts[CID] = nil
     end
-    
+
 end)
 
 
@@ -202,14 +226,15 @@ local function generateContract(src)
     local contract = generateTier(src)
     if contract then
         currentContracts[CID][#currentContracts[CID]+1] = {
-            id = math.floor(math.random(4, 6000)),
+            id = #currentContracts[CID]+1,
             contract = contract,
             car = generateCar(contract),
-            expire = "69 Hours",
-            owner = "PS"
+            expire = os.time(),
+            owner = generateName(),
+            vinscratch = canScratch()
         }
         LookingForContracts[CID].skipped = 0
-        TriggerClientEvent('ps-laptop:client:recieveContract', src, currentContracts[CID])
+        TriggerClientEvent('ps-laptop:client:recieveContract', src, currentContracts[CID], true)
     else
         LookingForContracts[CID].skipped += 1
     end
@@ -234,5 +259,16 @@ CreateThread(function()
             end
         end
         Wait(5 * 1000) -- Once every minute
+    end
+end)
+
+CreateThread(function()
+    while true do
+        if currentContracts then
+            for k, v in pairs(currentContracts) do
+                -- look for shit that has expired and delete them
+            end
+        end
+        Wait(60*1000) -- Once a hour
     end
 end)

@@ -54,7 +54,7 @@ Config.Boosting.Locations = {
 }
 
 Config.Boosting.MaxPools = {
-    ["D"] = 1,
+    ["D"] = 5,
     ["C"] = 1,
     ["B"] = 1,
     ["A"] = 1,
@@ -71,6 +71,15 @@ Config.Boosting.TiersPerRep = {
     ["A+"] = 40,
     ["S"] = 50,
     ["S+"] = 60,
+}
+
+Config.Boosting.RandomNames = {
+    "Peter Parker",
+    "XgamerX",
+    "Justin Bieber",
+    "Just Lazzy",
+    "Drake",
+    "Zooster"
 }
 
 Config.Boosting.Vehicles = {

@@ -49,14 +49,6 @@ RegisterNUICallback('loadapps', function(data, cb)
 
 end)
 
-CreateThread(function()
-    while display do
-        Wait(0)
-        DisableAllControlActions()
-    end
-end)
-
-
 
 ---- ** Globalized functions if we need them other parts of the client ** ----
 
