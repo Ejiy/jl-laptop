@@ -2,7 +2,7 @@ import { writable } from "svelte/store";
 
 interface contracts {
   id: number;
-  contractc: string;
+  contract: string;
   car: string;
   expire: number;
   owner: string;
@@ -18,6 +18,7 @@ let contractsStore: any;
 const contractSubscribe = contracts.subscribe((v) => {
   contractsStore = v;
 });
+
 export function handleContracts(data: string[]) {
   contracts.set([data[0], ...contractsStore]);
 }
