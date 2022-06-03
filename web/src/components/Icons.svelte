@@ -1,23 +1,11 @@
-<script>
-  import { apps } from "../store/config";
+<script lang="ts">
+  import { apps } from "../store/desktop";
   import { flip } from "svelte/animate";
   import { fade } from "svelte/transition";
   import { createEventDispatcher } from "svelte";
   const dispatch = createEventDispatcher();
-  let openApp = (app) => {
+  let openApp = (app: string) => {
     dispatch("openApp", app);
-  };
-
-  let iconExist = async (app) => {
-    const image_url = "./images/apps/" + app + ".png";
-    const image = new Image();
-    image.onload = () => {
-      return true;
-    };
-    image.onerror = () => {
-      return false;
-    };
-    image.src = image_url;
   };
 </script>
 

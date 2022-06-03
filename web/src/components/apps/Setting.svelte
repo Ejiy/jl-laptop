@@ -1,5 +1,5 @@
 <script>
-  import Apps from "../../shared/Apps.svelte";
+  import Apps from "../../providers/Apps.svelte";
 </script>
 
 <Apps appname="setting">

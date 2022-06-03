@@ -1,6 +1,26 @@
 import { writable } from "svelte/store";
 
-export const contracts = writable([]);
+interface contracts {
+  id: number;
+  contractc: string;
+  car: string;
+  expire: number;
+  owner: string;
+  vinscratch: boolean;
+}
+
+const contract: contracts[] = [];
+
+export const contracts = writable(contract);
+
+let contractsStore: any;
+
+const contractSubscribe = contracts.subscribe((v) => {
+  contractsStore = v;
+});
+export function handleContracts(data: string[]) {
+  contracts.set([data[0], ...contractsStore]);
+}
 
 export const queue = writable(false);
 

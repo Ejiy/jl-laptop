@@ -6,9 +6,6 @@
     showRightside = !showRightside;
     dispatcher("toggleRightside", showRightside);
   };
-  let shit = () => {
-    console.log("shit");
-  };
   let showsetting = false;
   let showingSetting = () => {
     showsetting = !showsetting;
@@ -84,7 +81,6 @@
     bottom: 0;
     background: rgba(75, 77, 91, 0.353);
     backdrop-filter: blur(10px);
-    /* border-top: 1px solid rgba(28, 27, 27, 0.3); */
     display: flex;
     bottom: 0;
     overflow-y: hidden;

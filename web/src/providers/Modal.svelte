@@ -1,6 +1,6 @@
-<script>
-  import { fade, fly, scale } from "svelte/transition";
-  import { cubicIn, cubicInOut, cubicOut, elasticOut } from "svelte/easing";
+<script lang="ts">
+  import { fade, fly } from "svelte/transition";
+  import { cubicInOut, cubicOut } from "svelte/easing";
   export let shows = false;
   let toggle = () => {
     shows = !shows;

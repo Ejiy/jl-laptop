@@ -1,10 +1,10 @@
-<script>
+<script lang="ts">
   import { fly } from "svelte/transition";
   import Icons from "./Icons.svelte";
   import Notification from "./Notification.svelte";
   import ShittyRightSide from "./RightSide.svelte";
   import Winmanager from "./Winmanager.svelte";
-  import { apps } from "../store/config";
+  import { apps } from "../store/desktop";
   import { cubicIn, cubicOut } from "svelte/easing";
 
   // APP
@@ -12,12 +12,13 @@
   import Browser from "./apps/Browser.svelte";
 
   // Register your app component here
-  let registeredApp = {
+
+  let registeredApp: any = {
     browser: Browser,
     boosting: Boosting,
   };
 
-  let openApp = (name) => {
+  let openApp = (name: any) => {
     let filtered = $apps.filter((app) => app.name === name.detail);
     console.log(filtered[0]);
     if (filtered.length > 0) {
@@ -26,21 +27,10 @@
     apps.set($apps);
   };
 
-  let getApp = (name) => {
-    const filtered = app.filter((app) => app.name === name);
-    if (filtered.length > 0) {
-      console.log(filtered[0].component);
-    }
-  };
-
   let showRightside = false;
   let toggleRightside = () => {
     showRightside = !showRightside;
   };
-
-  function log() {
-    console.log($apps);
-  }
 </script>
 
 <div

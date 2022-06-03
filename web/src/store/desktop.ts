@@ -1,27 +1,16 @@
 import { writable } from "svelte/store";
 
-export const config = writable({
-  apps: [
-    {
-      name: "unknown",
-      icon: "fa-solid fa-mask",
-      text: "Unknown",
-      color: "#fff",
-      background: "#000",
-      isopen: false,
-    },
-    {
-      name: "darkweb",
-      icon: "fa-solid fa-user-secret",
-      text: "Darkweb",
-      color: "#fff",
-      background: "rgb(13, 32, 69)",
-      isopen: false,
-    },
-  ],
-});
+export interface appType {
+  name: string;
+  icon: string;
+  text: string;
+  color: string;
+  background: string;
+  isopen: boolean;
+  useimage: boolean;
+}
 
-export const apps = writable([
+const app: appType[] = [
   {
     name: "boosting",
     icon: "fa-solid fa-bolt",
@@ -49,4 +38,16 @@ export const apps = writable([
     isopen: false,
     useimage: false,
   },
-]);
+];
+
+export const apps = writable(app);
+
+export const visible = writable(false);
+
+let isvisible: boolean;
+
+const visibleSubscriber = visible.subscribe((value) => (isvisible = value));
+
+export function toggleVisible(status?: boolean) {
+  visible.set(status === undefined ? !isvisible : status);
+}

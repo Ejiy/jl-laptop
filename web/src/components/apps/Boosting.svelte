@@ -1,10 +1,10 @@
 <script>
-  import Apps from "../../shared/Apps.svelte";
+  import Apps from "../../providers/Apps.svelte";
   import { flip } from "svelte/animate";
   import { fly } from "svelte/transition";
-  import Progressbar from "../../shared/Progressbar.svelte";
+  import Progressbar from "../../providers/Progressbar.svelte";
   import { cubicOut } from "svelte/easing";
-  import Modal from "../../shared/Modal.svelte";
+  import Modal from "../../providers/Modal.svelte";
   import {
     contracts,
     saledcontracts,
@@ -12,6 +12,7 @@
     started,
   } from "../../store/boosting";
   import { notifications } from "../../store/notifications";
+  import { fetchNui } from "../../utils/eventHandler";
 
   let topdata = {
     title: "Car Boosting",
@@ -41,29 +42,48 @@
       } else {
         notifications.send("You have left the queue", "boosting", 5000);
       }
-      fetch("https://ps-laptop/boosting/queue", {
-        method: "POST",
-        body: JSON.stringify({
-          status: $queue,
-        }),
-        headers: {
-          "Content-type": "application/json",
-        },
-      });
+      // fetch("https://ps-laptop/boosting/queue", {
+      //   method: "POST",
+      //   body: JSON.stringify({
+      //     status: $queue,
+      //   }),
+      //   headers: {
+      //     "Content-type": "application/json",
+      //   },
+      // });
+      fetchNui("boosting/queue", {
+        status: $queue,
+      })
+        .then(() => {
+          console.log("boosting/queue", $queue);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }, 2000);
   };
 
   let startContract = (id) => {
     if ($started) return;
-    fetch("https://ps-laptop/boosting/start", {
-      method: "POST",
-      body: JSON.stringify({
-        id: id,
-      }),
-      headers: {
-        "Content-type": "application/json",
-      },
-    });
+    fetchNui("boosting/start", {
+      id,
+    })
+      .then(() => {
+        console.log("boosting/start", id);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    // fetch("https://ps-laptop/boosting/start", {
+    //   method: "POST",
+    //   body: JSON.stringify({
+    //     id: id,
+    //   }),
+    //   headers: {
+    //     "Content-type": "application/json",
+    //   },
+    // });
     started.set(true);
     notifications.send("You just started a contract", "boosting", 5000);
   };

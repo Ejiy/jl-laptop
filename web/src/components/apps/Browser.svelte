@@ -1,5 +1,5 @@
 <script>
-  import Apps from "../../shared/Apps.svelte";
+  import Apps from "../../providers/Apps.svelte";
 
   let topdata = {
     title: "Browser",

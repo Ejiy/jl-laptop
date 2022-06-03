@@ -1,39 +1,24 @@
-<script>
+<script lang="ts">
   import { fade, fly } from "svelte/transition";
-  import { cubicOut, cubicInOut, cubicIn } from "svelte/easing";
+  import { cubicOut, cubicInOut } from "svelte/easing";
   import { flip } from "svelte/animate";
   import oldNotifications from "../store/oldnotification";
+  import type { appType } from "../store/desktop";
   export let showRightside = false;
-  let notifications = [
-    {
-      text: "You have new message from this app",
-      icon: "fa-solid fa-car-side",
-      color: "#fff",
-      background: "#424570",
-      id: 1,
-    },
-    {
-      text: "Test3412340i23 jlsejflsekjf 2930123",
-      icon: "fa-solid fa-mask",
-      color: "#fff",
-      background: "#494570",
-      id: 2,
-    },
-  ];
+
   let ClearNotification = () => {
     oldNotifications.set([]);
   };
 
-  let RemoveNotification = (id) => {
+  let RemoveNotification = (id: number) => {
     console.log(id);
-    oldNotifications.update((n) => {
-      return n.filter((n) => n.id !== id);
+    oldNotifications.update((v: any) => {
+      return v.filter((n: any) => n.id !== id);
     });
-    //  oldNotifications.set(oldNotifications.filter(n => n.id !== id))
   };
+  $: {
+  }
 </script>
-
-<svelte:window on:click={(e) => {}} />
 
 {#if showRightside}
   <div

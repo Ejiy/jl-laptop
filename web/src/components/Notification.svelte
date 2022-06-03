@@ -3,6 +3,7 @@
   import { fly } from "svelte/transition";
   import { notifications } from "../store/notifications";
   import { cubicIn, cubicInOut, cubicOut } from "svelte/easing";
+
   // export let appdata = {
   //     icon: 'fa-solid fa-bell',
   //     background: '#f5f5f5',

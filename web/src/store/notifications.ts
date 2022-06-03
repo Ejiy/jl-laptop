@@ -1,19 +1,24 @@
 import { writable, derived } from "svelte/store";
-import { onDestroy } from "svelte";
-import oldNotifications from "./oldnotification";
-import { apps } from "./config";
-const TM = 1000;
+import oldNotifications, { oldNotificationsType } from "./oldnotification";
+import { apps, appType } from "./desktop";
 
-let appsdata = [];
+let appsdata: appType[];
+
 const app = apps.subscribe((d) => {
   appsdata = d;
 });
 
-function newNotifStore(timeout) {
-  const _notifications = writable([]);
-  function send(message, app, timeout) {
-    _notifications.update((n) => {
-      const data = {
+let oldNotificationStore: oldNotificationsType[];
+
+const oldSubscribe = oldNotifications.subscribe((v) => {
+  oldNotificationStore = v;
+});
+
+function newNotifStore() {
+  const _notifications: any = writable([]);
+  function send(message: string, app: string, timeout: number) {
+    _notifications.update((v: string[]) => {
+      const data: unknown = {
         id: randomID(),
         message,
         app: getAppData(app),
@@ -25,20 +30,22 @@ function newNotifStore(timeout) {
       audio.onended = () => {
         audio.remove();
       };
-      oldNotifications.update((old) => {
-        return [...old, data];
-      });
-      return [...n, data];
+      oldNotifications.set([
+        ...oldNotificationStore,
+        data as oldNotificationsType,
+      ]);
+
+      return [...v, data];
     });
   }
 
-  let timers = [];
+  let timers: any;
 
-  const notifications = derived(_notifications, ($_notifications, set) => {
+  const notifications = derived(_notifications, ($_notifications: any, set) => {
     set($_notifications);
     if ($_notifications.length > 0) {
       timers = setTimeout(() => {
-        _notifications.update((state) => {
+        _notifications.update((state: string[]) => {
           state.shift();
           return state;
         });
@@ -55,8 +62,9 @@ function newNotifStore(timeout) {
   };
 }
 
-function getAppData(app) {
-  let filtered = appsdata.filter((d) => d.name === app);
+function getAppData(app: string) {
+  let filtered = appsdata.filter((d: appType) => d.name === app);
+  console.log(filtered[0]);
   if (filtered.length > 0) return filtered[0];
 }
 

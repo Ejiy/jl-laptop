@@ -1,26 +1,22 @@
-<script>
-  import { cubicInOut } from "svelte/easing";
-  import { createEventDispatcher } from "svelte";
+<script lang="ts">
   import { fade } from "svelte/transition";
-  import { apps } from "../store/config";
+  import { apps } from "../store/desktop";
 
   let moving = false;
   let left = 200;
   let top = 150;
   export let showapp = true;
-  export let appname = null;
+  export let appname: string;
   export let topdata = {
     title: "Unknown",
     color: "#fff",
   };
 
-  const dispatch = createEventDispatcher();
-
   function onMouseDown() {
     moving = true;
   }
 
-  function onMouseMove(e) {
+  function onMouseMove(e: { movementX: number; movementY: number }) {
     if (moving) {
       left += e.movementX;
       top += e.movementY;
@@ -39,13 +35,8 @@
     }
     apps.set($apps);
   }
-
-  function SHOW() {
-    showapp = !showapp;
-  }
 </script>
 
-<!-- {#if showapp} -->
 <div
   class="apps"
   style="left: {left}px; top: {top}px"
@@ -73,7 +64,6 @@
     <slot />
   </div>
 </div>
-<!-- {/if} -->
 <svelte:window on:mouseup={onMouseUp} on:mousemove={onMouseMove} />
 
 <style>

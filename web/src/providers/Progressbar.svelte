@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { tweened } from "svelte/motion";
   import { cubicOut } from "svelte/easing";
   import { onMount } from "svelte";
@@ -7,7 +7,7 @@
     duration: 2000,
     easing: cubicOut,
   });
-  let update = (e) => {
+  let update = () => {
     value.set($value + 50);
   };
 
