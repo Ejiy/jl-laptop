@@ -57,15 +57,30 @@
     }
   }
 
-  fetchNui("boosting/getrep").then((r) => {
-    let toarray: any = [];
-    for (let i in r.repconfig) {
-      toarray.push([i, r.repconfig[i]]);
-    }
-    repConfig = toarray;
-    repPoint = r.rep;
-    getRep();
-  });
+  fetchNui("boosting/getrep")
+    .then((r) => {
+      let toarray: any = [];
+      for (let i in r.repconfig) {
+        toarray.push([i, r.repconfig[i]]);
+      }
+      repConfig = toarray;
+      repPoint = r.rep;
+      getRep();
+    })
+    .catch(() => {
+      repConfig = {
+        rep: 0,
+        repConfig: [
+          ["D", 0],
+          ["C", 10],
+          ["B", 20],
+          ["A", 30],
+          ["A+", 40],
+          ["S", 50],
+          ["S+", 0],
+        ],
+      };
+    });
 
   let joinQueue = () => {
     if (iswaiting) return;

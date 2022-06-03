@@ -10,6 +10,11 @@ export interface appType {
   useimage: boolean;
 }
 
+interface IOpenedApp {
+  name: string;
+  component: any;
+}
+
 const app: appType[] = [
   {
     name: "boosting",
@@ -40,7 +45,37 @@ const app: appType[] = [
   },
 ];
 
+// Sort the app (by alphabet)
+app.sort((a, b) => {
+  if (a.name < b.name) {
+    return -1;
+  }
+  if (a.name > b.name) {
+    return 1;
+  }
+  return 0;
+});
+
 export const apps = writable(app);
+const openedApps: IOpenedApp[] = [];
+export const openedAppStore = writable(openedApps);
+
+export function setApp(data: appType[]) {
+  apps.set(data);
+}
+
+export function openApp(data: IOpenedApp) {
+  openedAppStore.update((v) => {
+    return [...v, data];
+  });
+}
+
+export function closeApp(name: string) {
+  openedAppStore.update((v) => {
+    const filter = v.filter((v) => v.name !== name);
+    return [...filter];
+  });
+}
 
 export const visible = writable(false);
 

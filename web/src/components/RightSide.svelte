@@ -4,14 +4,6 @@
   import { flip } from "svelte/animate";
   import oldNotifications from "../store/oldnotification";
   export let showRightside = false;
-
-  let ClearNotification = () => {
-    oldNotifications.clear();
-  };
-
-  let RemoveNotification = (id: number) => {
-    oldNotifications.remove(id);
-  };
 </script>
 
 {#if showRightside}
@@ -23,7 +15,14 @@
     <div class="controls">
       <div class="title">Notifications</div>
       {#if $oldNotifications.length > 0}
-        <button class="clear" on:click={ClearNotification}> Clear all </button>
+        <button
+          class="clear"
+          on:click={() => {
+            oldNotifications.clear();
+          }}
+        >
+          Clear all
+        </button>
       {/if}
     </div>
     <div class="notifications">
@@ -59,7 +58,7 @@
             <i
               class="fa-solid fa-xmark"
               on:click={() => {
-                RemoveNotification(notification.id);
+                oldNotifications.remove(notification.id);
               }}
             />
           </div>

@@ -4,7 +4,7 @@
   import Notification from "./Notification.svelte";
   import ShittyRightSide from "./RightSide.svelte";
   import Winmanager from "./Winmanager.svelte";
-  import { apps } from "../store/desktop";
+  import { apps, openApp, openedAppStore } from "../store/desktop";
   import { cubicIn, cubicOut } from "svelte/easing";
 
   // APP
@@ -18,14 +18,26 @@
     boosting: Boosting,
   };
 
-  let openApp = (name: any) => {
-    let filtered = $apps.filter((app) => app.name === name.detail);
-    console.log(filtered[0]);
-    if (filtered.length > 0) {
-      filtered[0].isopen = true;
-    }
-    apps.set($apps);
+  let getComponent = (app: string) => {
+    return registeredApp[app];
   };
+
+  let handleOpenApp = (name: any) => {
+    let filtered = $apps.filter((app) => app.name === name.detail);
+    if (filtered.length > 0) {
+      if (getComponent(filtered[0].name) !== undefined) {
+        let data = {
+          name: filtered[0].name,
+          component: getComponent(filtered[0].name),
+        };
+        openApp(data);
+      }
+    }
+  };
+
+  $: {
+    console.log("APPSTORE", $openedAppStore);
+  }
 
   let showRightside = false;
   let toggleRightside = () => {
@@ -38,13 +50,9 @@
   in:fly={{ y: 1000, duration: 1000, easing: cubicOut }}
   out:fly={{ y: 1000, duration: 500, easing: cubicIn }}
 >
-  <Icons on:openApp={openApp} />
-  {#each $apps as app (app.name)}
-    {#if app.isopen}
-      {#if registeredApp[app.name]}
-        <svelte:component this={registeredApp[app.name]} />
-      {/if}
-    {/if}
+  <Icons on:openApp={handleOpenApp} />
+  {#each $openedAppStore as app, index (app.name)}
+    <svelte:component this={app.component} />
   {/each}
   <Notification />
   <ShittyRightSide {showRightside} />

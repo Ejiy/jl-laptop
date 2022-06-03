@@ -99,4 +99,21 @@
     align-items: center;
     z-index: 98;
   }
+
+  .left-icons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .left-icons img {
+    display: flex;
+    justify-content: center;
+  }
+
+  .start-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 </style>
