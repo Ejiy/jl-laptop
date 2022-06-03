@@ -15,7 +15,7 @@ local function SetDisplay(bool)
     display = bool
     SetNuiFocus(bool, bool)
     SendNUIMessage({
-        type = "toggle",
+        action = "toggle",
         status = bool
     })
 end
@@ -32,15 +32,15 @@ local function GetApps()
     end
 end
 
-RegisterCommand('openlaptop', function ()
+RegisterCommand('openlaptop', function()
     SetDisplay(not display)
 end)
 
-RegisterNetEvent('ps-laptop:client:openlaptop', function ()
+RegisterNetEvent('ps-laptop:client:openlaptop', function()
     SetDisplay(true)
 end)
 
-RegisterNUICallback('close', function ()
+RegisterNUICallback('close', function()
     print("TRIGGERED")
     SetDisplay(false)
 end)
@@ -79,10 +79,6 @@ function isPolice()
 
     return isPolice
 end
-
-
-
-
 
 -- Handles state right when the player selects their character and location.
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()

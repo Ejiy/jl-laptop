@@ -28,10 +28,7 @@ export function handlerMessage() {
   function Event(event: nuiMessage) {
     switch (event.data.action) {
       case "toggle":
-        toggleVisible();
-        break;
-      case "test":
-        console.log("test");
+        toggleVisible(event.data?.status);
         break;
       case "receivecontracts":
         handleContracts(event.data?.contracts);
