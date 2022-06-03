@@ -1,4 +1,5 @@
 local QBCore = exports['qb-core']:GetCoreObject()
+local PlayerData = QBCore.Functions.GetPlayerData()
 local Contracts = {}
 local ActivePlates = {} -- Just using this for a quick check to see if a plate is already active on the client side to prevent server spam.
 local PZone = nil
@@ -7,6 +8,13 @@ local missionBlip = nil
 local inZone = false
 local canHack = true
 
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    PlayerData = QBCore.Functions.GetPlayerData()
+end)
+
+RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
+    PlayerData = {}
+end)
 
 RegisterCommand('boost', function()
 
@@ -195,11 +203,9 @@ RegisterNetEvent('ps-laptop:client:recieveContract', function(table, recieved)
     else
         QBCore.Functions.Notify('Contract started!', 'success', 7500)
     end
-
     Contracts = table
-    print(json.encode(Contracts))
     SendNUIMessage({
-        type = 'receivecontracts',
+        action = 'receivecontracts',
         contracts = table
     })
 end)
@@ -226,6 +232,14 @@ end)
 
 RegisterNUICallback('boosting/start', function(data, cb)
     print(data.id)
-    TriggerServerEvent('ps-laptop:server:StartBoosting', data.id)
-    cb("ok")
+    -- TriggerServerEvent('ps-laptop:server:StartBoosting', data.id)
+    -- cb("ok")
+end)
+
+RegisterNUICallback("boosting/getrep", function(_, cb)
+    cb({
+        rep = PlayerData.metadata['carboostrep'],
+        repconfig = Config.Boosting.TiersPerRep
+    })
+    print(json.encode(PlayerData.metadata['carboostrep']))
 end)
