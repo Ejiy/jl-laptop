@@ -2,7 +2,7 @@ fx_version 'cerulean'
 
 game 'gta5'
 
-author 'T&J, JL, Fjamzoo and others'
+author 'Project Sloth'
 
 lua54 'yes' -- Add in case you want to use lua 5.4 (https://www.lua.org/manual/5.4/manual.html)
 
@@ -36,6 +36,5 @@ files {
     'web/public/global.css',
     'web/public/build/bundle.js',
     'web/public/build/bundle.css',
-    'web/public/build/bundle.js.map',
     'web/public/audio/*.ogg'
 }
