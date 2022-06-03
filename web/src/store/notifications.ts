@@ -8,21 +8,15 @@ const app = apps.subscribe((d) => {
   appsdata = d;
 });
 
-let oldNotificationStore: oldNotificationsType[];
-
-const oldSubscribe = oldNotifications.subscribe((v) => {
-  oldNotificationStore = v;
-});
-
 function newNotifStore() {
   const _notifications: any = writable([]);
-  function send(message: string, app: string, timeout: number) {
+  function send(message: string, app: string, timeout?: number) {
     _notifications.update((v: string[]) => {
       const data: unknown = {
         id: randomID(),
         message,
         app: getAppData(app),
-        timeout,
+        timeout: timeout ? timeout : 3000,
       };
       const audio = new Audio("./audio/pop.ogg");
       audio.play();
@@ -30,11 +24,7 @@ function newNotifStore() {
       audio.onended = () => {
         audio.remove();
       };
-      oldNotifications.set([
-        ...oldNotificationStore,
-        data as oldNotificationsType,
-      ]);
-
+      oldNotifications.add(data as oldNotificationsType);
       return [...v, data];
     });
   }
