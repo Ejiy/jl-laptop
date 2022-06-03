@@ -2,17 +2,14 @@
   import { tweened } from "svelte/motion";
   import { cubicOut } from "svelte/easing";
   import { onMount } from "svelte";
-  export let defval = 60;
-  export let value = tweened(0, {
+  export let currentValue = 0;
+  export let maxValue = 0;
+  export let value = tweened(currentValue, {
     duration: 2000,
     easing: cubicOut,
   });
-  let update = () => {
-    value.set($value + 50);
-  };
-
   onMount(() => {
-    value.set(defval);
+    value.set(maxValue);
   });
 </script>
 

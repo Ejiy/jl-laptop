@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import Apps from "../../providers/Apps.svelte";
   import { flip } from "svelte/animate";
   import { fly } from "svelte/transition";
@@ -23,13 +23,49 @@
 
   let activepage = "My Contracts";
 
-  let color = {
+  let color: any = {
     ["S+"]: "#ff9800",
     ["D"]: "#4caf50",
   };
-  let handleRemove = (e, id) => {
+
+  let handleRemove = (id: number) => {
     contracts.update((c) => c.filter((n) => n.id !== id));
   };
+
+  let repConfig: any;
+  let repPoint: number;
+  let currentRep: string = "D";
+  let nextRep: string = "C";
+  let progressPercentage: number = 0;
+
+  function getGapPercentage(a: number, b: number) {
+    return (a / b) * 100;
+  }
+
+  function getRep() {
+    let sorted = repConfig;
+    sorted.sort((a: any, b: any) => {
+      return b[1] - a[1];
+    });
+    for (let i = 0; i < sorted.length; i++) {
+      if (sorted[i][1] <= repPoint) {
+        currentRep = sorted[i][0];
+        nextRep = sorted[i - 1][0];
+        progressPercentage = getGapPercentage(sorted[i][1], sorted[i - 1][1]);
+        break;
+      }
+    }
+  }
+
+  fetchNui("boosting/getrep").then((r) => {
+    let toarray: any = [];
+    for (let i in r.repconfig) {
+      toarray.push([i, r.repconfig[i]]);
+    }
+    repConfig = toarray;
+    repPoint = r.rep;
+    getRep();
+  });
 
   let joinQueue = () => {
     if (iswaiting) return;
@@ -42,15 +78,6 @@
       } else {
         notifications.send("You have left the queue", "boosting", 5000);
       }
-      // fetch("https://ps-laptop/boosting/queue", {
-      //   method: "POST",
-      //   body: JSON.stringify({
-      //     status: $queue,
-      //   }),
-      //   headers: {
-      //     "Content-type": "application/json",
-      //   },
-      // });
       fetchNui("boosting/queue", {
         status: $queue,
       })
@@ -63,7 +90,7 @@
     }, 2000);
   };
 
-  let startContract = (id) => {
+  let startContract = (id: number) => {
     if ($started) return;
     fetchNui("boosting/start", {
       id,
@@ -75,15 +102,10 @@
         console.log(err);
       });
 
-    // fetch("https://ps-laptop/boosting/start", {
-    //   method: "POST",
-    //   body: JSON.stringify({
-    //     id: id,
-    //   }),
-    //   headers: {
-    //     "Content-type": "application/json",
-    //   },
-    // });
+    fetchNui("boosting/start", {
+      id,
+    }).catch((e) => console.log(e));
+
     started.set(true);
     notifications.send("You just started a contract", "boosting", 5000);
   };
@@ -92,7 +114,7 @@
 
   let showModal = false;
 
-  let setActivePage = (e, page) => {
+  let setActivePage = (e: any, page: string) => {
     activepage = page;
   };
 </script>
@@ -125,11 +147,11 @@
       </div>
       <div class="progress">
         <div class="text-pg">
-          <h1>A</h1>
+          <h1>{currentRep}</h1>
         </div>
-        <Progressbar />
+        <Progressbar maxValue={progressPercentage} />
         <div class="text-pg">
-          <h1>B</h1>
+          <h1>{nextRep}</h1>
         </div>
       </div>
     </div>
@@ -176,8 +198,8 @@
                 </button>
                 <button
                   class="red"
-                  on:click={(e) => {
-                    handleRemove(e, contract.id);
+                  on:click={() => {
+                    handleRemove(contract.id);
                   }}
                 >
                   Decline Contract

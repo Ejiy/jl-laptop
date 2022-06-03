@@ -3,21 +3,15 @@
   import { cubicOut, cubicInOut } from "svelte/easing";
   import { flip } from "svelte/animate";
   import oldNotifications from "../store/oldnotification";
-  import type { appType } from "../store/desktop";
   export let showRightside = false;
 
   let ClearNotification = () => {
-    oldNotifications.set([]);
+    oldNotifications.clear();
   };
 
   let RemoveNotification = (id: number) => {
-    console.log(id);
-    oldNotifications.update((v: any) => {
-      return v.filter((n: any) => n.id !== id);
-    });
+    oldNotifications.remove(id);
   };
-  $: {
-  }
 </script>
 
 {#if showRightside}

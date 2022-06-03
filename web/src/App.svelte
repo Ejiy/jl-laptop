@@ -5,12 +5,12 @@
   import { handlerMessage } from "./utils/eventHandler";
 
   handlerMessage();
-  debugData([
-    {
-      action: "toggle",
-      data: false,
-    },
-  ]);
+  // debugData([
+  //   {
+  //     action: "toggle",
+  //     data: false,
+  //   },
+  // ]);
 </script>
 
 <main>

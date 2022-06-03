@@ -1,4 +1,4 @@
 node_modules
 web/public/build
-
+yarn.lock
 .DS_Store

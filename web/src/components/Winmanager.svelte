@@ -1,5 +1,14 @@
-<script>
+<script lang="ts">
   import { createEventDispatcher } from "svelte";
+  import { fetchNui } from "../utils/eventHandler";
+  let time = fetchNui("gettime")
+    .then((res) => {
+      if (!res) return;
+      return res;
+    })
+    .catch((e) => {
+      return "test";
+    });
   let showRightside = false;
   let dispatcher = createEventDispatcher();
   let toggleRightside = () => {
@@ -10,6 +19,9 @@
   let showingSetting = () => {
     showsetting = !showsetting;
   };
+  $: {
+    console.log(time);
+  }
 </script>
 
 <div class="winmanager">
