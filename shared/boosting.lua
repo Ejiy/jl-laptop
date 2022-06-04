@@ -90,27 +90,48 @@ Config.Boosting.Vehicles = {
     },
 
     ["C"] = {
-
+        'blista',
+        'casco', 
+        'virgo', 
+        'sadler', 
+        'ratloader'
     },
 
     ["B"] = {
-
+        'primo', 
+        'chino', 
+        'baller3', 
+        'guardian'
     },
 
     ["A"] = {
-
+        'infernus2', 
+        'massacro', 
+        'felon', 
+        'oracle2', 
+        'jackal'
     },
 
     ["A+"] = {
-
+        'schafter2', 
+        'kuruma', 
+        'brioso', 
+        'infernus'
     },
 
     ["S"] = {
-
+        't20', 
+        'zentorno', 
+        'turismor', 
+        'massacro2', 
+        'raptor'
     },
 
     ["S+"] = {
-
+        'nero', 
+        'paragon', 
+        'mamba', 
+        'ztype',
     },
 }
 
