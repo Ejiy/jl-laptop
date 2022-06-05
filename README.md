@@ -1,3 +1,3 @@
-# tnj-laptop
+# ps-laptop
 
-Its... a laptop, read the title dumbass
+a laptop script
