@@ -1,6 +1,8 @@
 Config.Boosting = {}
 
-Config.Boosting.HackingDevice = "HackingDevice" -- Whatever item you use to hack a car with
+Config.Boosting.HackingDevice = "hack" -- Whatever item you use to hack a car with
+
+Config.Boosting.HackDelay = 180 -- 180 seconds delay
 
 
 Config.Boosting.MinusOne = true -- true or false, detmains wheather the Z is minus 1 or not.
@@ -185,16 +187,6 @@ Config.Boosting.Locations = {
         }
     },
 
-}
-
-Config.Boosting.MaxPools = {
-    ["D"] = 5,
-    ["C"] = 1,
-    ["B"] = 1,
-    ["A"] = 1,
-    ["A+"] = 1,
-    ["S"] = 1,
-    ["S+"] = 1,
 }
 
 Config.Boosting.TiersPerRep = {

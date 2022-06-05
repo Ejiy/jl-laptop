@@ -1,5 +1,13 @@
 local QBCore = exports['qb-core']:GetCoreObject()
-local MaxPools = Config.Boosting.MaxPools -- When the server starts it needs to fetch the config, then fetches all the boosts later and then sets the remaining pool.
+local MaxPools = { -- Contains all the the amount of contracts avaible every restart, once a contract has started or declined it gets back into the pool
+    ["D"] = 5,
+    ["C"] = 1,
+    ["B"] = 1,
+    ["A"] = 1,
+    ["A+"] = 1,
+    ["S"] = 1,
+    ["S+"] = 1,
+}
 
 local currentRuns = {}
 local ActivePlates = {} -- Handle all the active plates and syncs all the data shit
@@ -69,7 +77,7 @@ local function SpawnCar(src)
         SetVehicleDoorsLocked(car, 2)
 
         local plate = GeneratePlate()
-        ActivePlates[plate] = math.random(3,5)
+        ActivePlates[plate] = 1 --math.random(3, 5)
         SetVehicleNumberPlateText(car, plate)
         currentRuns[CID].NetID = NetworkGetNetworkIdFromEntity(car)
 
@@ -79,9 +87,9 @@ local function SpawnCar(src)
     end
 end
 
-QBCore.Functions.CreateUseableItem("hack", function(source, item)
+QBCore.Functions.CreateUseableItem(Config.Boosting.HackingDevice, function(source, item)
     local Player = QBCore.Functions.GetPlayer(source)
-    if Player.Functions.GetItemByName("hack") ~= nil then
+    if Player.Functions.GetItemByName(Config.Boosting.HackingDevice) ~= nil then
         print("ok?")
         TriggerClientEvent('ps-laptop:client:HackCar', source)
     end
@@ -91,8 +99,10 @@ RegisterNetEvent('ps-laptop:server:FinalDestination', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local CID = Player.PlayerData.citizenid
-    if currentRuns[CID] and not currentRuns[CID].dropOff then
+    if currentRuns[CID] and not currentRuns[CID].dropOff and not currentRuns[CID].vinscratch then
         TriggerClientEvent('ps-laptop:client:ReturnCar', src, GetRandomDropOff())
+    elseif currentRuns[CID] and not currentRuns[CID].dropOff and currentRuns[CID].vinscratch then
+        TriggerClientEvent('ps-laptop:client:ReturnCar', src, GetRandomDropOff(), true) -- true and the GetVinscratchLocation gives them the final vinscratch location
     end
 end)
 
@@ -106,6 +116,7 @@ RegisterNetEvent('ps-laptop:server:StartBoosting', function(id)
 
     currentRuns[CID] = {
         Location = GerRandomLocation(currentContracts[CID][id].contract),
+        vinscratch = currentContracts[CID][id].vinscratch,
         car = currentContracts[CID][id].car,
         dropOff = nil,
         Plate = nil,
@@ -113,7 +124,7 @@ RegisterNetEvent('ps-laptop:server:StartBoosting', function(id)
         PedSpawned = false,
     }
 
-
+    MaxPools[currentContracts[CID][id].contract] += 1
     --table.remove(currentContracts[CID], id) If i remove the contract the laptop errors out please fix this JustLazzy :sadge:
     --TriggerClientEvent('ps-laptop:client:recieveContract', src, currentContracts[CID], false)
 
@@ -154,6 +165,17 @@ RegisterNetEvent('ps-laptop:server:SyncBlips', function(coords, plate)
 
     if currentRuns[CID] and currentRuns[CID].PedSpawned and currentRuns[CID].NetID then
         TriggerClientEvent('ps-laptop:client:SyncBlips', -1, coords, plate)
+    end
+end)
+
+RegisterNetEvent('ps-laptop:server:SyncPlates', function(success)
+    local src = source
+    local ped = GetPlayerPed(src)
+    local plate = GetVehicleNumberPlateText(GetVehiclePedIsIn(ped, false))
+
+    if ActivePlates[plate] and ActivePlates[plate] >= 1 and success then
+        ActivePlates[plate] = ActivePlates[plate] - 1
+        TriggerClientEvent('ps-laptop:client:SyncPlates', -1, ActivePlates)
     end
 end)
 

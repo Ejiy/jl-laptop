@@ -3,8 +3,11 @@ local PlayerData = QBCore.Functions.GetPlayerData()
 local Contracts = {}
 local ActivePlates = {} -- Just using this for a quick check to see if a plate is already active on the client side to prevent server spam.
 local PZone = nil
+local PZone2 = nil
 local NetID = nil
 local missionBlip = nil
+local VinscratchBlip = nil
+local CanVinscratch = false
 local inZone = false
 local canHack = true
 
@@ -31,15 +34,10 @@ end, false)
 
 ---- ** Local functions ** ----
 
-local function HackDelay(seconds)
+local function HackDelay()
     canHack = false
-    Wait(seconds)
+    Wait(1000 * Config.Boosting.HackDelay)
     canHack = true
-end
-
-local function AlertPoPo(coords)
-
-
 end
 
 local function UpdateBlips()
@@ -54,9 +52,8 @@ local function UpdateBlips()
 
                     TriggerServerEvent('ps-laptop:server:SyncBlips', pos, Plate)
                 else
-                    Wait(25)
-
-                    -- return and cancel job as they failed and pd got them
+                    Wait(500)
+                    if not DoesEntityExist(car) then return end -- additional safety check JUST incase, make a cancel events cancelling everything
                 end
             end
 
@@ -81,7 +78,8 @@ RegisterNetEvent('ps-laptop:client:MissionStarted', function(netID, coords) -- P
     if missionBlip then RemoveBlip(missionBlip) end
 
     if coords then
-        missionBlip = AddBlipForRadius(coords.x, coords.y, coords.z, 35.0)
+        missionBlip = AddBlipForRadius(coords.x, coords.y, coords.z, 150.0)
+        SetBlipAlpha(missionBlip, 150)
         SetBlipHighDetail(missionBlip, true)
         SetBlipColour(missionBlip, 1)
         SetBlipAsShortRange(missionBlip, true)
@@ -96,19 +94,19 @@ RegisterNetEvent('lockpicks:UseLockpick', function()
         local carSpawned = NetworkGetEntityFromNetworkId(NetID)
         local dist = #(GetEntityCoords(carSpawned) - GetEntityCoords(PlayerPedId()))
         if dist <= 2.5 then -- 2.5 is the distance in qbcore vehiclekeys if you use more or less then please edit this.
-            TriggerServerEvent('ps-laptop:server:SpawnPed')
             AntiSpam = true
+            TriggerServerEvent('ps-laptop:server:SpawnPed')
             RemoveBlip(missionBlip)
-            AlertPoPo(GetEntityCoords(carSpawned))
+            exports['ps-dispatch']:CarJacking(carSpawned)
             UpdateBlips()
         end
     end
 end)
 
 -- Creates the PolyZone for when you return the car.
-RegisterNetEvent('ps-laptop:client:ReturnCar', function(coords)
+RegisterNetEvent('ps-laptop:client:ReturnCar', function(coords, vinscratch, coords2)
     PZone = CircleZone:Create(coords, 5, {
-        name = "NewChopShopWhoDis",
+        name = "NewReturnWhoDis",
         debugPoly = true,
     })
 
@@ -119,26 +117,47 @@ RegisterNetEvent('ps-laptop:client:ReturnCar', function(coords)
             inZone = false
         end
     end)
+
+    if vinscratch and coords2 then
+        PZone2 = CircleZone:Create(coords2, 5, {
+            name = "NewScratchWhoDis",
+            debugPoly = true,
+        })
+
+        PZone2:onPlayerInOut(function(isPointInside)
+            if isPointInside then
+                CanVinscratch = true
+            else
+                CanVinscratch = false
+            end
+        end)
+    end
 end)
 
 -- The event where you can start to hack the vehicle
 RegisterNetEvent('ps-laptop:client:HackCar', function()
     local ped = PlayerPedId()
-    --if haveItem(Config.Boosting.HackingDevice) then
-    if IsPedInAnyVehicle(ped, false) then
-        local vehicle = GetVehiclePedIsIn(ped, false)
-        local plate = GetVehicleNumberPlateText(vehicle)
-        print(ActivePlates[plate])
-        if ActivePlates[plate] and ActivePlates[plate] > 0 and canHack then
-            local success = exports['boostinghack']:StartHack()
-            if success then
-                TriggerServerEvent('ps-laptop:server:SyncPlates', true)
-            else
-                QBCore.Functions.Notify('You failed nuub :)', 'error', 7500)
+    if haveItem(Config.Boosting.HackingDevice) then
+        if IsPedInAnyVehicle(ped, false) then
+            local vehicle = GetVehiclePedIsIn(ped, false)
+            local plate = GetVehicleNumberPlateText(vehicle)
+            print(ActivePlates[plate])
+            if ActivePlates[plate] and ActivePlates[plate] > 0 then
+                if canHack then
+                    local success = exports['boostinghack']:StartHack()
+                    if success then
+                        QBCore.Functions.Notify('You delayed the police Tracker', 'success', 7500)
+                        TriggerServerEvent('ps-laptop:server:SyncPlates', true)
+                    else
+                        QBCore.Functions.Notify('You failed nuub :)', 'error', 7500)
+                    end
+                    HackDelay()
+                else
+                    QBCore.Functions.Notify("You must wait atleast "..Config.Boosting.HackDelay, 'error', 7500)
+                end
             end
         end
     end
-    --end
 end)
 
 -- Gets the ped from the server side and then gives them tasks and weapons on the client side.
