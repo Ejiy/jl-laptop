@@ -274,5 +274,7 @@ Config.Boosting.Vehicles = {
 }
 
 Config.Boosting.ReturnLocation = {
-    {coords = vector3(724.0, -579.48, 26.96), isBusy = false}
+    {coords = vector3(724.0, -579.48, 26.96), isBusy = false},
+    {coords = vector3(-2320.39, 309.08, 169.47), isBusy = false},
+    {coords = vector3(-130.79, 1923.0, 197.33), isBusy = false},
 }
