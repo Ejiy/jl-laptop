@@ -16,5 +16,6 @@ Config.Apps = {
         items = 'vpn',
         job = {},
         gang = false, -- it can be boolean or a table {'ballas'}
+        item = {"lockpick"}
     },
 }

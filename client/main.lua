@@ -20,16 +20,62 @@ local function SetDisplay(bool)
     })
 end
 
-local function GetApps()
+-- A function which returns the applications that the player should have access to.
+function GetPlayerAppPerms()
     local apps = {}
-    for i = 1, #Config.Apps, 1 do
-        local app = Config.Apps[i]
-        if app.items then
-            if type(app.items) == "table" then
+    local playerJob, playerGang = PlayerData.job.name, PlayerData.gang.name
 
+    for _, app in pairs(Config.Apps) do
+        local hasAccess = false
+
+        if app.job then
+            if type(app.job) == 'table' then
+                for i = 1, #app.job do
+                    if app.job[i] == playerJob then
+                        apps[#apps + 1] = app
+                        hasAccess = true
+                    end
+                end
+            else
+                if app.job == playerJob then
+                    apps[#apps + 1] = app
+                    hasAccess = true
+                end
+            end
+        end
+
+        if app.gang and not hasAccess then
+            if type(app.gang) == 'table' then
+                for i = 1, #app.gang do
+                    if app.gang[i] == playerGang then
+                        apps[#apps + 1] = app
+                        hasAccess = true
+                    end
+                end
+            else
+                if app.gang == playerGang then
+                    apps[#apps + 1] = app
+                    hasAccess = true
+                end
+            end
+        end
+
+        if app.item and not hasAccess then
+            if type(app.item) == 'table' then
+                for i = 1, #app.item do
+                    if haveItem[app.item[i]] then
+                        apps[#apps + 1] = app
+                    end
+                end
+            else
+                if haveItem[app.item] then
+                    apps[#apps + 1] = app
+                end
             end
         end
     end
+
+    return apps
 end
 
 RegisterCommand('openlaptop', function()
