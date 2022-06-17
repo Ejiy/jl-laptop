@@ -113,7 +113,6 @@ RegisterNetEvent('ps-laptop:server:StartBoosting', function(id)
     if currentRuns[CID] then return end
     if not currentContracts[CID][id] then return end
 
-
     currentRuns[CID] = {
         Location = GerRandomLocation(currentContracts[CID][id].contract),
         vinscratch = currentContracts[CID][id].vinscratch,
@@ -123,13 +122,9 @@ RegisterNetEvent('ps-laptop:server:StartBoosting', function(id)
         NetID = nil,
         PedSpawned = false,
     }
-
     MaxPools[currentContracts[CID][id].contract] += 1
-    --table.remove(currentContracts[CID], id) If i remove the contract the laptop errors out please fix this JustLazzy :sadge:
-    --TriggerClientEvent('ps-laptop:client:recieveContract', src, currentContracts[CID], false)
-
-
-
+    table.remove(currentContracts[CID], id) 
+    TriggerClientEvent('ps-laptop:client:recieveContract', src, currentContracts[CID], false)
     SpawnCar(src)
 end)
 

@@ -11,11 +11,25 @@ Config.Apps = {
         name = 'Boosting',
         icon = 'boosting',
         useimage = true,
-        color = '#f44336',
-        background = '#f44336',
-        items = 'vpn',
+        color = '#fff',
+        background = '#1d2029',
         job = {},
+        usevpn = true,
         gang = false, -- it can be boolean or a table {'ballas'}
-        item = {"lockpick"}
+        item = { "lockpick" },
+        default = false -- if true, it will be added by default
     },
+    ['browser'] = {
+        app = 'browser',
+        name = 'Browser',
+        icon = 'fa-solid fa-globe',
+        useimage = false,
+        color = '#fff',
+        background = "#aa2e25",
+        job = {},
+        usevpn = true,
+        gang = false, -- it can be boolean or a table {'ballas'}
+        item = {},
+        default = true -- if true, it will be added by default
+    }
 }

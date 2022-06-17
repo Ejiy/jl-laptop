@@ -153,7 +153,7 @@ RegisterNetEvent('ps-laptop:client:HackCar', function()
                     end
                     HackDelay()
                 else
-                    QBCore.Functions.Notify("You must wait atleast "..Config.Boosting.HackDelay, 'error', 7500)
+                    QBCore.Functions.Notify("You must wait atleast " .. Config.Boosting.HackDelay, 'error', 7500)
                 end
             end
         end
@@ -217,12 +217,14 @@ end)
 
 -- Sends the information to client when their contracts update
 RegisterNetEvent('ps-laptop:client:recieveContract', function(table, recieved)
+    print(recieved)
+    print(json.encode(table))
     if recieved then
         QBCore.Functions.Notify('You recieved a new contract!', 'success', 7500)
     else
+
         QBCore.Functions.Notify('Contract started!', 'success', 7500)
     end
-    Contracts = table
     SendNUIMessage({
         action = 'receivecontracts',
         contracts = table
@@ -250,9 +252,9 @@ RegisterNUICallback('boosting/queue', function(cb)
 end)
 
 RegisterNUICallback('boosting/start', function(data, cb)
-    print(data.id)
-    -- TriggerServerEvent('ps-laptop:server:StartBoosting', data.id)
-    -- cb("ok")
+    -- print(data.id)
+    TriggerServerEvent('ps-laptop:server:StartBoosting', data.id)
+    cb("ok")
 end)
 
 RegisterNUICallback("boosting/getrep", function(_, cb)
