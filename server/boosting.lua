@@ -117,6 +117,7 @@ RegisterNetEvent('ps-laptop:server:StartBoosting', function(id)
         Location = GerRandomLocation(currentContracts[CID][id].contract),
         vinscratch = currentContracts[CID][id].vinscratch,
         car = currentContracts[CID][id].car,
+        contract = currentContracts[CID][id].contract,
         dropOff = nil,
         Plate = nil,
         NetID = nil,
@@ -195,30 +196,71 @@ RegisterNetEvent('ps-laptop:server:JoinQueue', function(status)
 
 end)
 
+RegisterNetEvent('ps-laptop:server:finishBoost', function(netId)
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    local CID = Player.PlayerData.citizenid
+
+    if not currentRuns[CID] then return end
+    if not (currentRuns[CID].NetID == netId) then return end
+
+    local boostData = Player.PlayerData.metadata["carboostrep"] or 0
+    boostData += 1
+    Player.Functions.SetMetaData('carboostrep', boostData)
+    currentRuns[CID] = nil
+    TriggerClientEvent('ps-laptop:client:finishContract', source)
+end)
 
 local function generateTier(src)
     local chance = math.random(1,100)
     local Player = QBCore.Functions.GetPlayer(src)
-    local boostData = Player.PlayerData.metadata["carboostrep"]
+    local boostData = Player.PlayerData.metadata["carboostrep"] or 0
     print(boostData)
     local tier
 
     print("stuck in loop")
 
     -- We should also get their current metadata and based on their metadata increase this luck or even cap it so they cant get s+ if they just startedt/
-    if chance >= 99 then
-        if boostData >= Config.Boosting.TiersPerRep["S"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
+    if chance >= 99 then -- 2%
+        if boostData >= Config.Boosting.TiersPerRep["S+"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
             tier = "S+"
         else
             generateTier(src)
         end
-    elseif chance >= 95 and chance < 99 then
-        if boostData >= Config.Boosting.TiersPerRep["A+"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
+    elseif chance >= 95 then -- 3%
+        if boostData >= Config.Boosting.TiersPerRep["S"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
             tier = "S"
         else
             generateTier(src)
         end
-    else
+        
+    elseif chance >= 90 then -- 5%
+        if boostData >= Config.Boosting.TiersPerRep["A+"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
+            tier = "A+"
+        else
+            generateTier(src)
+        end
+        
+    elseif chance >= 80 then -- 10%
+        if boostData >= Config.Boosting.TiersPerRep["A"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
+            tier = "A"
+        else
+            generateTier(src)
+        end
+        
+    elseif chance >= 60 then -- 20%
+        if boostData >= Config.Boosting.TiersPerRep["B"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
+            tier = "B"
+        else
+            generateTier(src)
+        end
+    elseif chance >= 35 then -- 25%
+        if boostData >= Config.Boosting.TiersPerRep["C"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
+            tier = "C"
+        else
+            generateTier(src)
+        end
+    else -- 35%
         tier = "D"
     end
     print(MaxPools["D"], MaxPools["S"], MaxPools["S+"])
