@@ -1,6 +1,8 @@
 import { onMount, onDestroy } from "svelte";
 import { handleContracts, started, startedContracts } from "../store/boosting";
 import { toggleVisible } from "../store/desktop";
+import { notifications } from "../store/notifications";
+
 interface nuiMessage {
   data: {
     action: string;
@@ -36,6 +38,7 @@ export function handlerMessage() {
       case "booting/delivered":
         startedContracts.set([]);
         started.set(false);
+        notifications.send("You have completed the contact", "boosting", 5000);
         break;
     }
   }
