@@ -40,7 +40,7 @@
   let progressPercentage: number = 0;
 
   function getGapPercentage(a: number, b: number) {
-    return (a / b) * 100;
+    return ((repPoint - b) * 100) / (a - b)
   }
 
   function getRep() {
@@ -49,10 +49,10 @@
       return b[1] - a[1];
     });
     for (let i = 0; i < sorted.length; i++) {
-      if (sorted[i][1] <= repPoint) {
+      if (repPoint >= sorted[i][1]) {
         currentRep = sorted[i][0];
         nextRep = sorted[i - 1][0];
-        progressPercentage = getGapPercentage(sorted[i][1], sorted[i - 1][1]);
+        progressPercentage = getGapPercentage(sorted[i - 1][1], sorted[i][1]);
         break;
       }
     }
