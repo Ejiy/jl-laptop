@@ -19,6 +19,10 @@ RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
     PlayerData = {}
 end)
 
+RegisterNetEvent('QBCore:Player:SetPlayerData', function(val)
+    PlayerData = val
+end)
+
 RegisterCommand('boost', function()
 
     TriggerServerEvent('ps-laptop:server:StartBoosting', 1)
@@ -49,7 +53,6 @@ local function UpdateBlips()
                 if DoesEntityExist(car) then
                     Wait(10000 / ActivePlates[Plate]) -- Max 10 seconds, the more times hacked the less time it updates
                     local pos = GetEntityCoords(car)
-
                     TriggerServerEvent('ps-laptop:server:SyncBlips', pos, Plate)
                 else
                     Wait(500)
@@ -66,29 +69,28 @@ end
 
 ---- ** Register Net Events ** ----
 
+local AntiSpam = false -- Just a true / false boolean to not spam the shit out of the server.
 -- Sends information from server to client that it will start now
-RegisterNetEvent('ps-laptop:client:MissionStarted',
-    function(netID, coords) -- Pretty much just resets every boolean to make sure no issues will occour.
-        NetID = netID
-        AntiSpam = false
-        canHack = true
-        inZone = false
+RegisterNetEvent('ps-laptop:client:MissionStarted', function(netID, coords) -- Pretty much just resets every boolean to make sure no issues will occour.
+    NetID = netID
+    AntiSpam = false
+    canHack = true
+    inZone = false
 
-        if PZone then PZone:destroy() PZone = nil end
+    if PZone then PZone:destroy() PZone = nil end
 
-        if missionBlip then RemoveBlip(missionBlip) end
+    if missionBlip then RemoveBlip(missionBlip) end
 
-        if coords then
-            missionBlip = AddBlipForRadius(coords.x, coords.y, coords.z, 150.0)
-            SetBlipAlpha(missionBlip, 150)
-            SetBlipHighDetail(missionBlip, true)
-            SetBlipColour(missionBlip, 1)
-            SetBlipAsShortRange(missionBlip, true)
-        end
-    end)
+    if coords then
+        missionBlip = AddBlipForRadius(coords.x, coords.y, coords.z, 150.0)
+        SetBlipAlpha(missionBlip, 150)
+        SetBlipHighDetail(missionBlip, true)
+        SetBlipColour(missionBlip, 1)
+        SetBlipAsShortRange(missionBlip, true)
+    end
+end)
 
 -- sends information from server to client that we found the car and we started lockpicking
-local AntiSpam = false -- Just a true / false boolean to not spam the shit out of the server.
 RegisterNetEvent('lockpicks:UseLockpick', function()
     if AntiSpam then return end
     if NetID and DoesEntityExist(NetworkGetEntityFromNetworkId(NetID)) then
@@ -142,10 +144,13 @@ RegisterNetEvent('ps-laptop:client:HackCar', function()
         if IsPedInAnyVehicle(ped, false) then
             local vehicle = GetVehiclePedIsIn(ped, false)
             local plate = GetVehicleNumberPlateText(vehicle)
-            print(ActivePlates[plate])
             if ActivePlates[plate] and ActivePlates[plate] > 0 then
                 if canHack then
-                    local success = true
+                    local pushingP = promise.new()
+                    exports['ps-ui']:Scrambler(function(cb)
+                        pushingP:resolve(cb)
+                    end, "numeric", 30, 0)
+                    local success = Citizen.Await(pushingP)
                     if success then
                         QBCore.Functions.Notify('You delayed the police Tracker', 'success', 7500)
                         TriggerServerEvent('ps-laptop:server:SyncPlates', true)
@@ -190,12 +195,11 @@ RegisterNetEvent('ps-laptop:client:DeliverVehicle', function()
     FreezeEntityPosition(car, true)
     PZone:destroy()
     PZone = nil
-    Wait(5000)
+    while #QBCore.Functions.GetPlayersFromCoords(GetEntityCoords(car), 100.0) > 0 do
+        Wait(7500)
+    end
+    TriggerServerEvent('ps-laptop:server:finishBoost', NetID)
     QBCore.Functions.DeleteVehicle(car)
-    -- Temporary
-    SendNUIMessage({
-        action = "booting/delivered"
-    })
 end)
 
 exports['qb-target']:AddGlobalVehicle({
@@ -250,6 +254,9 @@ RegisterNetEvent('ps-laptop:client:SyncBlips', function(coords, plate)
     end
 end)
 
+RegisterNetEvent('ps-laptop:client:finishContract', function(table, recieved)
+    SendNUIMessage({action = 'booting/delivered'})
+end)
 
 ---- ** NUI CALLBACKS ** ----
 RegisterNUICallback('boosting/queue', function(cb)
@@ -263,9 +270,9 @@ RegisterNUICallback('boosting/start', function(data, cb)
 end)
 
 RegisterNUICallback("boosting/getrep", function(_, cb)
-    cb({
-        rep = PlayerData.metadata['carboostrep'],
+    local data = {
+        rep = PlayerData.metadata['carboostrep'] or 0,
         repconfig = Config.Boosting.TiersPerRep
-    })
-    print(json.encode(PlayerData.metadata['carboostrep']))
+    }
+    cb(data)
 end)

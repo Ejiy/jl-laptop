@@ -126,9 +126,10 @@ RegisterNetEvent('ps-laptop:client:openlaptop', function()
     SetDisplay(true)
 end)
 
-RegisterNUICallback('close', function()
+RegisterNUICallback('close', function(_, cb)
     print("TRIGGERED")
     SetDisplay(false)
+    cb("ok")
 end)
 
 RegisterNUICallback('loadapps', function(data, cb)
