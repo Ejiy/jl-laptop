@@ -1,5 +1,5 @@
 import { onMount, onDestroy } from "svelte";
-import { handleContracts } from "../store/boosting";
+import { handleContracts, started, startedContracts } from "../store/boosting";
 import { toggleVisible } from "../store/desktop";
 interface nuiMessage {
   data: {
@@ -32,6 +32,10 @@ export function handlerMessage() {
         break;
       case "receivecontracts":
         handleContracts(event.data?.contracts);
+        break;
+      case "booting/delivered":
+        startedContracts.set([]);
+        started.set(false);
         break;
     }
   }
