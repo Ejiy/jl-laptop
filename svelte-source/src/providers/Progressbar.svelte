@@ -8,9 +8,7 @@
     duration: 2000,
     easing: cubicOut,
   });
-  onMount(() => {
-    value.set(maxValue);
-  });
+  $: value.set(maxValue)
 </script>
 
 <div class="outer">
