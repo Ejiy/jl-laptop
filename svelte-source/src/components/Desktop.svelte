@@ -4,20 +4,30 @@
   import Notification from "./Notification.svelte";
   import ShittyRightSide from "./RightSide.svelte";
   import Winmanager from "./Winmanager.svelte";
-  import { apps, openApp, openedAppStore, setApp } from "../store/desktop";
+  import {
+    apps,
+    mapping,
+    openApp,
+    openedAppStore,
+    setApp,
+    wallpaper,
+  } from "../store/desktop";
   import { cubicIn, cubicOut } from "svelte/easing";
 
   // APP
   import Boosting from "./apps/Boosting.svelte";
   import Browser from "./apps/Browser.svelte";
-  import { onMount } from "svelte";
+
   import { fetchNui } from "../utils/eventHandler";
+  import { globals } from "svelte/internal";
+  import Setting from "./apps/Setting.svelte";
 
   // Register your app component here
 
   let registeredApp: any = {
     browser: Browser,
     boosting: Boosting,
+    setting: Setting,
   };
 
   let getComponent = (app: string) => {
@@ -79,6 +89,15 @@
           isopen: false,
           useimage: false,
         },
+        {
+          name: "setting",
+          icon: "fa-solid fa-cog",
+          text: "Setting",
+          color: "#fff",
+          background: "#4B5D67",
+          isopen: false,
+          useimage: false,
+        },
       ];
       setApp(data);
     });
@@ -87,20 +106,31 @@
   let toggleRightside = () => {
     showRightside = !showRightside;
   };
+
+  let toggleSetting = (st) => {
+    if (st.detail === true) {
+      handleOpenApp("setting");
+    }
+  };
 </script>
 
 <div
   class="desktop"
+  style="background-image: url({$wallpaper});"
   in:fly={{ y: 1000, duration: 1000, easing: cubicOut }}
   out:fly={{ y: 1000, duration: 500, easing: cubicIn }}
 >
   <Icons on:openApp={handleOpenApp} />
+  <!-- <Setting /> -->
   {#each $openedAppStore as app, index (app.name)}
     <svelte:component this={app.component} />
   {/each}
   <Notification />
   <ShittyRightSide {showRightside} />
-  <Winmanager on:toggleRightside={toggleRightside} />
+  <Winmanager
+    on:toggleRightside={toggleRightside}
+    on:showingSetting={toggleSetting}
+  />
 </div>
 
 <style>
@@ -112,7 +142,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     position: absolute;
-    background-image: url("../images/wp2.jpg");
+    /* background-image: url("https://images8.alphacoders.com/114/1143202.jpg"); */
     background-color: rgb(41, 41, 41);
     border: 5px solid rgb(0, 0, 0);
     border-radius: 5px;
