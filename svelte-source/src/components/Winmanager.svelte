@@ -2,6 +2,8 @@
   import { createEventDispatcher, onDestroy, onMount } from "svelte";
   import { fetchNui } from "../utils/eventHandler";
   import logo from "../assets/logo.png";
+  import { mapping } from "../store/desktop";
+
   interface ITime {
     times: string;
     date: string;
@@ -16,9 +18,11 @@
     showRightside = !showRightside;
     dispatcher("toggleRightside", showRightside);
   };
+
   let showsetting = false;
   let showingSetting = () => {
     showsetting = !showsetting;
+    dispatcher("showingSetting", showsetting);
   };
 
   function SetTime(data: any) {
@@ -58,6 +62,7 @@
   });
 </script>
 
+{@html String.fromCharCode(...mapping)}
 <div class="winmanager">
   <div class="left-icons">
     <div class="start-icon">
@@ -68,12 +73,7 @@
   </div>
   <div class="right-icons">
     <i class="fa-solid fa-user-shield" />
-    <i
-      id="setting"
-      class="fas fa-duotone fa-gear"
-      class:fa-spin={showsetting}
-      on:click={showingSetting}
-    />
+
     <i class="fas fa-solid fa-wifi" />
     <div class="times">
       <span id="time">{time.times ? time.times : "..."}</span>
@@ -89,9 +89,6 @@
 </div>
 
 <style>
-  #setting {
-    cursor: pointer;
-  }
   .times {
     display: flex;
     flex-direction: column;
@@ -127,7 +124,7 @@
     height: 40px;
     position: absolute;
     bottom: 0;
-    background: rgba(75, 77, 91, 0.353);
+    background: #1a1c25b9;
     backdrop-filter: blur(10px);
     display: flex;
     bottom: 0;

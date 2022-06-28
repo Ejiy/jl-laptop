@@ -1,12 +1,18 @@
-<script>
+<script lang="ts">
   import { flip } from "svelte/animate";
   import { fly } from "svelte/transition";
   import { notifications } from "../store/notifications";
   import { cubicIn, cubicInOut, cubicOut } from "svelte/easing";
+
+  let notif: any = $notifications;
+
+  $: {
+    notif = $notifications;
+  }
 </script>
 
 <div class="notifications">
-  {#each $notifications as notification (notification.id)}
+  {#each notif as notification (notification.id)}
     <div
       class="notif"
       animate:flip={{ duration: 150, easing: cubicInOut }}

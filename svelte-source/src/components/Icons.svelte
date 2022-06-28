@@ -3,6 +3,7 @@
   import { flip } from "svelte/animate";
   import { fade } from "svelte/transition";
   import { createEventDispatcher } from "svelte";
+  import { dark } from "../store/desktop";
   const dispatch = createEventDispatcher();
   let openApp = (app: string) => {
     dispatch("openApp", app);
@@ -11,7 +12,12 @@
 
 <div class="icons">
   {#each $apps as icon (icon.name)}
-    <div class="icon" animate:flip={{ duration: 500 }} transition:fade|local>
+    <div
+      class="icon"
+      class:hide={icon.hide}
+      animate:flip={{ duration: 500 }}
+      transition:fade|local
+    >
       <div
         class="icon-back"
         style="background-color: {icon.background}"
@@ -29,12 +35,18 @@
           <i class={icon.icon} style="color: {icon.color};" />
         {/if}
       </div>
-      <p class="text">{icon.text}</p>
+      <p class="text" class:dark={$dark}>{icon.text}</p>
     </div>
   {/each}
 </div>
 
 <style>
+  .icon.hide {
+    display: none;
+  }
+  .text.dark {
+    color: rgb(31, 31, 31);
+  }
   .image {
     padding: 5px;
     width: 80%;
@@ -42,9 +54,10 @@
   }
   .text {
     /* color: rgb(255, 255, 255); */
+    transition: all 0.5s ease;
     font-size: 12px;
     font-family: "Segoe UI", sans-serif;
-    font-weight: 600;
+    font-weight: 700;
   }
 
   .icons {

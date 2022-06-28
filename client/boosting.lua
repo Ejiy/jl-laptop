@@ -71,24 +71,25 @@ end
 
 local AntiSpam = false -- Just a true / false boolean to not spam the shit out of the server.
 -- Sends information from server to client that it will start now
-RegisterNetEvent('ps-laptop:client:MissionStarted', function(netID, coords) -- Pretty much just resets every boolean to make sure no issues will occour.
-    NetID = netID
-    AntiSpam = false
-    canHack = true
-    inZone = false
+RegisterNetEvent('ps-laptop:client:MissionStarted',
+    function(netID, coords) -- Pretty much just resets every boolean to make sure no issues will occour.
+        NetID = netID
+        AntiSpam = false
+        canHack = true
+        inZone = false
 
-    if PZone then PZone:destroy() PZone = nil end
+        if PZone then PZone:destroy() PZone = nil end
 
-    if missionBlip then RemoveBlip(missionBlip) end
+        if missionBlip then RemoveBlip(missionBlip) end
 
-    if coords then
-        missionBlip = AddBlipForRadius(coords.x, coords.y, coords.z, 150.0)
-        SetBlipAlpha(missionBlip, 150)
-        SetBlipHighDetail(missionBlip, true)
-        SetBlipColour(missionBlip, 1)
-        SetBlipAsShortRange(missionBlip, true)
-    end
-end)
+        if coords then
+            missionBlip = AddBlipForRadius(coords.x, coords.y, coords.z, 150.0)
+            SetBlipAlpha(missionBlip, 150)
+            SetBlipHighDetail(missionBlip, true)
+            SetBlipColour(missionBlip, 1)
+            SetBlipAsShortRange(missionBlip, true)
+        end
+    end)
 
 -- sends information from server to client that we found the car and we started lockpicking
 RegisterNetEvent('lockpicks:UseLockpick', function()
@@ -146,11 +147,12 @@ RegisterNetEvent('ps-laptop:client:HackCar', function()
             local plate = GetVehicleNumberPlateText(vehicle)
             if ActivePlates[plate] and ActivePlates[plate] > 0 then
                 if canHack then
-                    local pushingP = promise.new()
-                    exports['ps-ui']:Scrambler(function(cb)
-                        pushingP:resolve(cb)
-                    end, "numeric", 30, 0)
-                    local success = Citizen.Await(pushingP)
+                    -- local pushingP = promise.new()
+                    -- exports['ps-ui']:Scrambler(function(cb)
+                    --     pushingP:resolve(cb)
+                    -- end, "numeric", 30, 0)
+                    -- local success = Citizen.Await(pushingP)
+                    local success = true
                     if success then
                         QBCore.Functions.Notify('You delayed the police Tracker', 'success', 7500)
                         TriggerServerEvent('ps-laptop:server:SyncPlates', true)
@@ -255,7 +257,7 @@ RegisterNetEvent('ps-laptop:client:SyncBlips', function(coords, plate)
 end)
 
 RegisterNetEvent('ps-laptop:client:finishContract', function(table, recieved)
-    SendNUIMessage({action = 'booting/delivered'})
+    SendNUIMessage({ action = 'booting/delivered' })
 end)
 
 ---- ** NUI CALLBACKS ** ----

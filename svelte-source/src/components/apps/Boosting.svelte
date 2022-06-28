@@ -18,6 +18,8 @@
   let topdata = {
     title: "Car Boosting",
     color: "#2b2d42",
+    background: "rgba(50, 48, 60, 0.978)",
+    blur: true,
   };
 
   let pages = ["My Contracts", "Buy Contracts"];
@@ -40,7 +42,7 @@
   let progressPercentage: number = 0;
 
   function getGapPercentage(a: number, b: number) {
-    return ((repPoint - b) * 100) / (a - b)
+    return ((repPoint - b) * 100) / (a - b);
   }
 
   function getRep() {
@@ -474,8 +476,7 @@
   .boosting {
     width: 100%;
     height: 100%;
-    background: rgba(50, 48, 60, 0.978);
-    backdrop-filter: blur(5px);
+
     overflow-x: hidden;
   }
   ::-webkit-scrollbar {

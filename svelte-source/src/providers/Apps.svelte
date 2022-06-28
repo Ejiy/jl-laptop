@@ -8,20 +8,35 @@
   let left = 200;
   let top = 150;
   export let appname: string;
-  export let topdata = {
+
+  export let debug = false;
+
+  interface ITopData {
+    title: string;
+    color: string;
+    background?: string;
+    blurstrength?: number;
+    blur?: boolean;
+  }
+  export let topdata: ITopData = {
     title: "Unknown",
     color: "#fff",
+    blurstrength: 10,
+    background: "rgba(50, 48, 60, 0.978);",
+    blur: true,
   };
 
   function onMouseDown() {
     moving = true;
-    $openedAppStore.push(
-      $openedAppStore.splice(
-        $openedAppStore.findIndex((r) => r.name === appname),
-        1
-      )[0]
-    );
-    openedAppStore.set($openedAppStore);
+    if (!debug) {
+      $openedAppStore.push(
+        $openedAppStore.splice(
+          $openedAppStore.findIndex((r) => r.name === appname),
+          1
+        )[0]
+      );
+      openedAppStore.set($openedAppStore);
+    }
   }
 
   function onMouseMove(e: { movementX: number; movementY: number }) {
@@ -42,7 +57,13 @@
   in:fade|local={{ duration: 150, easing: cubicInOut }}
   out:fade|local={{ duration: 100 }}
 >
-  <div class="actual-app">
+  <div
+    class="actual-app"
+    style="background: {topdata.background ||
+      'rgba(50, 48, 60, 0.978)'}; {topdata.blur
+      ? `backdrop-filter: blur(${topdata.blurstrength || 5}px);`
+      : ''};"
+  >
     <div
       class="top {moving ? 'ondrag' : ''}"
       on:mousedown={onMouseDown}
@@ -77,14 +98,13 @@
     font-family: "Segoe UI", sans-serif;
   }
   .apps {
-    border-radius: 6px;
+    border-radius: 5px;
     position: absolute;
-    /* top: 50%;
-        left: 50%; */
     transform: translate(-50px, -50px);
     width: 80%;
     height: 80%;
     overflow-y: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   }
 
   .ondrag {
@@ -96,7 +116,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    background: rgba(50, 48, 60, 0.978);
+    /* background: rgba(50, 48, 60, 0.978); */
   }
 
   .top {
@@ -104,7 +124,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 15px;
+    padding: 0 5px 0 15px;
     width: 100%;
     height: 30px;
     backdrop-filter: blur(10px);
