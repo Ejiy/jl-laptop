@@ -6,10 +6,10 @@ local PZone = nil
 local PZone2 = nil
 local NetID = nil
 local missionBlip = nil
-local VinscratchBlip = nil
 local CanVinscratch = false
 local inZone = false
 local canHack = true
+local dropoffBlip = nil
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     PlayerData = QBCore.Functions.GetPlayerData()
@@ -114,6 +114,14 @@ RegisterNetEvent('ps-laptop:client:ReturnCar', function(coords, vinscratch, coor
         debugPoly = true,
     })
 
+    local info = {
+        ['blip'] = {
+            ['Text'] = 'Boost Drop-off',
+            ['Coords'] = coords
+        },
+        Notification = 'GPS updated with the drop-off location. Bring the car there.'
+    }
+
     PZone:onPlayerInOut(function(isPointInside)
         if isPointInside then
             inZone = true
@@ -135,7 +143,22 @@ RegisterNetEvent('ps-laptop:client:ReturnCar', function(coords, vinscratch, coor
                 CanVinscratch = false
             end
         end)
+
+        info['Notification'] = 'GPS updated with the VIN scratch location. Bring the car there.'
+        info['blip'].Coords = coords2
+        info['blip'].Text = 'VIN Scratch'
     end
+
+    QBCore.Functions.Notify(info.Notification)
+
+    dropoffBlip = AddBlipForCoord(info['blip'].Coords.x, info['blip'].Coords.y, info['blip'].Coords.z)
+    SetBlipSprite(dropoffBlip, 326)
+    SetBlipScale(dropoffBlip, 1.0)
+    SetBlipColour(dropoffBlip, 40)
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString(info['blip'].Text)
+    EndTextCommandSetBlipName(dropoffBlip)
+    SetBlipFlashTimer(dropoffBlip, 5000)
 end)
 
 -- The event where you can start to hack the vehicle
@@ -202,6 +225,7 @@ RegisterNetEvent('ps-laptop:client:DeliverVehicle', function()
     end
     TriggerServerEvent('ps-laptop:server:finishBoost', NetID)
     QBCore.Functions.DeleteVehicle(car)
+    RemoveBlip(dropoffBlip)
 end)
 
 exports['qb-target']:AddGlobalVehicle({
