@@ -25,17 +25,28 @@ local function GetPlayerAppPerms()
             end
             for i = 1, #app.item do
                 if haveItem(app.item[i]) then
+                    print(app.name)
                     for l = 1, #app.bannedJobs do if playerJob == app.bannedJobs[l] then goto skip end end
-                    for k = 1, #app.job do
-                        if playerJob == app.job[k] then
-                            apps[#apps + 1] = converted
-                            goto skip
+                    if #app.job >= 1 then
+                        for k = 1, #app.job do
+                            if playerJob == app.job[k] then
+                                apps[#apps + 1] = converted
+                                goto skip
+                            end
                         end
+                    else
+                        apps[#apps + 1] = converted
+                        goto skip
                     end
-                    for k = 1, #app.gang do
-                        if playerGang == app.gang[k] then
-                            apps[#apps + 1] = converted
+
+                    if #app.gang >= 1 then
+                        for k = 1, #app.gang do
+                            if playerGang == app.gang[k] then
+                                apps[#apps + 1] = converted
+                            end
                         end
+                    else
+                        apps[#apps + 1] = converted
                     end
                 end
             end

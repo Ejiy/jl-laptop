@@ -95,6 +95,7 @@ QBCore.Functions.CreateUseableItem(Config.Boosting.HackingDevice, function(sourc
     end
 end)
 
+
 RegisterNetEvent('ps-laptop:server:FinalDestination', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
@@ -124,11 +125,20 @@ RegisterNetEvent('ps-laptop:server:StartBoosting', function(id)
         PedSpawned = false,
     }
     MaxPools[currentContracts[CID][id].contract] += 1
-    table.remove(currentContracts[CID], id) 
+    table.remove(currentContracts[CID], id)
     TriggerClientEvent('ps-laptop:client:recieveContract', src, currentContracts[CID], false)
     SpawnCar(src)
 end)
 
+local function DeletePeds(netIds)
+    SetTimeout(5 * 1000, function()
+        for i = 1, #netIds do
+            if DoesEntityExist(NetworkGetEntityFromNetworkId(netIds[i])) then
+                DeleteEntity(NetworkGetEntityFromNetworkId(netIds[i]))
+            end
+        end
+    end)
+end
 
 RegisterNetEvent('ps-laptop:server:SpawnPed', function()
     local src = source
@@ -150,6 +160,7 @@ RegisterNetEvent('ps-laptop:server:SpawnPed', function()
     print(json.encode(netIds))
 
     TriggerClientEvent('ps-laptop:client:SpawnPeds', src, netIds, currentRuns[CID].Location)
+    DeletePeds(netIds)
 end)
 
 
@@ -207,7 +218,13 @@ RegisterNetEvent('ps-laptop:server:finishBoost', function(netId)
     local boostData = Player.PlayerData.metadata["carboostrep"] or 0
     boostData += 1
     Player.Functions.SetMetaData('carboostrep', boostData)
+
+    if DoesEntityExist(NetworkGetEntityFromNetworkId(currentRuns[CID].NetID)) then
+        DeleteEntity(NetworkGetEntityFromNetworkId(currentRuns[CID].NetID))
+    end
+
     currentRuns[CID] = nil
+
     TriggerClientEvent('ps-laptop:client:finishContract', src)
 end)
 
@@ -233,21 +250,21 @@ local function generateTier(src)
         else
             generateTier(src)
         end
-        
+
     elseif chance >= 90 then -- 5%
         if boostData >= Config.Boosting.TiersPerRep["A+"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
             tier = "A+"
         else
             generateTier(src)
         end
-        
+
     elseif chance >= 80 then -- 10%
         if boostData >= Config.Boosting.TiersPerRep["A"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
             tier = "A"
         else
             generateTier(src)
         end
-        
+
     elseif chance >= 60 then -- 20%
         if boostData >= Config.Boosting.TiersPerRep["B"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
             tier = "B"

@@ -15,7 +15,7 @@ Config.Apps = {
         background = '#1d2029',
         job = {},
         bannedJobs = {}, -- can be a table or a string
-        gang = false, -- it can be boolean or a table {'ballas'}
+        gang = {}, -- it can be boolean or a table {'ballas'}
         item = { "lockpick" },
         default = false -- if true, it will be added by default
     },
@@ -27,7 +27,7 @@ Config.Apps = {
         color = '#fff',
         background = "#aa2e25",
         job = {},
-        gang = false, -- it can be boolean or a table {'ballas'}
+        gang = {}, -- it can be boolean or a table {'ballas'}
         item = {},
         default = true -- if true, it will be added by default
     },
@@ -39,7 +39,7 @@ Config.Apps = {
         color = '#fff',
         background = "#4B5D67",
         job = {},
-        gang = false, -- it can be boolean or a table {'ballas'}
+        gang = {}, -- it can be boolean or a table {'ballas'}
         item = {},
         default = true -- if true, it will be added by default
     }

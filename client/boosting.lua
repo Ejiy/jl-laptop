@@ -44,6 +44,11 @@ local function HackDelay()
     canHack = true
 end
 
+local function DelayDelivery()
+    Wait(math.random(10,30 * 1000))
+    TriggerServerEvent('ps-laptop:server:FinalDestination')
+end
+
 local function UpdateBlips()
     local car = NetworkGetEntityFromNetworkId(NetID)
     local Plate = GetVehicleNumberPlateText(car)
@@ -61,8 +66,8 @@ local function UpdateBlips()
             end
 
             TriggerServerEvent('ps-laptop:server:SyncBlips', nil, Plate)
-            TriggerServerEvent('ps-laptop:server:FinalDestination')
             QBCore.Functions.Notify('Successfully removed tracker', 'success', 7500)
+            DelayDelivery()
         end)
     end
 end
@@ -101,11 +106,54 @@ RegisterNetEvent('lockpicks:UseLockpick', function()
             AntiSpam = true
             TriggerServerEvent('ps-laptop:server:SpawnPed')
             RemoveBlip(missionBlip)
-            exports['ps-dispatch']:CarJacking(carSpawned)
+            --exports['ps-dispatch']:CarJacking(carSpawned)
             UpdateBlips()
         end
     end
 end)
+
+-- use this for vinscratching --
+exports['qb-target']:AddGlobalVehicle({
+    options = {
+        {
+            type = "client",
+            event = "ps-laptop:client:DeliverVehicle",
+            icon = 'fas fa-example',
+            label = 'Turn in Vehicle',
+            canInteract = function(entity)
+                if inZone and entity == NetworkGetEntityFromNetworkId(NetID) then return true end
+            end,
+        }
+    },
+    distance = 2.5, -- This is the distance for you to be at for the target to turn blue, this is in GTA units and has to be a float value
+})
+
+-- Use this for normal boosting --
+local function DeliverVehicle()
+    CreateThread(function()
+        local inCar = false
+        while inZone do
+            local ped = PlayerPedId()
+            if IsPedInAnyVehicle(ped, false) then
+                print("HELLO BRUV")
+                inCar = true
+            end
+
+            if inCar and not IsPedInAnyVehicle(ped, false) then
+                print("IM IN THIS BITCH")
+                local veh = GetVehiclePedIsIn(ped, true)
+                if veh == NetworkGetEntityFromNetworkId(NetID) then
+                    print("ALMOST THERE")
+                    if not GetIsVehicleEngineRunning(veh) then
+                        inZone = false
+                        TriggerEvent('ps-laptop:client:DeliverVehicle')
+                    end
+                end
+            end
+            Wait(100)
+        end
+    end)
+end
 
 -- Creates the PolyZone for when you return the car.
 RegisterNetEvent('ps-laptop:client:ReturnCar', function(coords, vinscratch, coords2)
@@ -125,6 +173,7 @@ RegisterNetEvent('ps-laptop:client:ReturnCar', function(coords, vinscratch, coor
     PZone:onPlayerInOut(function(isPointInside)
         if isPointInside then
             inZone = true
+            DeliverVehicle()
         else
             inZone = false
         end
@@ -161,10 +210,14 @@ RegisterNetEvent('ps-laptop:client:ReturnCar', function(coords, vinscratch, coor
     SetBlipFlashTimer(dropoffBlip, 5000)
 end)
 
+RegisterCommand('hackcar', function()
+    TriggerEvent("ps-laptop:client:HackCar")
+end, false)
+
 -- The event where you can start to hack the vehicle
 RegisterNetEvent('ps-laptop:client:HackCar', function()
     local ped = PlayerPedId()
-    if haveItem(Config.Boosting.HackingDevice) then
+    --if haveItem(Config.Boosting.HackingDevice) then
         if IsPedInAnyVehicle(ped, false) then
             local vehicle = GetVehiclePedIsIn(ped, false)
             local plate = GetVehicleNumberPlateText(vehicle)
@@ -188,7 +241,7 @@ RegisterNetEvent('ps-laptop:client:HackCar', function()
                 end
             end
         end
-    end
+    --end
 end)
 
 -- Gets the ped from the server side and then gives them tasks and weapons on the client side.
@@ -216,32 +269,20 @@ end)
 
 -- Sennds a event from target to client to say now the vehicle has been delivered.
 RegisterNetEvent('ps-laptop:client:DeliverVehicle', function()
+    QBCore.Functions.Notify('Get away before noone sees you!', 'error', 7500)
     local car = NetworkGetEntityFromNetworkId(NetID)
     FreezeEntityPosition(car, true)
-    PZone:destroy()
-    PZone = nil
+    if PZone then
+        PZone:destroy()
+        PZone = nil
+    end
     while #QBCore.Functions.GetPlayersFromCoords(GetEntityCoords(car), 100.0) > 0 do
+        print(#QBCore.Functions.GetPlayersFromCoords(GetEntityCoords(car), 100.0))
         Wait(7500)
     end
     TriggerServerEvent('ps-laptop:server:finishBoost', NetID)
-    QBCore.Functions.DeleteVehicle(car)
     RemoveBlip(dropoffBlip)
 end)
-
-exports['qb-target']:AddGlobalVehicle({
-    options = {
-        {
-            type = "client",
-            event = "ps-laptop:client:DeliverVehicle",
-            icon = 'fas fa-example',
-            label = 'Turn in Vehicle',
-            canInteract = function(entity)
-                if inZone and entity == NetworkGetEntityFromNetworkId(NetID) then return true end
-            end,
-        }
-    },
-    distance = 2.5, -- This is the distance for you to be at for the target to turn blue, this is in GTA units and has to be a float value
-})
 
 
 ---- ALL THE SYNCS ----
