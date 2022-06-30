@@ -3,18 +3,95 @@ local display = false
 local PlayerData = {}
 local onDuty = false
 
+-- **  LOCALIZED FUNCTIONS WE USE ONLY IN THIS FILE
+
+-- A function which returns the applications that the player should have access to.
+local function GetPlayerAppPerms()
+    local apps = {}
+    local playerJob, playerGang = PlayerData.job.name, PlayerData.gang.name
+        for _, app in pairs(Config.Apps) do
+            local converted = {
+                name = app.app,
+                icon = app.icon,
+                text = app.name,
+                color = app.color,
+                background = app.background,
+                useimage = app.useimage
+            }
+
+            if app.default then
+                apps[#apps + 1] = converted
+                goto skip
+            end
+            for i = 1, #app.item do
+                if haveItem(app.item[i]) then
+                    for l = 1, #app.bannedJobs do if playerJob == app.bannedJobs[l] then goto skip end end
+                    for k = 1, #app.job do
+                        if playerJob == app.job[k] then
+                            apps[#apps + 1] = converted
+                            goto skip
+                        end
+                    end
+                    for k = 1, #app.gang do
+                        if playerGang == app.gang[k] then
+                            apps[#apps + 1] = converted
+                        end
+                    end
+                end
+            end
+            ::skip::
+        end
+    return apps
+end
+
+---- Animation for opening the laptop ----
+local function Animation()
+
+    local tabletDict = "amb@code_human_in_bus_passenger_idles@female@tablet@base"
+    local tabletAnim = "base"
+    local tabletProp = 'prop_cs_tablet'
+    local tabletBone = 60309
+    local tabletOffset = vector3(0.03, 0.002, -0.0)
+    local tabletRot = vector3(10.0, 160.0, 0.0)
+
+    if not display then return end
+    -- Animation
+    if not HasAnimDictLoaded(tabletDict) then
+        RequestAnimDict(tabletDict)
+        while not HasAnimDictLoaded(tabletDict) do Citizen.Wait(100) end
+    end
+
+    -- Model
+    if not HasModelLoaded(tabletProp) then
+        RequestModel(tabletProp)
+        while not HasModelLoaded(tabletProp) do Citizen.Wait(100) end
+    end
+
+    local plyPed = PlayerPedId()
+
+    local tabletObj = CreateObject(tabletProp, 0.0, 0.0, 0.0, true, true, false)
+
+    local tabletBoneIndex = GetPedBoneIndex(plyPed, tabletBone)
+
+    AttachEntityToEntity(tabletObj, plyPed, tabletBoneIndex, tabletOffset.x, tabletOffset.y, tabletOffset.z, tabletRot.x, tabletRot.y, tabletRot.z, true, false, false, false, 2, true)
+    SetModelAsNoLongerNeeded(tabletProp)
+
+    CreateThread(function()
+        while display do
+            Wait(0)
+            if not IsEntityPlayingAnim(plyPed, tabletDict, tabletAnim, 3) then
+                TaskPlayAnim(plyPed, tabletDict, tabletAnim, 3.0, 3.0, -1, 49, 0, 0, 0, 0)
+            end
+        end
+        ClearPedSecondaryTask(plyPed)
+        Wait(250)
+        DetachEntity(tabletObj, true, false)
+        DeleteEntity(tabletObj)
+    end)
+end
 
 ---- ** Globalized Varaibles if we need them other parts of the client ** ----
 CurrentCops = 0
-
-
-
-local tabletDict = "amb@code_human_in_bus_passenger_idles@female@tablet@base"
-local tabletAnim = "base"
-local tabletProp = 'prop_cs_tablet'
-local tabletBone = 60309
-local tabletOffset = vector3(0.03, 0.002, -0.0)
-local tabletRot = vector3(10.0, 160.0, 0.0)
 
 
 local function SetDisplay(bool)
@@ -25,7 +102,7 @@ local function SetDisplay(bool)
         action = "toggle",
         status = bool,
     })
-    
+
     Animation()
 end
 
@@ -57,44 +134,6 @@ function isPolice()
     end
 
     return isPolice
-end
-
--- A function which returns the applications that the player should have access to.
-function GetPlayerAppPerms()
-    local apps = {}
-    local playerJob, playerGang = PlayerData.job.name, PlayerData.gang.name
-        for _, app in pairs(Config.Apps) do
-            local converted = {
-                name = app.app,
-                icon = app.icon,
-                text = app.name,
-                color = app.color,
-                background = app.background,
-                useimage = app.useimage
-            }
-
-            if app.default then
-                apps[#apps + 1] = converted
-                goto skip
-            end
-            for i = 1, #app.item do
-                if haveItem(app.item[i]) then
-                    for i = 1, #app.job do
-                        if playerJob == app.job[i] then
-                            apps[#apps + 1] = converted
-                            goto skip
-                        end
-                    end
-                    for i = 1, #app.gang do
-                        if playerGang == app.gang[i] then
-                            apps[#apps + 1] = converted
-                        end
-                    end
-                end
-            end
-            ::skip::
-        end
-    return apps
 end
 
 RegisterCommand('openlaptop', function()
@@ -166,39 +205,6 @@ function CalculateTimeToDisplay()
     data.minute = minute
 
     return data
-end
-
--- Zamn thanks ps-mdt 😎
-function Animation()
-    if not display then return end
-    -- Animation
-    RequestAnimDict(tabletDict)
-    while not HasAnimDictLoaded(tabletDict) do Citizen.Wait(100) end
-    -- Model
-    RequestModel(tabletProp)
-    while not HasModelLoaded(tabletProp) do Citizen.Wait(100) end
-
-    local plyPed = PlayerPedId()
-
-    local tabletObj = CreateObject(tabletProp, 0.0, 0.0, 0.0, true, true, false)
-
-    local tabletBoneIndex = GetPedBoneIndex(plyPed, tabletBone)
-
-    AttachEntityToEntity(tabletObj, plyPed, tabletBoneIndex, tabletOffset.x, tabletOffset.y, tabletOffset.z, tabletRot.x, tabletRot.y, tabletRot.z, true, false, false, false, 2, true)
-    SetModelAsNoLongerNeeded(tabletProp)
-
-    CreateThread(function()
-        while display do
-            Wait(0)
-            if not IsEntityPlayingAnim(plyPed, tabletDict, tabletAnim, 3) then
-                TaskPlayAnim(plyPed, tabletDict, tabletAnim, 3.0, 3.0, -1, 49, 0, 0, 0, 0)
-            end
-        end
-        ClearPedSecondaryTask(plyPed)
-        Wait(250)
-        DetachEntity(tabletObj, true, false)
-        DeleteEntity(tabletObj)
-    end)
 end
 
 CreateThread(function()

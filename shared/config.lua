@@ -13,10 +13,10 @@ Config.Apps = {
         useimage = true,
         color = '#fff',
         background = '#1d2029',
-        job = {}, -- MUST be a table {'police'}
-        usevpn = true,
-        gang = {}, -- MUST be a table {'ballas'}
-        item = { "lockpick" }, -- MUST be a table {'lockpick'}
+        job = {},
+        bannedJobs = {}, -- can be a table or a string
+        gang = false, -- it can be boolean or a table {'ballas'}
+        item = { "lockpick" },
         default = false -- if true, it will be added by default
     },
     ['browser'] = {
@@ -27,9 +27,20 @@ Config.Apps = {
         color = '#fff',
         background = "#aa2e25",
         job = {},
-        usevpn = true,
-        gang = {},
+        gang = false, -- it can be boolean or a table {'ballas'}
         item = {},
-        default = true
+        default = true -- if true, it will be added by default
+    },
+    ['setting'] = {
+        app = 'setting',
+        name = 'Setting',
+        icon = 'fa-solid fa-cog',
+        useimage = false,
+        color = '#fff',
+        background = "#4B5D67",
+        job = {},
+        gang = false, -- it can be boolean or a table {'ballas'}
+        item = {},
+        default = true -- if true, it will be added by default
     }
 }
