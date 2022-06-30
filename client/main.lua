@@ -63,66 +63,37 @@ end
 function GetPlayerAppPerms()
     local apps = {}
     local playerJob, playerGang = PlayerData.job.name, PlayerData.gang.name
-    for _, app in pairs(Config.Apps) do
-        local hasAccess = false
-        local converted = {
-            name = app.app,
-            icon = app.icon,
-            text = app.name,
-            color = app.color,
-            background = app.background,
-            useimage = app.useimage
-        }
-        if app.default and not hasAccess then
-            apps[#apps + 1] = converted
-            hasAccess = true
-        end
-        if app.job then
-            if type(app.job) == 'table' then
-                for i = 1, #app.job do
-                    if app.job[i] == playerJob then
-                        apps[#apps + 1] = converted
-                        hasAccess = true
+        for _, app in pairs(Config.Apps) do
+            local converted = {
+                name = app.app,
+                icon = app.icon,
+                text = app.name,
+                color = app.color,
+                background = app.background,
+                useimage = app.useimage
+            }
+
+            if app.default then
+                apps[#apps + 1] = converted
+                goto skip
+            end
+            for i = 1, #app.item do
+                if haveItem(app.item[i]) then
+                    for i = 1, #app.job do
+                        if playerJob == app.job[i] then
+                            apps[#apps + 1] = converted
+                            goto skip
+                        end
+                    end
+                    for i = 1, #app.gang do
+                        if playerGang == app.gang[i] then
+                            apps[#apps + 1] = converted
+                        end
                     end
                 end
-            else
-                if app.job == playerJob then
-                    apps[#apps + 1] = converted
-                    hasAccess = true
-                end
             end
+            ::skip::
         end
-        if app.gang and not hasAccess then
-            if type(app.gang) == 'table' then
-                for i = 1, #app.gang do
-                    if app.gang[i] == playerGang then
-                        apps[#apps + 1] = converted
-                        hasAccess = true
-                    end
-                end
-            else
-                if app.gang == playerGang then
-                    apps[#apps + 1] = converted
-                    hasAccess = true
-                end
-            end
-        end
-        if app.item and not hasAccess then
-            if type(app.item) == 'table' then
-                for i = 1, #app.item do
-                    if haveItem(app.item[i]) then
-                        apps[#apps + 1] = converted
-                        hasAccess = true
-                    end
-                end
-            else
-                if haveItem(app.item) then
-                    apps[#apps + 1] = converted
-                    hasAccess = true
-                end
-            end
-        end
-    end
     return apps
 end
 
