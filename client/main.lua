@@ -9,49 +9,50 @@ local onDuty = false
 local function GetPlayerAppPerms()
     local apps = {}
     local playerJob, playerGang = PlayerData.job.name, PlayerData.gang.name
-        for _, app in pairs(Config.Apps) do
-            local converted = {
-                name = app.app,
-                icon = app.icon,
-                text = app.name,
-                color = app.color,
-                background = app.background,
-                useimage = app.useimage
-            }
+    local searches = 0
+    for _, app in pairs(Config.Apps) do
+        local converted = {
+            name = app.app,
+            icon = app.icon,
+            text = app.name,
+            color = app.color,
+            background = app.background,
+            useimage = app.useimage
+        }
 
-            if app.default then
-                apps[#apps + 1] = converted
+        if app.default then
+            apps[#apps + 1] = converted
                 goto skip
-            end
-            for i = 1, #app.item do
-                if haveItem(app.item[i]) then
-                    print(app.name)
-                    for l = 1, #app.bannedJobs do if playerJob == app.bannedJobs[l] then goto skip end end
-                    if #app.job >= 1 then
-                        for k = 1, #app.job do
-                            if playerJob == app.job[k] then
-                                apps[#apps + 1] = converted
-                                goto skip
-                            end
-                        end
-                    else
-                        apps[#apps + 1] = converted
-                        goto skip
-                    end
+        end
 
-                    if #app.gang >= 1 then
-                        for k = 1, #app.gang do
-                            if playerGang == app.gang[k] then
-                                apps[#apps + 1] = converted
-                            end
+        if (#app.job > #app.gang and #app.job > #app.bannedJobs) then
+            searches = #app.job
+        elseif(#app.gang > #app.bannedJobs) then
+            searches = #app.gang
+        else
+            searches = #app.bannedJobs
+        end
+
+        for i = 1, #app.item do
+            if haveItem(app.item[i]) then
+                if searches > 0 then
+                    for k = 1, searches do
+                        if app.bannedJobs[k] == playerJob then
+                            goto skip
+                        elseif playerJob == app.job[k] or playerGang == app.gang[k] then
+                            apps[#apps+1] = converted
+                            goto skip
                         end
-                    else
-                        apps[#apps + 1] = converted
                     end
+                else
+                    apps[#apps+1] = converted
+                    goto skip
                 end
             end
-            ::skip::
         end
+        ::skip::
+    end
+
     return apps
 end
 
