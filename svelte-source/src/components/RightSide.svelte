@@ -180,7 +180,7 @@
     justify-content: space-between;
     overflow-y: hidden;
     align-items: center;
-    background: rgb(19, 21, 36);
+    background: rgb(40, 41, 49);
     height: 40px;
     z-index: 10;
   }

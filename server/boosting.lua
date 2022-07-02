@@ -294,6 +294,11 @@ local function generateCar(tier)
     return Config.Boosting.Vehicles[tier][math.random(1, #Config.Boosting.Vehicles[tier])]
 end
 
+function GetHoursFromNow(hours)
+    local time = os.date("%c", os.time() + hours * 60 * 60)
+    return time
+ end
+
 local function generateContract(src)
     local Player = QBCore.Functions.GetPlayer(src)
     local CID = Player.PlayerData.citizenid
@@ -305,7 +310,7 @@ local function generateContract(src)
             id = #currentContracts[CID]+1,
             contract = contract,
             car = generateCar(contract),
-            expire = os.time(),
+            expire = GetHoursFromNow(6),
             owner = generateName(),
             vinscratch = canScratch()
         }

@@ -1,8 +1,10 @@
 import { writable, derived } from "svelte/store";
 import oldNotifications, { oldNotificationsType } from "./oldnotification";
-import { apps, appType } from "./desktop";
+import { apps } from "./desktop";
+import type { IApp } from "../@types/apps";
 import popsound from "../assets/audio/pop.ogg";
-let appsdata: appType[];
+
+let appsdata: IApp[];
 
 const app = apps.subscribe((d) => {
   appsdata = d;
@@ -25,7 +27,7 @@ function newNotifStore() {
         audio.remove();
       };
       oldNotifications.add(data as oldNotificationsType);
-      return [...v, data];
+      return [...v, data] as any;
     });
   }
 
@@ -53,7 +55,7 @@ function newNotifStore() {
 }
 
 function getAppData(app: string) {
-  let filtered = appsdata.filter((d: appType) => d.name === app);
+  let filtered = appsdata.filter((d: IApp) => d.name === app);
   console.log(filtered[0]);
   if (filtered.length > 0) return filtered[0];
 }

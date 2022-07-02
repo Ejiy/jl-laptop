@@ -20,6 +20,7 @@
     "vite": "^2.9.9"
   },
   "dependencies": {
-    "html-minifier": "^4.0.0"
+    "html-minifier": "^4.0.0",
+    "moment": "^2.29.3"
   }
 }

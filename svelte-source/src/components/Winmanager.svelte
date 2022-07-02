@@ -2,7 +2,10 @@
   import { createEventDispatcher, onDestroy, onMount } from "svelte";
   import { fetchNui } from "../utils/eventHandler";
   import logo from "../assets/logo.png";
-  import { mapping } from "../store/desktop";
+  import { mapping, openedApps } from "../store/desktop";
+  import { flip } from "svelte/animate";
+  import { fade, scale } from "svelte/transition";
+  import { cubicIn, cubicInOut, cubicOut } from "svelte/easing";
 
   interface ITime {
     times: string;
@@ -69,17 +72,37 @@
       <div class="icon-start">
         <img class="start" src={logo} alt="icon" />
       </div>
+      <div class="opened-apps" style="margin-left: 5px;">
+        {#each $openedApps as openApp (openApp.name)}
+          <div
+            animate:flip={{ easing: cubicOut, duration: 200 }}
+            class="open-icon"
+            style="background-color: {openApp.background};"
+            in:fade={{ easing: cubicInOut }}
+            out:scale={{ easing: cubicIn, duration: 250, opacity: 2 }}
+          >
+            {#if openApp.useimage}
+              <img
+                class="icon"
+                style="width: 70%;"
+                src={`./images/apps/${openApp.name}.png`}
+                alt={openApp.name}
+              />
+            {:else}
+              <i class={openApp.icon} style="font-size: 18px;" />
+            {/if}
+          </div>
+        {/each}
+      </div>
     </div>
   </div>
   <div class="right-icons">
     <i class="fa-solid fa-user-shield" />
-
     <i class="fas fa-solid fa-wifi" />
     <div class="times">
       <span id="time">{time.times ? time.times : "..."}</span>
       <span id="date">{time.date ? time.date : "..."}</span>
     </div>
-
     <i
       class="fa-regular fa-message"
       style="cursor: pointer;"
@@ -89,6 +112,22 @@
 </div>
 
 <style>
+  .open-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .opened-apps {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+    height: 100%;
+    gap: 5px;
+  }
   .times {
     display: flex;
     flex-direction: column;
@@ -111,7 +150,13 @@
     margin: 0 10px;
   }
   .icon-start {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     border-radius: 3px;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.123);
   }
 
   .start {

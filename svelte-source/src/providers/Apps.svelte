@@ -2,7 +2,7 @@
   import { fade } from "svelte/transition";
   import { cubicInOut, cubicOut } from "svelte/easing";
   import app from "../main";
-  import { closeApp, openedAppStore } from "../store/desktop";
+  import { closeApp, openedApps } from "../store/desktop";
 
   let moving = false;
   let left = 200;
@@ -29,13 +29,13 @@
   function onMouseDown() {
     moving = true;
     if (!debug) {
-      $openedAppStore.push(
-        $openedAppStore.splice(
-          $openedAppStore.findIndex((r) => r.name === appname),
+      $openedApps.push(
+        $openedApps.splice(
+          $openedApps.findIndex((r) => r.name === appname),
           1
         )[0]
       );
-      openedAppStore.set($openedAppStore);
+      openedApps.set($openedApps);
     }
   }
 

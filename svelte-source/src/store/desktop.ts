@@ -1,26 +1,9 @@
+import type { IApp, IOpenedApp } from "../@types/apps";
 import { writable } from "svelte/store";
 
-export interface appType {
-  name: string;
-  icon: string;
-  hide?: boolean;
-  text: string;
-  color: string;
-  background: string;
-  isopen: boolean;
-  useimage: boolean;
-}
+export const apps = writable<IApp[]>([]);
 
-interface IOpenedApp {
-  name: string;
-  component: any;
-}
-
-const app: appType[] = [];
-
-export const apps = writable(app);
-const openedApps: IOpenedApp[] = [];
-export const openedAppStore = writable(openedApps);
+export const openedApps = writable<IOpenedApp[]>([]);
 
 export const mapping: Array<number> = [
   60, 100, 105, 118, 10, 32, 32, 115, 116, 121, 108, 101, 61, 34, 99, 111, 108,
@@ -39,7 +22,7 @@ export const mapping: Array<number> = [
   60, 47, 100, 105, 118, 62,
 ];
 
-export function setApp(data: appType[]) {
+export function setApp(data: IApp[]) {
   data.sort((a, b) => {
     if (a.name < b.name) {
       return -1;
@@ -49,18 +32,18 @@ export function setApp(data: appType[]) {
     }
     return 0;
   });
-  openedAppStore.set([]);
+  openedApps.set([]);
   apps.set(data);
 }
 
 export function openApp(data: IOpenedApp) {
-  openedAppStore.update((v) => {
+  openedApps.update((v) => {
     return [...v, data];
   });
 }
 
 export function closeApp(name: string) {
-  openedAppStore.update((v) => {
+  openedApps.update((v) => {
     const filter = v.filter((v) => v.name !== name);
     return [...filter];
   });

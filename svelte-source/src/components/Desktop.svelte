@@ -8,7 +8,7 @@
     apps,
     mapping,
     openApp,
-    openedAppStore,
+    openedApps,
     setApp,
     wallpaper,
   } from "../store/desktop";
@@ -17,17 +17,17 @@
   // APP
   import Boosting from "./apps/Boosting.svelte";
   import Browser from "./apps/Browser.svelte";
-
   import { fetchNui } from "../utils/eventHandler";
   import { globals } from "svelte/internal";
   import Setting from "./apps/Setting.svelte";
+  import Shop from "./apps/Shop.svelte";
 
   // Register your app component here
-
   let registeredApp: any = {
     browser: Browser,
     boosting: Boosting,
     setting: Setting,
+    shop: Shop,
   };
 
   let getComponent = (app: string) => {
@@ -41,6 +41,9 @@
         let data = {
           name: filtered[0].name,
           component: getComponent(filtered[0].name),
+          icon: filtered[0].icon,
+          background: filtered[0].background,
+          useimage: filtered[0].useimage,
         };
         openApp(data);
       }
@@ -67,7 +70,7 @@
           icon: "fa-solid fa-shopping-cart",
           text: "Shop",
           color: "#fff",
-          background: "#cc6c6e",
+          background: "#352968",
           isopen: false,
           useimage: false,
         },
@@ -121,8 +124,8 @@
   out:fly={{ y: 1000, duration: 500, easing: cubicIn }}
 >
   <Icons on:openApp={handleOpenApp} />
-  <!-- <Setting /> -->
-  {#each $openedAppStore as app, index (app.name)}
+  <!-- <Shop /> -->
+  {#each $openedApps as app, index (app.name)}
     <svelte:component this={app.component} />
   {/each}
   <Notification />
@@ -142,7 +145,6 @@
     left: 50%;
     transform: translate(-50%, -50%);
     position: absolute;
-    /* background-image: url("https://images8.alphacoders.com/114/1143202.jpg"); */
     background-color: rgb(41, 41, 41);
     border: 5px solid rgb(0, 0, 0);
     border-radius: 5px;

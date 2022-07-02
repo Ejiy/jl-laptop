@@ -1,4 +1,5 @@
 <script lang="ts">
+  import moment from "moment";
   import Apps from "../../providers/Apps.svelte";
   import { flip } from "svelte/animate";
   import { fly } from "svelte/transition";
@@ -14,7 +15,6 @@
   } from "../../store/boosting";
   import { notifications } from "../../store/notifications";
   import { fetchNui } from "../../utils/eventHandler";
-
   let topdata = {
     title: "Car Boosting",
     color: "#2b2d42",
@@ -224,7 +224,7 @@
               </div>
             </div>
           {/each}
-          {#each $contracts as contract, index (contract.id)}
+          {#each $contracts as contract (contract.id)}
             <div
               class="contract-card"
               in:fly|local={{ duration: 300, y: -300, easing: cubicOut }}
@@ -247,7 +247,10 @@
                   <div class="vehicle">
                     <p>Vehicle : {contract.car}</p>
                     <p>
-                      Expires in : <span class="expire">{contract.expire}</span>
+                      Expires in :
+                      <span class="expire"
+                        >{moment(contract.expire).endOf("hour").fromNow()}</span
+                      >
                     </p>
                   </div>
                 </div>

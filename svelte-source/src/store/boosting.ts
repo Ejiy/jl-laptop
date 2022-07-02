@@ -1,22 +1,11 @@
 import { writable } from "svelte/store";
+import type { IContracts } from "../@types/boosting";
 
-interface contracts {
-  id: number;
-  contract: string;
-  car: string;
-  expire: number;
-  owner: string;
-  vinscratch: boolean;
-}
+export const contracts = writable<IContracts[]>([]);
+export const startedContracts = writable<IContracts[]>([]);
 
-const contract: contracts[] = [];
-const startedContract: contracts[] = [];
-
-export const contracts = writable(contract);
-export const startedContracts = writable(startedContract);
-
-let contractsStore: contracts[];
-let startedContractStore: contracts[];
+let contractsStore: IContracts[];
+let startedContractStore: IContracts[];
 
 const unsubsContracts = contracts.subscribe((v) => {
   contractsStore = v;
@@ -26,7 +15,7 @@ const unsubscribeContractStart = startedContracts.subscribe((v) => {
   startedContractStore = v;
 });
 
-export function handleContracts(data: contracts[]) {
+export function handleContracts(data: IContracts[]) {
   contracts.set(data);
 }
 

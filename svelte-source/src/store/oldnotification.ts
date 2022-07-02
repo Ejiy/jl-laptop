@@ -1,9 +1,9 @@
 import { writable } from "svelte/store";
-import type { appType } from "./desktop";
+import type { IApp } from "../@types/apps";
 
 export interface oldNotificationsType {
   id: number;
-  app: appType;
+  app: IApp;
   message: string;
   timeout?: number;
 }
