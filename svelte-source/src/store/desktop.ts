@@ -60,7 +60,7 @@ export function toggleVisible(status?: boolean) {
 }
 
 export const wallpaper = writable(
-  "https://images8.alphacoders.com/114/1143202.jpg"
+  "https://media.discordapp.net/attachments/943008869699969045/992656358094671913/Project_Sloth_Laptop_Wallpaper.png"
 );
 
 export function setWallpaper(wp: string) {
