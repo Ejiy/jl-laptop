@@ -10,11 +10,15 @@
   let darkdesktop = $dark;
 
   let wallpaperlist = [
-    "https://images8.alphacoders.com/114/1143202.jpg",
-    "https://i.pinimg.com/originals/8a/5b/6e/8a5b6e45d0d89a812ed8e28c8f0b3730.jpg",
-    "https://wallpaper.dog/large/20511548.jpg",
-    "https://wallpaper.dog/large/794259.jpg",
-    "https://fashionsista.co/wallpaper/wallpaper/20210114/rimuru-tempest-4k-8k-hd-that-time-i-got-reincarnated-as-a-preview.webp",
+    "https://cdn.discordapp.com/attachments/943008869699969045/992656358094671913/Project_Sloth_Laptop_Wallpaper.png",
+    "https://mishaburnett.files.wordpress.com/2022/04/max.png",
+    "https://techyhost.com/wp-content/uploads/2019/10/Rainmeter-Skin-1.jpg",
+    "https://www.whatspaper.com/wp-content/uploads/2022/03/cyberpunk-wallpaper-whatspaper-9.jpg",
+    "https://wallpapercave.com/wp/wp6065533.png",
+    "https://wallpaperaccess.com/full/5212923.jpg",
+    "https://i.pinimg.com/originals/67/7d/d0/677dd0ea60b8c98e8ff496449ab65bfe.jpg",
+    "https://wallpaperaccess.com/full/3047149.jpg",
+    "https://img3.wallspic.com/crops/1/9/5/6/6/166591/166591-bmw-cars-sports_car-compact_car-a_segment-1920x1080.jpg",
   ];
 
   function handleWallpaperClick(src: string) {
