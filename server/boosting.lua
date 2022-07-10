@@ -1,13 +1,32 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local MaxPools = { -- Contains all the the amount of contracts avaible every restart, once a contract has started or declined it gets back into the pool
-    ["D"] = 5,
-    ["C"] = 1,
-    ["B"] = 1,
-    ["A"] = 1,
-    ["A+"] = 1,
-    ["S"] = 1,
+    ["D"] = 25,
+    ["C"] = 20,
+    ["B"] = 15,
+    ["A"] = 10,
+    ["A+"] = 5,
+    ["S"] = 3,
     ["S+"] = 1,
 }
+
+local cars = {
+    ["D"] = {},
+    ["C"] = {},
+    ["B"] = {},
+    ["A"] = {},
+    ["A+"] = {},
+    ["S"] = {},
+    ["S+"] = {},
+}
+
+
+CreateThread(function()
+    for k, v in pairs(QBCore.Shared.Vehicles) do
+        if v['tier'] and cars[v['tier']] then
+            cars[v['tier']][#cars[v['tier']]+1] = k
+        end
+    end
+end)
 
 local currentRuns = {}
 local ActivePlates = {} -- Handle all the active plates and syncs all the data shit
@@ -18,26 +37,40 @@ local function generateName()
     return Config.Boosting.RandomNames[math.random(1, #Config.Boosting.RandomNames)]
 end
 
+local function ResetShit(Tier, location)
+    SetTimeout(5 * 60000, function()
+        Config.Boosting.Locations[Tier][location].isBusy = false
+    end)
+end
+
 local function GerRandomLocation(Tier)
     local Locations = {}
     for i = 1, #Config.Boosting.Locations[Tier] do
-        if not Config.Boosting.Locations[Tier].isBusy then
+        print(Config.Boosting.Locations[Tier][i].isBusy)
+        if not Config.Boosting.Locations[Tier][i].isBusy then
             Locations[#Locations+1] = i
         end
     end
+    local location = Locations[math.random(1, #Locations)]
+    Config.Boosting.Locations[Tier][location].isBusy = true
+    return Config.Boosting.Locations[Tier][location], location
+end
 
-    return Config.Boosting.Locations[Tier][Locations[math.random(1, #Locations)]]
+local function ResetAnotherShit(Tier)
+    SetTimeout(5 * 60000, function()
+        Config.Boosting.ReturnLocation[Tier].isBusy = false
+    end)
 end
 
 local function GetRandomDropOff()
     local Locations = {}
     for i = 1, #Config.Boosting.ReturnLocation do
-        if not Config.Boosting.ReturnLocation.isBusy then
+        if not Config.Boosting.ReturnLocation[i].isBusy then
             Locations[#Locations+1] = i
         end
     end
-
-    return Config.Boosting.ReturnLocation[Locations[math.random(1, #Locations)]].coords
+    local location = Locations[math.random(1, #Locations)]
+    return Config.Boosting.ReturnLocation[Locations[location]].coords, location
 end
 
 local function canScratch()
@@ -77,7 +110,7 @@ local function SpawnCar(src)
         SetVehicleDoorsLocked(car, 2)
 
         local plate = GeneratePlate()
-        ActivePlates[plate] = 1 --math.random(3, 5)
+        ActivePlates[plate] = math.random(3, 10)
         SetVehicleNumberPlateText(car, plate)
         currentRuns[CID].NetID = NetworkGetNetworkIdFromEntity(car)
 
@@ -90,7 +123,6 @@ end
 QBCore.Functions.CreateUseableItem(Config.Boosting.HackingDevice, function(source, item)
     local Player = QBCore.Functions.GetPlayer(source)
     if Player.Functions.GetItemByName(Config.Boosting.HackingDevice) ~= nil then
-        print("ok?")
         TriggerClientEvent('ps-laptop:client:HackCar', source)
     end
 end)
@@ -101,37 +133,55 @@ RegisterNetEvent('ps-laptop:server:FinalDestination', function()
     local Player = QBCore.Functions.GetPlayer(src)
     local CID = Player.PlayerData.citizenid
     if currentRuns[CID] and not currentRuns[CID].dropOff and not currentRuns[CID].vinscratch then
-        TriggerClientEvent('ps-laptop:client:ReturnCar', src, GetRandomDropOff())
+        local place, id = GetRandomDropOff()
+
+        TriggerClientEvent('ps-laptop:client:ReturnCar', src, place)
+        ResetAnotherShit(id)
     elseif currentRuns[CID] and not currentRuns[CID].dropOff and currentRuns[CID].vinscratch then
         TriggerClientEvent('ps-laptop:client:ReturnCar', src, GetRandomDropOff(), true) -- true and the GetVinscratchLocation gives them the final vinscratch location
     end
 end)
 
-RegisterNetEvent('ps-laptop:server:StartBoosting', function(id)
+RegisterNetEvent('ps-laptop:server:StartBoosting', function(id, currentCops)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local CID = Player.PlayerData.citizenid
+    local amount
+
+    if currentCops == 2 then
+        amount = 1
+    elseif currentCops > 2 then
+        amount = math.floor(currentCops / 2)
+    else
+        amount = 2
+    end
+
+    if #currentRuns >= amount then return end
     if currentRuns[CID] then return end
     if not currentContracts[CID][id] then return end
-
-    currentRuns[CID] = {
-        Location = GerRandomLocation(currentContracts[CID][id].contract),
-        vinscratch = currentContracts[CID][id].vinscratch,
-        car = currentContracts[CID][id].car,
-        contract = currentContracts[CID][id].contract,
-        dropOff = nil,
-        Plate = nil,
-        NetID = nil,
-        PedSpawned = false,
-    }
-    MaxPools[currentContracts[CID][id].contract] += 1
-    table.remove(currentContracts[CID], id)
-    TriggerClientEvent('ps-laptop:client:recieveContract', src, currentContracts[CID], false)
-    SpawnCar(src)
+    local location, place = GerRandomLocation(currentContracts[CID][id].contract)
+    if location then
+        currentRuns[CID] = {
+            Location = location,
+            vinscratch = currentContracts[CID][id].vinscratch,
+            car = currentContracts[CID][id].car,
+            contract = currentContracts[CID][id].contract,
+            dropOff = nil,
+            Plate = nil,
+            NetID = nil,
+            PedSpawned = false,
+        }
+        print("works")
+        MaxPools[currentContracts[CID][id].contract] += 1
+        ResetShit(currentContracts[CID][id].contract, place)
+        table.remove(currentContracts[CID], id)
+        TriggerClientEvent('ps-laptop:client:recieveContract', src, currentContracts[CID], false)
+        SpawnCar(src)
+    end
 end)
 
 local function DeletePeds(netIds)
-    SetTimeout(5 * 1000, function()
+    SetTimeout(2.5 * 60000, function()
         for i = 1, #netIds do
             if DoesEntityExist(NetworkGetEntityFromNetworkId(netIds[i])) then
                 DeleteEntity(NetworkGetEntityFromNetworkId(netIds[i]))
@@ -144,11 +194,9 @@ RegisterNetEvent('ps-laptop:server:SpawnPed', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local CID = Player.PlayerData.citizenid
-    print("ok")
     if currentRuns[CID].PedSpawned then return end
     currentRuns[CID].PedSpawned = true
     local netIds = {}
-    print(json.encode(currentRuns[CID].Location.peds))
     for k, v in pairs(currentRuns[CID].Location.peds) do
         local netId
         local pedstuff = CreatePed(30, joaat(v.model), v.coords, true, false)
@@ -157,7 +205,6 @@ RegisterNetEvent('ps-laptop:server:SpawnPed', function()
         netIds[k] = netId
     end
     Wait(300)
-    print(json.encode(netIds))
 
     TriggerClientEvent('ps-laptop:client:SpawnPeds', src, netIds, currentRuns[CID].Location)
     DeletePeds(netIds)
@@ -187,6 +234,8 @@ RegisterNetEvent('ps-laptop:server:SyncPlates', function(success)
 end)
 
 
+
+
 ----- ** Generate Contract things ** -----
 
 RegisterNetEvent('ps-laptop:server:JoinQueue', function(status)
@@ -204,7 +253,23 @@ RegisterNetEvent('ps-laptop:server:JoinQueue', function(status)
     else
         LookingForContracts[CID] = nil
     end
+end)
 
+
+RegisterNetEvent('ps-laptop:server:CancelBoost', function(netId, Plate)
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    local CID = Player.PlayerData.citizenid
+    if not currentRuns[CID] then return end
+    if not (currentRuns[CID].NetID == netId) then return end
+
+    if DoesEntityExist(NetworkGetEntityFromNetworkId(currentRuns[CID].NetID)) then return end
+
+    ActivePlates[Plate] = 0
+    currentRuns[CID] = nil
+    TriggerClientEvent('ps-laptop:client:SyncPlates', -1, ActivePlates)
+    TriggerClientEvent('ps-laptop:client:finishContract', src)
+    TriggerClientEvent('QBCore:Notify', src, "You failed to deliver the vehicle and contract has been terminated.", "error")
 end)
 
 RegisterNetEvent('ps-laptop:server:finishBoost', function(netId)
@@ -218,13 +283,13 @@ RegisterNetEvent('ps-laptop:server:finishBoost', function(netId)
     local boostData = Player.PlayerData.metadata["carboostrep"] or 0
     boostData += 1
     Player.Functions.SetMetaData('carboostrep', boostData)
+    exports['qb-phone']:AddCrypto(src, "gne", math.random(1,5))
+
 
     if DoesEntityExist(NetworkGetEntityFromNetworkId(currentRuns[CID].NetID)) then
         DeleteEntity(NetworkGetEntityFromNetworkId(currentRuns[CID].NetID))
     end
-
     currentRuns[CID] = nil
-
     TriggerClientEvent('ps-laptop:client:finishContract', src)
 end)
 
@@ -232,10 +297,7 @@ local function generateTier(src)
     local chance = math.random(1,100)
     local Player = QBCore.Functions.GetPlayer(src)
     local boostData = Player.PlayerData.metadata["carboostrep"] or 0
-    print(boostData)
     local tier
-
-    print("stuck in loop")
 
     -- We should also get their current metadata and based on their metadata increase this luck or even cap it so they cant get s+ if they just startedt/
     if chance >= 99 then -- 2%
@@ -280,18 +342,19 @@ local function generateTier(src)
     else -- 35%
         tier = "D"
     end
-    print(MaxPools["D"], MaxPools["S"], MaxPools["S+"])
+
+    Wait(0)
+
     if MaxPools[tier] and MaxPools[tier] > 0 then
         MaxPools[tier] -= 1
         return tier
     else
-        print("big fail")
         return nil
     end
 end
 
 local function generateCar(tier)
-    return Config.Boosting.Vehicles[tier][math.random(1, #Config.Boosting.Vehicles[tier])]
+    return cars[tier][math.random(1, #cars[tier])]
 end
 
 function GetHoursFromNow(hours)
@@ -326,11 +389,10 @@ CreateThread(function()
         if LookingForContracts then
             for k, v in pairs(LookingForContracts) do
                 if currentContracts[k] then
-                    if #currentContracts[k] < 1 then
-                        print(json.encode(currentContracts[k]))
+                    if #currentContracts[k] < 5 then
                         local ContractChance = math.random()
 
-                        if v.skipped >= 15 or ContractChance < 0.80 then -- 80% chance of getting a contract
+                        if v.skipped >= 25 or ContractChance >= 0.90 then -- 10% chance of getting a contract
                             generateContract(v.src)
                         else
                             v.skipped += 1
@@ -339,17 +401,28 @@ CreateThread(function()
                 end
             end
         end
-        Wait(5 * 1000) -- Once every minute
+        Wait(2 * 60000) -- Once every 2 minutes
     end
 end)
 
-CreateThread(function()
-    while true do
-        if currentContracts then
-            for k, v in pairs(currentContracts) do
-                -- look for shit that has expired and delete them
-            end
-        end
-        Wait(60*1000) -- Once a hour
+QBCore.Functions.CreateCallback('ps-laptop:server:GetContracts', function(source, cb)
+    local Player = QBCore.Functions.GetPlayer(source)
+    local CID = Player.PlayerData.citizenid
+
+    cb(currentContracts[CID], ActivePlates)
+end)
+
+QBCore.Functions.CreateCallback('ps-laptop:server:CanStartBoosting', function(source, cb, cops)
+    if cops == 2 then
+        amount = 1
+    elseif cops > 2 then
+        amount = math.floor(cops / 2)
+    else
+        amount = 2
+    end
+    if #currentRuns >= amount then
+        cb(false)
+    else
+        cb(true)
     end
 end)

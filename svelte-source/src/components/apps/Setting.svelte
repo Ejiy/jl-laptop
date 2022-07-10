@@ -10,7 +10,6 @@
   let darkdesktop = $dark;
 
   let wallpaperlist = [
-    "https://cdn.discordapp.com/attachments/943008869699969045/992656358094671913/Project_Sloth_Laptop_Wallpaper.png",
     "https://mishaburnett.files.wordpress.com/2022/04/max.png",
     "https://techyhost.com/wp-content/uploads/2019/10/Rainmeter-Skin-1.jpg",
     "https://www.whatspaper.com/wp-content/uploads/2022/03/cyberpunk-wallpaper-whatspaper-9.jpg",

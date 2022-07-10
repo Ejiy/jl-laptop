@@ -22,7 +22,7 @@
     blur: true,
   };
 
-  let pages = ["My Contracts", "Buy Contracts"];
+  let pages = ["My Contracts"];
 
   let activepage = "My Contracts";
 
@@ -75,12 +75,12 @@
         rep: 30,
         repConfig: [
           ["D", 0],
-          ["C", 10],
-          ["B", 20],
-          ["A", 30],
-          ["A+", 40],
-          ["S", 50],
-          ["S+", 100],
+          ["C", 50],
+          ["B", 100],
+          ["A", 150],
+          ["A+", 200],
+          ["S", 250],
+          ["S+", 300],
         ],
       };
     });

@@ -1,19 +1,29 @@
 Config.Boosting = {}
 
-Config.Boosting.HackingDevice = "hacking_device" -- Whatever item you use to hack a car with
+Config.Boosting.HackingDevice = "trackerdisabler" -- Whatever item you use to hack a car with
 
-Config.Boosting.HackDelay = 180 -- 180 seconds delay
+Config.Boosting.HackDelay = 45 -- 180 seconds delay
 
 
 Config.Boosting.MinusOne = true -- true or false, detmains wheather the Z is minus 1 or not.
+
+Config.Boosting.PedSettings = {
+    ["D"] = {weapons = {"weapon_bat", "weapon_pistol"}},
+    ["C"] = {weapons = {}, health = {}, armor = {}},
+    ["B"] = {weapons = {}, health = {}, armor = {}},
+    ["A"] = {weapons = {}, health = {}, armor = {}},
+    ["A+"] = {weapons = {}, health = {}, armor = {}},
+    ["S"] = {weapons = {}, health = {}, armor = {}},
+    ["S+"] = {weapons = {}, health = {}, armor = {}},
+}
 Config.Boosting.Locations = {
     ["D"] = {
         [1] = {
             carCoords = vector4(722.49, -603.78, 27.65, 212.7),
 
             peds = {
-                [1] = { coords = vector4(733.44, -600.73, 27.92, 287.04), health = 100, armor = 100,
-                    model = 'a_m_y_bevhills_01', weapon = "weapon_bat" },
+                [1] = { coords = vector4(733.44, -600.73, 27.92, 287.04), health = math.random(200, 500), armor = math.random(100, 200),
+                    model = 'a_m_y_bevhills_01', weapon = Config.Boosting.PedSettings["D"].weapons[math.random(1, #Config.Boosting.PedSettings["D"].weapons)] },
             },
 
             isBusy = false
@@ -23,10 +33,10 @@ Config.Boosting.Locations = {
             carCoords = vector4(-322.16, -752.79, 52.62, 162.03),
 
             peds = {
-                [1] = { coords = vector4(-322.32, -775.02, 53.25, 42.39), health = 100, armor = 100,
-                    model = 'a_m_y_bevhills_01', weapon = "weapon_bat" },
-                [2] = { coords = vector4(-324.21, -776.72, 53.25, 45.48), health = 100, armor = 100,
-                    model = 'a_m_y_bevhills_01', weapon = "weapon_bat" },
+                [1] = { coords = vector4(-322.32, -775.02, 53.25, 42.39), health = math.random(200, 500), armor = math.random(100, 200),
+                    model = 'a_m_y_bevhills_01', weapon = Config.Boosting.PedSettings["D"].weapons[math.random(1, #Config.Boosting.PedSettings["D"].weapons)] },
+                [2] = { coords = vector4(-324.21, -776.72, 53.25, 45.48), health = math.random(200, 500), armor = math.random(100, 200),
+                    model = 'a_m_y_bevhills_01', weapon = Config.Boosting.PedSettings["D"].weapons[math.random(1, #Config.Boosting.PedSettings["D"].weapons)] },
             },
 
             isBusy = false
@@ -230,12 +240,12 @@ Config.Boosting.Locations = {
 
 Config.Boosting.TiersPerRep = {
     ["D"] = 0,
-    ["C"] = 10,
-    ["B"] = 20,
-    ["A"] = 30,
-    ["A+"] = 40,
-    ["S"] = 50,
-    ["S+"] = 60,
+    ["C"] = 50,
+    ["B"] = 100,
+    ["A"] = 150,
+    ["A+"] = 200,
+    ["S"] = 250,
+    ["S+"] = 300,
 }
 
 Config.Boosting.RandomNames = {

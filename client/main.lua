@@ -1,6 +1,6 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local display = false
-local PlayerData = {}
+PlayerData = {}
 local onDuty = false
 
 -- **  LOCALIZED FUNCTIONS WE USE ONLY IN THIS FILE
@@ -39,7 +39,10 @@ local function GetPlayerAppPerms()
                     for k = 1, searches do
                         if app.bannedJobs[k] == playerJob then
                             goto skip
-                        elseif playerJob == app.job[k] or playerGang == app.gang[k] then
+                        elseif (app.job[k] and app.job[k] == playerJob) or (app.gang[k] and app.gang[k] == playerGang) then
+                            apps[#apps+1] = converted
+                            goto skip
+                        else
                             apps[#apps+1] = converted
                             goto skip
                         end
@@ -148,16 +151,13 @@ function isPolice()
     return isPolice
 end
 
-RegisterCommand('openlaptop', function()
-    SetDisplay(not display)
-end)
-
 RegisterNetEvent('ps-laptop:client:openlaptop', function()
-    SetDisplay(true)
+    if haveItem(Config.LaptopDevice) then
+        SetDisplay(true)
+    end
 end)
 
 RegisterNUICallback('close', function(_, cb)
-    print("TRIGGERED")
     SetDisplay(false)
     cb("ok")
 end)
@@ -167,12 +167,6 @@ RegisterNUICallback('loadapps', function(data, cb)
 end)
 
 
-
-
--- Handles state right when the player selects their character and location.
-RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    PlayerData = QBCore.Functions.GetPlayerData()
-end)
 
 -- Resets state on logout, in case of character change.
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
