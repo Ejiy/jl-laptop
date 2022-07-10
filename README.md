@@ -10,3 +10,4 @@ a laptop script
 
 ```lua
 	['slothylaptop'] 				 = {['name'] = 'slothylaptop', 			  	  	['label'] = 'Slothy Laptop', 			['weight'] = 2000, 		['type'] = 'item', 		['image'] = 'slothylaptop.png', 		['unique'] = false, 	['useable'] = true, 	['shouldClose'] = true,	   ['combinable'] = nil,   ["created"] = nil, ["decay"] = 28.0, ['description'] = 'A laptop used for various activities'},
+```

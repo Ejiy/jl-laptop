@@ -29,6 +29,10 @@ RegisterCommand('boost', function()
 
 end, false)
 
+RegisterCommand('getcontract', function()
+    TriggerServerEvent('jl-motel:debug', Contracts)
+end)
+
 RegisterCommand('queue', function()
 
     TriggerServerEvent('ps-laptop:server:JoinQueue')
@@ -45,7 +49,7 @@ local function HackDelay()
 end
 
 local function DelayDelivery()
-    Wait(math.random(10,30 * 1000))
+    Wait(math.random(10, 30 * 1000))
     TriggerServerEvent('ps-laptop:server:FinalDestination')
 end
 
@@ -218,29 +222,29 @@ end, false)
 RegisterNetEvent('ps-laptop:client:HackCar', function()
     local ped = PlayerPedId()
     --if haveItem(Config.Boosting.HackingDevice) then
-        if IsPedInAnyVehicle(ped, false) then
-            local vehicle = GetVehiclePedIsIn(ped, false)
-            local plate = GetVehicleNumberPlateText(vehicle)
-            if ActivePlates[plate] and ActivePlates[plate] > 0 then
-                if canHack then
-                    -- local pushingP = promise.new()
-                    -- exports['ps-ui']:Scrambler(function(cb)
-                    --     pushingP:resolve(cb)
-                    -- end, "numeric", 30, 0)
-                    -- local success = Citizen.Await(pushingP)
-                    local success = true
-                    if success then
-                        QBCore.Functions.Notify('You delayed the police Tracker', 'success', 7500)
-                        TriggerServerEvent('ps-laptop:server:SyncPlates', true)
-                    else
-                        QBCore.Functions.Notify('You failed nuub :)', 'error', 7500)
-                    end
-                    HackDelay()
+    if IsPedInAnyVehicle(ped, false) then
+        local vehicle = GetVehiclePedIsIn(ped, false)
+        local plate = GetVehicleNumberPlateText(vehicle)
+        if ActivePlates[plate] and ActivePlates[plate] > 0 then
+            if canHack then
+                -- local pushingP = promise.new()
+                -- exports['ps-ui']:Scrambler(function(cb)
+                --     pushingP:resolve(cb)
+                -- end, "numeric", 30, 0)
+                -- local success = Citizen.Await(pushingP)
+                local success = true
+                if success then
+                    QBCore.Functions.Notify('You delayed the police Tracker', 'success', 7500)
+                    TriggerServerEvent('ps-laptop:server:SyncPlates', true)
                 else
-                    QBCore.Functions.Notify("You must wait atleast " .. Config.Boosting.HackDelay, 'error', 7500)
+                    QBCore.Functions.Notify('You failed nuub :)', 'error', 7500)
                 end
+                HackDelay()
+            else
+                QBCore.Functions.Notify("You must wait atleast " .. Config.Boosting.HackDelay, 'error', 7500)
             end
         end
+    end
     --end
 end)
 
@@ -331,9 +335,22 @@ RegisterNUICallback('boosting/queue', function(cb)
 end)
 
 RegisterNUICallback('boosting/start', function(data, cb)
+    -- Zoo you can do your stuff here
+    local canDo = false
+    if canDo then
+        TriggerServerEvent('ps-laptop:server:StartBoosting', data.id)
+        cb({
+            status = 'success'
+        })
+    else
+        cb({
+            status = 'error',
+            message = "Man.. wth"
+        })
+    end
     -- print(data.id)
-    TriggerServerEvent('ps-laptop:server:StartBoosting', data.id)
-    cb("ok")
+
+
 end)
 
 RegisterNUICallback("boosting/getrep", function(_, cb)

@@ -115,9 +115,13 @@
       id,
     })
       .then((res) => {
-        startedContracts.set([contract as any, ...$startedContracts]);
-        started.set(true);
-        notifications.send("You just started a contract", "boosting", 5000);
+        if (res.status === "success") {
+          startedContracts.set([contract as any, ...$startedContracts]);
+          started.set(true);
+          notifications.send("You just started a contract", "boosting", 5000);
+        } else if (res.status === "error") {
+          notifications.send(res.message, "boosting", 5000);
+        }
       })
       .catch((err) => {
         console.log(err);
