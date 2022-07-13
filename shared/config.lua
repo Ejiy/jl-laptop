@@ -1,6 +1,6 @@
 Config = {}
 
-Config.LaptopDevice = "elaptop"
+Config.LaptopDevice = "laptop"
 
 Config.PoliceJobs = {
     "police",
@@ -16,7 +16,7 @@ Config.Apps = {
         color = '#fff',
         background = '#1d2029',
         job = {},
-        bannedJobs = {"police"}, -- can be a table or a string
+        bannedJobs = { "police" }, -- can be a table or a string
         gang = {}, -- it can be boolean or a table {'ballas'}
         item = { "vpn" },
         default = false -- if true, it will be added by default

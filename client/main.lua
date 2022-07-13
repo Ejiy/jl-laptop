@@ -22,12 +22,12 @@ local function GetPlayerAppPerms()
 
         if app.default then
             apps[#apps + 1] = converted
-                goto skip
+            goto skip
         end
 
         if (#app.job > #app.gang and #app.job > #app.bannedJobs) then
             searches = #app.job
-        elseif(#app.gang > #app.bannedJobs) then
+        elseif (#app.gang > #app.bannedJobs) then
             searches = #app.gang
         else
             searches = #app.bannedJobs
@@ -40,15 +40,15 @@ local function GetPlayerAppPerms()
                         if app.bannedJobs[k] == playerJob then
                             goto skip
                         elseif (app.job[k] and app.job[k] == playerJob) or (app.gang[k] and app.gang[k] == playerGang) then
-                            apps[#apps+1] = converted
+                            apps[#apps + 1] = converted
                             goto skip
                         else
-                            apps[#apps+1] = converted
+                            apps[#apps + 1] = converted
                             goto skip
                         end
                     end
                 else
-                    apps[#apps+1] = converted
+                    apps[#apps + 1] = converted
                     goto skip
                 end
             end
@@ -88,7 +88,8 @@ local function Animation()
 
     local tabletBoneIndex = GetPedBoneIndex(plyPed, tabletBone)
 
-    AttachEntityToEntity(tabletObj, plyPed, tabletBoneIndex, tabletOffset.x, tabletOffset.y, tabletOffset.z, tabletRot.x, tabletRot.y, tabletRot.z, true, false, false, false, 2, true)
+    AttachEntityToEntity(tabletObj, plyPed, tabletBoneIndex, tabletOffset.x, tabletOffset.y, tabletOffset.z, tabletRot.x
+        , tabletRot.y, tabletRot.z, true, false, false, false, 2, true)
     SetModelAsNoLongerNeeded(tabletProp)
 
     CreateThread(function()
@@ -151,7 +152,7 @@ function isPolice()
     return isPolice
 end
 
-RegisterNetEvent('ps-laptop:client:openlaptop', function()
+RegisterNetEvent('jl-laptop:client:openlaptop', function()
     if haveItem(Config.LaptopDevice) then
         SetDisplay(true)
     end

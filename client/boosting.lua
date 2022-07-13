@@ -41,7 +41,7 @@ end
 
 local function DelayDelivery()
     Wait(math.random(10, 30 * 1000))
-    TriggerServerEvent('ps-laptop:server:FinalDestination')
+    TriggerServerEvent('jl-laptop:server:FinalDestination')
 end
 
 local function UpdateBlips()
@@ -54,17 +54,17 @@ local function UpdateBlips()
                 if DoesEntityExist(car) then
                     Wait(10000 / ActivePlates[Plate]) -- Max 10 seconds, the more times hacked the less time it updates
                     local pos = GetEntityCoords(car)
-                    TriggerServerEvent('ps-laptop:server:SyncBlips', pos, Plate)
+                    TriggerServerEvent('jl-laptop:server:SyncBlips', pos, Plate)
                 else
                     Wait(2500)
                     checks = checks + 1
                     if checks >= 3 and not DoesEntityExist(car) then
-                        TriggerServerEvent('ps-laptop:server:CancelBoost', NetID, Plate)
+                        TriggerServerEvent('jl-laptop:server:CancelBoost', NetID, Plate)
                     end -- additional safety check JUST incase, make a cancel events cancelling everything
                 end
             end
 
-            TriggerServerEvent('ps-laptop:server:SyncBlips', nil, Plate)
+            TriggerServerEvent('jl-laptop:server:SyncBlips', nil, Plate)
             QBCore.Functions.Notify('Successfully removed tracker', 'success', 7500)
             DelayDelivery()
         end)
@@ -77,25 +77,26 @@ local AntiSpam = false -- Just a true / false boolean to not spam the shit out o
 local carCoords = nil
 
 -- Sends information from server to client that it will start now
-RegisterNetEvent('ps-laptop:client:MissionStarted', function(netID, coords) -- Pretty much just resets every boolean to make sure no issues will occour.
-    NetID = netID
-    carCoords = coords
-    AntiSpam = false
-    canHack = true
-    inZone = false
+RegisterNetEvent('jl-laptop:client:MissionStarted',
+    function(netID, coords) -- Pretty much just resets every boolean to make sure no issues will occour.
+        NetID = netID
+        carCoords = coords
+        AntiSpam = false
+        canHack = true
+        inZone = false
 
-    if PZone then PZone:destroy() PZone = nil end
+        if PZone then PZone:destroy() PZone = nil end
 
-    if missionBlip then RemoveBlip(missionBlip) end
+        if missionBlip then RemoveBlip(missionBlip) end
 
-    if coords then
-        missionBlip = AddBlipForRadius(coords.x, coords.y, coords.z, 150.0)
-        SetBlipAlpha(missionBlip, 150)
-        SetBlipHighDetail(missionBlip, true)
-        SetBlipColour(missionBlip, 1)
-        SetBlipAsShortRange(missionBlip, true)
-    end
-end)
+        if coords then
+            missionBlip = AddBlipForRadius(coords.x, coords.y, coords.z, 150.0)
+            SetBlipAlpha(missionBlip, 150)
+            SetBlipHighDetail(missionBlip, true)
+            SetBlipColour(missionBlip, 1)
+            SetBlipAsShortRange(missionBlip, true)
+        end
+    end)
 
 -- sends information from server to client that we found the car and we started lockpicking
 RegisterNetEvent('lockpicks:UseLockpick', function()
@@ -105,14 +106,14 @@ RegisterNetEvent('lockpicks:UseLockpick', function()
         local dist = #(GetEntityCoords(carSpawned) - GetEntityCoords(PlayerPedId()))
         print(dist)
         if dist <= 2.5 then -- 2.5 is the distance in qbcore vehiclekeys if you use more or less then please edit this.
-            if #(vector3(carCoords.x,carCoords.y,carCoords.z) - GetEntityCoords(carSpawned)) <= 6.9 then
+            if #(vector3(carCoords.x, carCoords.y, carCoords.z) - GetEntityCoords(carSpawned)) <= 6.9 then
                 AntiSpam = true
-                TriggerServerEvent('ps-laptop:server:SpawnPed')
+                TriggerServerEvent('jl-laptop:server:SpawnPed')
                 RemoveBlip(missionBlip)
                 UpdateBlips()
                 exports['qb-dispatch']:VehicleBoost()
             else
-                TriggerServerEvent('ps-laptop:server:CancelBoost', NetID, Plate)
+                TriggerServerEvent('jl-laptop:server:CancelBoost', NetID, Plate)
             end
         end
     end
@@ -123,7 +124,7 @@ end)
     options = {
         {
             type = "client",
-            event = "ps-laptop:client:DeliverVehicle",
+            event = "jl-laptop:client:DeliverVehicle",
             icon = 'fas fa-example',
             label = 'Turn in Vehicle',
             canInteract = function(entity)
@@ -149,7 +150,7 @@ local function DeliverVehicle()
                 if veh == NetworkGetEntityFromNetworkId(NetID) then
                     if not GetIsVehicleEngineRunning(veh) then
                         inZone = false
-                        TriggerEvent('ps-laptop:client:DeliverVehicle')
+                        TriggerEvent('jl-laptop:client:DeliverVehicle')
                     end
                 end
             end
@@ -159,7 +160,7 @@ local function DeliverVehicle()
 end
 
 -- Creates the PolyZone for when you return the car.
-RegisterNetEvent('ps-laptop:client:ReturnCar', function(coords, vinscratch, coords2)
+RegisterNetEvent('jl-laptop:client:ReturnCar', function(coords, vinscratch, coords2)
     PZone = CircleZone:Create(coords, 5, {
         name = "NewReturnWhoDis",
         debugPoly = true,
@@ -224,7 +225,7 @@ local psUI = {
     "runes"
 }
 
-RegisterNetEvent('ps-laptop:client:HackCar', function()
+RegisterNetEvent('jl-laptop:client:HackCar', function()
     local ped = PlayerPedId()
     if haveItem(Config.Boosting.HackingDevice) then
         if IsPedInAnyVehicle(ped, false) then
@@ -239,13 +240,14 @@ RegisterNetEvent('ps-laptop:client:HackCar', function()
                     local success = Citizen.Await(pushingP)
                     if success then
                         QBCore.Functions.Notify('You delayed the police Tracker', 'success', 7500)
-                        TriggerServerEvent('ps-laptop:server:SyncPlates', true)
+                        TriggerServerEvent('jl-laptop:server:SyncPlates', true)
                     else
                         QBCore.Functions.Notify('You failed nuub :)', 'error', 7500)
                     end
                     HackDelay()
                 else
-                    QBCore.Functions.Notify("You must wait atleast " .. Config.Boosting.HackDelay .. " Seconds", 'error', 7500)
+                    QBCore.Functions.Notify("You must wait atleast " .. Config.Boosting.HackDelay .. " Seconds", 'error'
+                        , 7500)
                 end
             end
         end
@@ -253,7 +255,7 @@ RegisterNetEvent('ps-laptop:client:HackCar', function()
 end)
 
 -- Gets the ped from the server side and then gives them tasks and weapons on the client side.
-RegisterNetEvent('ps-laptop:client:SpawnPeds', function(netIds, Location)
+RegisterNetEvent('jl-laptop:client:SpawnPeds', function(netIds, Location)
     for i = 1, #netIds do
         local APed = NetworkGetEntityFromNetworkId(netIds[i])
         SetPedDropsWeaponsWhenDead(APed, false)
@@ -277,7 +279,7 @@ end)
 
 
 -- Sennds a event from target to client to say now the vehicle has been delivered.
-RegisterNetEvent('ps-laptop:client:DeliverVehicle', function()
+RegisterNetEvent('jl-laptop:client:DeliverVehicle', function()
     QBCore.Functions.Notify('Get away before anyone sees you!', 'error', 7500)
     local car = NetworkGetEntityFromNetworkId(NetID)
     FreezeEntityPosition(car, true)
@@ -292,19 +294,19 @@ RegisterNetEvent('ps-laptop:client:DeliverVehicle', function()
         print(#QBCore.Functions.GetPlayersFromCoords(GetEntityCoords(car), 100.0))
         Wait(7500)
     end
-    TriggerServerEvent('ps-laptop:server:finishBoost', NetID)
+    TriggerServerEvent('jl-laptop:server:finishBoost', NetID)
     RemoveBlip(dropoffBlip)
 end)
 
 
 ---- ALL THE SYNCS ----
 -- This sync just makes it so anyone can hack a vehicle, that is hackable from boosting
-RegisterNetEvent('ps-laptop:client:SyncPlates', function(data)
+RegisterNetEvent('jl-laptop:client:SyncPlates', function(data)
     ActivePlates = data
 end)
 
 -- Sends the information to client when their contracts update
-RegisterNetEvent('ps-laptop:client:recieveContract', function(table, recieved)
+RegisterNetEvent('jl-laptop:client:recieveContract', function(table, recieved)
     if recieved then
         QBCore.Functions.Notify('You recieved a new contract!', 'success', 7500)
     else
@@ -319,7 +321,7 @@ end)
 local blips = {} -- Stores all the blips in a table so that PD can see multiple blips at the same time
 
 -- The event that does everything for the blips, checks if the client is police then checks if the blip is active and if it is then remove it and spawn a new
-RegisterNetEvent('ps-laptop:client:SyncBlips', function(coords, plate)
+RegisterNetEvent('jl-laptop:client:SyncBlips', function(coords, plate)
     if not isPolice() then return end
     if blips[plate] then RemoveBlip(blips[plate]) end
     if coords then
@@ -331,7 +333,7 @@ RegisterNetEvent('ps-laptop:client:SyncBlips', function(coords, plate)
 end)
 
 
-RegisterNetEvent('ps-laptop:client:finishContract', function()
+RegisterNetEvent('jl-laptop:client:finishContract', function()
     if PZone then PZone:destroy() PZone = nil end
     if PZone2 then PZone2:destroy() PZone2 = nil end
     NetID = nil
@@ -344,18 +346,18 @@ end)
 
 ---- ** NUI CALLBACKS ** ----
 RegisterNUICallback('boosting/queue', function(cb)
-    TriggerServerEvent('ps-laptop:server:JoinQueue', cb.status)
+    TriggerServerEvent('jl-laptop:server:JoinQueue', cb.status)
 end)
 
 RegisterNUICallback('boosting/start', function(data, cb)
     -- Zoo you can do your stuff here
     print(currentCops)
     local CanDo = nil
-    QBCore.Functions.TriggerCallback('ps-laptop:server:CanStartBoosting', function(result)
+    QBCore.Functions.TriggerCallback('jl-laptop:server:CanStartBoosting', function(result)
         CanDo = result
         while CanDo == nil do Wait(25) end
         if CanDo then
-            TriggerServerEvent('ps-laptop:server:StartBoosting', data.id, currentCops)
+            TriggerServerEvent('jl-laptop:server:StartBoosting', data.id, currentCops)
             cb({
                 status = 'success'
             })
@@ -377,11 +379,24 @@ RegisterNUICallback("boosting/getrep", function(_, cb)
     cb(data)
 end)
 
+RegisterNUICallback("boosting/getcontract", function(_, cb)
+    QBCore.Functions.TriggerCallback('jl-laptop:server:GetContracts', function(result, plates)
+        Contracts = result
+        ActivePlates = plates
+        if Contracts and #Contracts > 0 then
+            cb({
+                status = 'success',
+                contracts = Contracts
+            })
+        end
+    end)
+end)
+
 -- Handles state right when the player selects their character and location.
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     PlayerData = QBCore.Functions.GetPlayerData()
 
-    QBCore.Functions.TriggerCallback('ps-laptop:server:GetContracts', function(result, plates)
+    QBCore.Functions.TriggerCallback('jl-laptop:server:GetContracts', function(result, plates)
         Contracts = result
         ActivePlates = plates
         if Contracts and #Contracts > 0 then
