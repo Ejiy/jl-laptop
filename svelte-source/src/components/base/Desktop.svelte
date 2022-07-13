@@ -14,14 +14,14 @@
   import { fetchNui } from "../../utils/eventHandler";
   import { globals } from "svelte/internal";
   import Setting from "../apps/Setting.svelte";
-  import Shop from "../apps/Shop.svelte";
+  import BennyShop from "../apps/BennyShop.svelte";
 
   // Register your app component here
   let registeredApp: any = {
     browser: Browser,
     boosting: Boosting,
     setting: Setting,
-    shop: Shop,
+    bennys: BennyShop,
   };
 
   let getComponent = (app: string) => {
@@ -60,9 +60,9 @@
           useimage: true,
         },
         {
-          name: "shop",
+          name: "bennys",
           icon: "fa-solid fa-shopping-cart",
-          text: "Shop",
+          text: "Bennys Shop",
           color: "#fff",
           background: "#352968",
           isopen: false,

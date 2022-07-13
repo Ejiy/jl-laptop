@@ -26,6 +26,7 @@ export function openApp(data: IOpenedApp) {
 }
 
 export function closeApp(name: string) {
+  console.log(name);
   openedApps.update((v) => {
     const filter = v.filter((v) => v.name !== name);
     return [...filter];
