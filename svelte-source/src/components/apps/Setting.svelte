@@ -1,13 +1,11 @@
 <script lang="ts">
-  import { dark, wallpaper } from "../../store/desktop";
+  import { settings } from "../../store/settings";
   import Apps from "../../providers/Apps.svelte";
   import LeftBarSetting from "./utility/LeftBarSetting.svelte";
   import Toggle from "../../providers/Toggle.svelte";
   import { fly, fade } from "svelte/transition";
   import { cubicIn, cubicOut, quadInOut } from "svelte/easing";
   let currentPage = "Personalise";
-
-  let darkdesktop = $dark;
 
   let wallpaperlist = [
     "https://mishaburnett.files.wordpress.com/2022/04/max.png",
@@ -21,20 +19,9 @@
   ];
 
   function handleWallpaperClick(src: string) {
-    console.log(src);
-    wallpaper.set(src);
-  }
-
-  function isActive(str: string) {
-    console.log($wallpaper);
-    if ($wallpaper === str) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-  $: {
-    dark.set(darkdesktop);
+    settings.update((s) => {
+      return { ...s, background: src };
+    });
   }
 </script>
 
@@ -66,7 +53,7 @@
             <div class="list">
               {#each wallpaperlist as wp}
                 <img
-                  class:active={$wallpaper === wp}
+                  class:active={$settings.background === wp}
                   on:click={() => {
                     handleWallpaperClick(wp);
                   }}
@@ -83,7 +70,7 @@
 
             <div class="font-dark">
               <span>Dark Font ( desktop icon )</span>
-              <Toggle bind:checked={darkdesktop} />
+              <Toggle bind:checked={$settings.darkfont} />
             </div>
           </div>
         </div>
