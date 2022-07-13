@@ -21,7 +21,6 @@
     background: "rgba(50, 48, 60, 0.978)",
     blur: true,
   };
-
   let pages = ["My Contracts"];
 
   let activepage = "My Contracts";
@@ -59,6 +58,10 @@
       }
     }
   }
+
+  fetchNui("boosting/getcontract").then((r) => {
+    console.log(r);
+  });
 
   fetchNui("boosting/getrep")
     .then((r) => {

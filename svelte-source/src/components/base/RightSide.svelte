@@ -2,7 +2,7 @@
   import { fade, fly } from "svelte/transition";
   import { cubicOut, cubicInOut } from "svelte/easing";
   import { flip } from "svelte/animate";
-  import oldNotifications from "../store/oldnotification";
+  import oldNotifications from "../../store/oldnotification";
   export let showRightside = false;
 </script>
 

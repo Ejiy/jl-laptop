@@ -4,23 +4,17 @@
   import Notification from "./Notification.svelte";
   import ShittyRightSide from "./RightSide.svelte";
   import Winmanager from "./Winmanager.svelte";
-  import {
-    apps,
-    mapping,
-    openApp,
-    openedApps,
-    setApp,
-    wallpaper,
-  } from "../store/desktop";
+  import { apps, openApp, openedApps, setApp } from "../../store/desktop";
+  import { settings } from "../../store/settings";
   import { cubicIn, cubicOut } from "svelte/easing";
 
   // APP
-  import Boosting from "./apps/Boosting.svelte";
-  import Browser from "./apps/Browser.svelte";
-  import { fetchNui } from "../utils/eventHandler";
+  import Boosting from "../apps/Boosting.svelte";
+  import Browser from "../apps/Browser.svelte";
+  import { fetchNui } from "../../utils/eventHandler";
   import { globals } from "svelte/internal";
-  import Setting from "./apps/Setting.svelte";
-  import Shop from "./apps/Shop.svelte";
+  import Setting from "../apps/Setting.svelte";
+  import Shop from "../apps/Shop.svelte";
 
   // Register your app component here
   let registeredApp: any = {
@@ -119,7 +113,7 @@
 
 <div
   class="desktop"
-  style="background-image: url({$wallpaper});"
+  style="background-image: url({$settings.background});"
   in:fly={{ y: 1000, duration: 1000, easing: cubicOut }}
   out:fly={{ y: 1000, duration: 500, easing: cubicIn }}
 >

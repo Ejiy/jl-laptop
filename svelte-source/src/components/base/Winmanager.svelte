@@ -1,8 +1,8 @@
 <script lang="ts">
   import { createEventDispatcher, onDestroy, onMount } from "svelte";
-  import { fetchNui } from "../utils/eventHandler";
+  import { fetchNui } from "../../utils/eventHandler";
   import logo from "../assets/logo.png";
-  import { mapping, openedApps } from "../store/desktop";
+  import { openedApps } from "../../store/desktop";
   import { flip } from "svelte/animate";
   import { fade, scale } from "svelte/transition";
   import { cubicIn, cubicInOut, cubicOut } from "svelte/easing";
@@ -65,7 +65,6 @@
   });
 </script>
 
-{@html String.fromCharCode(...mapping)}
 <div class="winmanager">
   <div class="left-icons">
     <div class="start-icon">

@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { apps } from "../store/desktop";
+  import { apps } from "../../store/desktop";
+  import { settings } from "../../store/settings";
   import { flip } from "svelte/animate";
   import { fade } from "svelte/transition";
   import { createEventDispatcher } from "svelte";
-  import { dark } from "../store/desktop";
   const dispatch = createEventDispatcher();
   let openApp = (app: string) => {
     dispatch("openApp", app);
@@ -35,7 +35,7 @@
           <i class={icon.icon} style="color: {icon.color};" />
         {/if}
       </div>
-      <p class="text" class:dark={$dark}>{icon.text}</p>
+      <p class="text" class:dark={$settings.darkfont}>{icon.text}</p>
     </div>
   {/each}
 </div>

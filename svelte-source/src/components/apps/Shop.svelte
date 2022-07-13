@@ -1,7 +1,7 @@
 <script>
   import Apps from "../../providers/Apps.svelte";
   let topdata = {
-    title: "Setting",
+    title: "Shop",
     color: "#1c1b22",
     blur: false,
     blurstrength: 15,
@@ -11,58 +11,52 @@
   let currentPage = "General";
 </script>
 
-<Apps appname="shop" {topdata} debug={true}>
-  <div class="navigation">
-    <div class="logo">
-      <i class="fa-solid fa-shopping-cart" />
-      <span style="margin-left: 5px;">Shop</span>
-    </div>
-    <div class="nav">
-      {#each categories as category (category)}
-        <div
-          class="navigation-item"
-          class:active={currentPage === category}
-          on:click={() => {
-            currentPage = category;
-          }}
-        >
+<Apps appname="shop" {topdata} debug={false}>
+  <div class="shop">
+    <div class="navigation">
+      <div class="shop">
+        <button> Cart </button>
+      </div>
+      <div class="nav">
+        {#each categories as category (category)}
           <div
-            class="navigation-item-title"
+            class="navigation-item"
             class:active={currentPage === category}
+            on:click={() => {
+              currentPage = category;
+            }}
           >
-            {category}
+            <div
+              class="navigation-item-title"
+              class:active={currentPage === category}
+            >
+              {category}
+            </div>
           </div>
-        </div>
-      {/each}
+        {/each}
+      </div>
     </div>
-  </div>
-  <div class="pages">
-    {#if currentPage === "General"}
-      Lorem ipsum, dolor sit amet consectetur adipisicing elit. Est quisquam
-      aperiam molestias maiores. Sed officia eaque velit atque, nemo dignissimos
-      vel deleniti aperiam iure. Mollitia a ut vel. Expedita, minima!
-    {/if}
+    <div class="pages">
+      {#if currentPage === "General"}
+        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Est quisquam
+        aperiam molestias maiores. Sed officia eaque velit atque, nemo
+        dignissimos vel deleniti aperiam iure. Mollitia a ut vel. Expedita,
+        minima!
+      {/if}
+    </div>
   </div>
 </Apps>
 
 <style>
+  .shop {
+    overflow-x: hidden;
+  }
   .pages {
     padding: 30px;
     width: 100%;
     height: 100%;
   }
-  .logo {
-    font-family: "Noto Sans", sans-serif;
-    font-weight: 500;
-    gap: 10px;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-left: 70px;
-    font-size: 1.5rem;
-  }
+
   .nav {
     font-family: "Noto Sans", sans-serif;
     display: flex;

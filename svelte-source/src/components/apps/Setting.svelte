@@ -51,6 +51,16 @@
           <div class="wallpaper-setting">
             <h2>Wallpaper</h2>
             <div class="list">
+              <div class="custom">
+                <ion-icon
+                  class="sh"
+                  name="add-circle"
+                  size="large"
+                  on:click={() => {
+                    console.log("add");
+                  }}
+                />
+              </div>
               {#each wallpaperlist as wp}
                 <img
                   class:active={$settings.background === wp}
@@ -88,6 +98,16 @@
 </Apps>
 
 <style>
+  .sh:hover {
+    animation: spinner 4s linear infinite;
+  }
+
+  .custom {
+    width: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
   .font-dark {
     display: flex;
     align-items: center;
