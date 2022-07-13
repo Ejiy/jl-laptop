@@ -21,7 +21,7 @@ export async function fetchNui<T = any>(
     },
     body: JSON.stringify(data),
   };
-  const resourceName = "ps-laptop";
+  const resourceName = "jl-laptop";
   const resp = await fetch(`https://${resourceName}/${eventName}`, options);
   return await resp.json();
 }
