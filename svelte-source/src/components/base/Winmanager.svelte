@@ -1,7 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onDestroy, onMount } from "svelte";
-  import { fetchNui } from "../../utils/eventHandler";
-  import logo from "../assets/logo.png";
+  import logo from "../../assets/logo.png";
   import { openedApps } from "../../store/desktop";
   import { flip } from "svelte/animate";
   import { fade, scale } from "svelte/transition";
