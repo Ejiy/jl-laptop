@@ -1,13 +1,14 @@
-# ps-laptop
+# jl-laptop
 
 a laptop script
 
-# Installion
+Shield: [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
 
-- Download ZIP
-- Drag it inside your resources folder
-- Add Items below into qb-core/shared/items.lua
+This work is licensed under a
+[Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License][cc-by-nc-sa].
 
-```lua
-	['slothylaptop'] 				 = {['name'] = 'slothylaptop', 			  	  	['label'] = 'Slothy Laptop', 			['weight'] = 2000, 		['type'] = 'item', 		['image'] = 'slothylaptop.png', 		['unique'] = false, 	['useable'] = true, 	['shouldClose'] = true,	   ['combinable'] = nil,   ["created"] = nil, ["decay"] = 28.0, ['description'] = 'A laptop used for various activities'},
-```
+[![CC BY-NC-SA 4.0][cc-by-nc-sa-image]][cc-by-nc-sa]
+
+[cc-by-nc-sa]: http://creativecommons.org/licenses/by-nc-sa/4.0/
+[cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png
+[cc-by-nc-sa-shield]: https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg
