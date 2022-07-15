@@ -1,12 +1,26 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
+  let dispatch = createEventDispatcher();
+  export let name = "";
   export let title = "Dummy";
   export let stock: number = 0;
   export let price: number = 0;
+
+  function handleAddCart() {
+    dispatch("addCart", {
+      name,
+      title,
+      label: title,
+      stock,
+      price,
+      quantity: 1,
+    });
+  }
 </script>
 
 <div class="store-card">
   <div class="image">
-    <img src="https://cdn3.emoji.gg/emojis/6976-love-panic.png" alt="lorem" />
+    <img src="https://cdn3.emoji.gg/emojis/9387-drink-water.png" alt="lorem" />
   </div>
   <div class="product-title">{title}</div>
   <div class="description">
@@ -14,7 +28,7 @@
     <span>Price: {price}</span>
   </div>
   <div class="buy">
-    <button> Add to cart </button>
+    <button on:click={handleAddCart}> Add to cart </button>
   </div>
 </div>
 

@@ -11,7 +11,7 @@ const app = apps.subscribe((d) => {
 });
 
 function newNotifStore() {
-  const _notifications: any = writable([]);
+  const _notifications = writable([]);
   function send(message: string, app: string, timeout?: number) {
     _notifications.update((v: string[]) => {
       const data: unknown = {
@@ -48,9 +48,11 @@ function newNotifStore() {
     };
   });
   const { subscribe } = notifications;
+  const { update, set } = _notifications;
   return {
     subscribe,
     send,
+    set,
   };
 }
 

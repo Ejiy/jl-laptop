@@ -1,8 +1,8 @@
 <script lang="ts">
   import { fade } from "svelte/transition";
   import { cubicInOut, cubicOut } from "svelte/easing";
-  import app from "../main";
-  import { closeApp, openedApps } from "../store/desktop";
+  import app from "../../main";
+  import { closeApp, openedApps } from "../../store/desktop";
 
   let moving = false;
   let left = 200;

@@ -33,17 +33,16 @@ Config.Apps = {
         item = {},
         default = true -- if true, it will be added by default
     },
-
-    --[[['browser'] = {
-        app = 'browser',
-        name = 'Browser',
-        icon = 'fa-solid fa-globe',
+    ['bennys'] = {
+        app = 'bennys',
+        name = "Bennys Shop",
+        icon = "fa-solid fa-shopping-cart",
         useimage = false,
         color = '#fff',
-        background = "#aa2e25",
+        background = "#352968",
         job = {},
-        gang = {}, -- it can be boolean or a table {'ballas'}
+        gang = {},
         item = {},
-        default = true -- if true, it will be added by default
-    },]]
+        default = true
+    }
 }

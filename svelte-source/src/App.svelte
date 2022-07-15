@@ -13,8 +13,6 @@
   ]);
 </script>
 
-<main>
-  <VisibilityProvider>
-    <Desktop />
-  </VisibilityProvider>
-</main>
+<VisibilityProvider>
+  <Desktop />
+</VisibilityProvider>

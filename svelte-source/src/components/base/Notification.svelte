@@ -2,10 +2,21 @@
   import { flip } from "svelte/animate";
   import { fly } from "svelte/transition";
   import { notifications } from "../../store/notifications";
-  import { cubicIn, cubicInOut, cubicOut } from "svelte/easing";
+  import {
+    cubicIn,
+    cubicInOut,
+    cubicOut,
+    quadInOut,
+    quadOut,
+  } from "svelte/easing";
 
   let notif: any = $notifications;
 
+  function removeNotif(id) {
+    console.log(id);
+    notifications.set(notif.filter((i) => i.id !== id));
+  }
+  // I will find the better solution later 😂
   $: {
     notif = $notifications;
   }
@@ -15,7 +26,10 @@
   {#each notif as notification (notification.id)}
     <div
       class="notif"
-      animate:flip={{ duration: 150, easing: cubicInOut }}
+      on:click={() => {
+        removeNotif(notification.id);
+      }}
+      animate:flip={{ duration: 400, easing: quadInOut }}
       in:fly={{ x: 300, easing: cubicOut }}
       out:fly={{ x: 500, easing: cubicIn }}
     >
@@ -59,7 +73,7 @@
     align-items: center;
     padding: 5px;
     margin: 3px 6px;
-    min-width: 400px;
+    min-width: 300px;
     min-height: 80px;
     background: rgba(75, 77, 91, 0.508);
     backdrop-filter: blur(10px);

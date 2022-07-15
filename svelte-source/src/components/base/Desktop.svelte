@@ -7,12 +7,10 @@
   import { apps, openApp, openedApps, setApp } from "../../store/desktop";
   import { settings } from "../../store/settings";
   import { cubicIn, cubicOut } from "svelte/easing";
-
+  import { fetchNui } from "../../utils/eventHandler";
   // APP
   import Boosting from "../apps/Boosting.svelte";
   import Browser from "../apps/Browser.svelte";
-  import { fetchNui } from "../../utils/eventHandler";
-  import { globals } from "svelte/internal";
   import Setting from "../apps/Setting.svelte";
   import BennyShop from "../apps/BennyShop.svelte";
 
@@ -39,7 +37,9 @@
           background: filtered[0].background,
           useimage: filtered[0].useimage,
         };
-        openApp(data);
+        if ($openedApps.filter((app) => app.name === data.name).length === 0) {
+          openApp(data);
+        }
       }
     }
   };

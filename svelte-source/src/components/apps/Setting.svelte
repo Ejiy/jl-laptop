@@ -1,8 +1,8 @@
 <script lang="ts">
   import { settings } from "../../store/settings";
-  import Apps from "../../providers/Apps.svelte";
+  import Apps from "../shared/Apps.svelte";
   import LeftBarSetting from "./utility/LeftBarSetting.svelte";
-  import Toggle from "../../providers/Toggle.svelte";
+  import Toggle from "../shared/Toggle.svelte";
   import { fly, fade } from "svelte/transition";
   import { cubicIn, cubicOut, quadInOut } from "svelte/easing";
   let currentPage = "Personalise";
@@ -26,7 +26,6 @@
 </script>
 
 <Apps
-  debug={true}
   appname="setting"
   topdata={{
     title: "Setting",

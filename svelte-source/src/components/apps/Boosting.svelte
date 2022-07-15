@@ -1,11 +1,11 @@
 <script lang="ts">
   import moment from "moment";
-  import Apps from "../../providers/Apps.svelte";
+  import Apps from "../shared/Apps.svelte";
   import { flip } from "svelte/animate";
   import { fly } from "svelte/transition";
-  import Progressbar from "../../providers/Progressbar.svelte";
+  import Progressbar from "../shared/Progressbar.svelte";
   import { cubicOut } from "svelte/easing";
-  import Modal from "../../providers/Modal.svelte";
+  import Modal from "../shared/Modal.svelte";
   import {
     contracts,
     saledcontracts,
