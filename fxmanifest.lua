@@ -2,13 +2,14 @@ fx_version 'cerulean'
 
 game 'gta5'
 
-author 'Project Sloth'
+author 'JL Development, Renewed, and others'
 
 lua54 'yes' -- Add in case you want to use lua 5.4 (https://www.lua.org/manual/5.4/manual.html)
 
 shared_scripts {
     'shared/config.lua',
-    'shared/boosting.lua'
+    'shared/boosting.lua',
+    'shared/bennys.lua'
 }
 
 client_scripts {
