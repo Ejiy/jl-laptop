@@ -1,8 +1,19 @@
-<script>
-  import Apps from "../../providers/Apps.svelte";
-  import { scale } from "svelte/transition";
-  import { backOut } from "svelte/easing";
+<script lang="ts">
+  import Apps from "../shared/Apps.svelte";
+  import { scale, fly, fade } from "svelte/transition";
+  import {
+    backOut,
+    cubicIn,
+    cubicOut,
+    quadIn,
+    quadInOut,
+    quadOut,
+  } from "svelte/easing";
+  import { items, cart } from "../../store/bennys";
   import StoreCard from "./utility/StoreCard.svelte";
+  import { flip } from "svelte/animate";
+  import StoreCartCard from "./utility/StoreCartCard.svelte";
+  import { notifications } from "../../store/notifications";
   let topdata = {
     title: "Bennys Shop",
     background: "#1c1b22",
@@ -12,44 +23,33 @@
   };
   let categories = ["Cosmetic Parts", "Performance Parts", "Consumable Parts"];
   let currentPage = "Cosmetic Parts";
-  let yes = false;
 
-  setTimeout(() => {
-    yes = true;
-  }, 1000);
-
-  let numver = 1;
-
-  setInterval(() => {
-    if (numver > 10) {
-      numver = 1;
+  function handleAddCart(e) {
+    if ($cart.filter((item) => item.name === e.detail.name).length === 0) {
+      cart.update((c) => [...c, e.detail]);
+      notifications.send("Added item to cart", "bennys");
     } else {
-      numver += 1;
+      cart.update((c) => {
+        c.filter((item) => item.name === e.detail.name)[0].quantity += 1;
+        return [...c];
+      });
     }
-  }, 2000);
+  }
 
-  let dummyDatas = [
-    {
-      name: "Spoiler",
-      price: 100,
-      stock: 10,
-    },
-    {
-      name: "Front Bumper",
-      price: 100,
-      stock: 10,
-    },
-    {
-      name: "Rear Bumper",
-      price: 100,
-      stock: 10,
-    },
-    {
-      name: "Side Skirt",
-      price: 100,
-      stock: 10,
-    },
-  ];
+  function handleCheckout() {
+    cart.set([]);
+  }
+
+  function handleCartChange(e: CustomEvent, name: string) {
+    cart.update((c) => {
+      c.filter((it) => it.name === name)[0].quantity = e.detail;
+      return [...c];
+    });
+  }
+
+  function handleRemoveCart(name: string) {
+    cart.set($cart.filter((e) => e.name !== name));
+  }
 </script>
 
 <Apps appname="bennys" {topdata} debug={false}>
@@ -68,39 +68,122 @@
         {/each}
       </div>
       <div class="right">
-        <button>
+        {#if $cart.length > 0 && currentPage == "Cart"}
+          <div
+            class="btn"
+            in:fly|local={{ y: -100, easing: cubicOut, duration: 500 }}
+            out:fly|local={{ y: -100, easing: cubicIn, duration: 300 }}
+          >
+            <button style="width: 120px;" on:click={handleCheckout}>
+              <ion-icon name="bag-check" />
+              Checkout</button
+            >
+          </div>
+        {/if}
+
+        <button
+          on:click={() => {
+            currentPage = "Cart";
+          }}
+        >
           <ion-icon name="cart" style="font-size: 20px;" />
           Cart
-          {#if yes}
+          {#if $cart.length > 0}
             <div in:scale={{ duration: 300, easing: backOut }} class="circle">
-              {numver}
+              {$cart.length}
             </div>
           {/if}
         </button>
       </div>
     </div>
     <div class="pages">
-      {#if currentPage === "Cosmetic Parts"}
-        <div class="cosmetic">
-          {#each dummyDatas as data}
-            <StoreCard
-              title={data.name}
-              stock={data.stock}
-              price={data.price}
-            />
+      {#if currentPage !== "Cart"}
+        <div class="main-page">
+          {#each $items as data (data.name)}
+            <div class="card" class:hide={data.category !== currentPage}>
+              <StoreCard
+                on:addCart={handleAddCart}
+                name={data.name}
+                title={data.label}
+                stock={data.stock}
+                price={data.price}
+              />
+            </div>
           {/each}
         </div>
-      {:else if currentPage === "Performance Parts"}
-        <div class="performance">Performance Parts</div>
-      {:else if currentPage === "Consumable Parts"}
-        <div class="consumable">Consumable Parts</div>
+      {:else}
+        <div class="cart-page">
+          <div class="cart">
+            {#each $cart as itemcart (itemcart.name)}
+              <div
+                class="cart-items"
+                animate:flip={{ duration: 300, easing: quadInOut }}
+                in:fly|local={{ x: -300, duration: 200, easing: quadOut }}
+                out:fly|local={{ x: -300, duration: 200, easing: quadIn }}
+              >
+                <StoreCartCard
+                  on:theChange={(e) => {
+                    handleCartChange(e, itemcart.name);
+                  }}
+                  on:remove={() => {
+                    handleRemoveCart(itemcart.name);
+                  }}
+                  title={itemcart.label}
+                  quantity={itemcart.quantity}
+                  max={$items.filter((item) => item.name === itemcart.name)[0]
+                    .stock}
+                />
+              </div>
+            {:else}
+              <div class="empty" transition:fade|local={{ duration: 300 }}>
+                <span>Cart is empty</span>
+              </div>
+            {/each}
+          </div>
+        </div>
       {/if}
     </div>
   </div>
 </Apps>
 
 <style>
-  .cosmetic {
+  .cart-items {
+    margin-top: 5px;
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+  }
+  .empty {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    font-size: 2.3rem;
+  }
+
+  .cart-page {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .cart {
+    width: 100%;
+    height: 100%;
+    padding: 10px 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+  }
+  .card.hide {
+    display: none;
+  }
+  .main-page {
     padding: 30px;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 0.17fr));
@@ -133,6 +216,11 @@
     justify-content: center;
     align-items: center;
   }
+
+  .right {
+    display: flex;
+    justify-content: center;
+  }
   .right button {
     font-weight: 600;
     color: rgb(115, 105, 172);
@@ -149,6 +237,7 @@
     background: rgb(37, 37, 37);
   }
   button {
+    cursor: pointer;
     font-weight: 600;
     background: transparent;
     height: 45px;
