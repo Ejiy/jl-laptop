@@ -113,7 +113,6 @@ CurrentCops = 0
 local function SetDisplay(bool)
     display = bool
     SetNuiFocus(bool, bool)
-    print(display)
     SendNUIMessage({
         action = "toggle",
         status = bool,
