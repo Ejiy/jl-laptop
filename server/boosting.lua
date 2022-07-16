@@ -21,6 +21,7 @@ local cars = {
 
 
 CreateThread(function()
+    Wait(12500)
     for k, v in pairs(QBCore.Shared.Vehicles) do
         if v['tier'] and cars[v['tier']] then
             cars[v['tier']][#cars[v['tier']]+1] = k
@@ -146,7 +147,7 @@ RegisterNetEvent('jl-laptop:server:StartBoosting', function(id, currentCops)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local CID = Player.PlayerData.citizenid
-    local amount
+    local amount = 0
 
     if currentCops == 2 then
         amount = 1
@@ -412,7 +413,8 @@ QBCore.Functions.CreateCallback('jl-laptop:server:GetContracts', function(source
     cb(currentContracts[CID], ActivePlates)
 end)
 
-QBCore.Functions.CreateCallback('jl-laptop:server:CanStartBoosting', function(source, cb, cops)
+QBCore.Functions.CreateCallback('ps-laptop:server:CanStartBoosting', function(source, cb, cops)
+    local amount = 0
     if cops == 2 then
         amount = 1
     elseif cops > 2 then
