@@ -149,12 +149,10 @@ RegisterNetEvent('jl-laptop:server:StartBoosting', function(id, currentCops)
     local CID = Player.PlayerData.citizenid
     local amount = 0
 
-    if currentCops == 2 then
+    if currentCops == Config.Boosting.MinCops then
         amount = 1
-    elseif currentCops > 2 then
-        amount = math.floor(currentCops / 2)
-    else
-        amount = 2
+    elseif currentCops > Config.Boosting.MinCops then
+        amount = math.floor(currentCops / Config.Boosting.MinCops)
     end
 
     if #currentRuns >= amount then return end
@@ -172,10 +170,9 @@ RegisterNetEvent('jl-laptop:server:StartBoosting', function(id, currentCops)
             NetID = nil,
             PedSpawned = false,
         }
-        print("works")
         MaxPools[currentContracts[CID][id].contract] += 1
         ResetShit(currentContracts[CID][id].contract, place)
-        table.remove(currentContracts[CID], id)
+        currentContracts[CID][id] = nil
         TriggerClientEvent('jl-laptop:client:recieveContract', src, currentContracts[CID], false)
         SpawnCar(src)
     end
@@ -252,7 +249,8 @@ RegisterNetEvent('jl-laptop:server:JoinQueue', function(status)
             active = true
         }
     else
-        LookingForContracts[CID] = nil
+        if not LookingForContracts[CID] then return end
+        LookingForContracts[CID].active = false
     end
 end)
 
@@ -302,40 +300,40 @@ local function generateTier(src)
 
     -- We should also get their current metadata and based on their metadata increase this luck or even cap it so they cant get s+ if they just startedt/
     if chance >= 99 then -- 2%
-        if boostData >= Config.Boosting.TiersPerRep["S+"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
+        if boostData >= Config.Boosting.TiersPerRep["S"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
             tier = "S+"
         else
             generateTier(src)
         end
     elseif chance >= 95 then -- 3%
-        if boostData >= Config.Boosting.TiersPerRep["S"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
+        if boostData >= Config.Boosting.TiersPerRep["A+"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
             tier = "S"
         else
             generateTier(src)
         end
 
     elseif chance >= 90 then -- 5%
-        if boostData >= Config.Boosting.TiersPerRep["A+"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
+        if boostData >= Config.Boosting.TiersPerRep["A"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
             tier = "A+"
         else
             generateTier(src)
         end
 
     elseif chance >= 80 then -- 10%
-        if boostData >= Config.Boosting.TiersPerRep["A"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
+        if boostData >= Config.Boosting.TiersPerRep["B"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
             tier = "A"
         else
             generateTier(src)
         end
 
     elseif chance >= 60 then -- 20%
-        if boostData >= Config.Boosting.TiersPerRep["B"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
+        if boostData >= Config.Boosting.TiersPerRep["C"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
             tier = "B"
         else
             generateTier(src)
         end
     elseif chance >= 35 then -- 25%
-        if boostData >= Config.Boosting.TiersPerRep["C"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
+        if boostData >= Config.Boosting.TiersPerRep["D"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
             tier = "C"
         else
             generateTier(src)
@@ -426,13 +424,12 @@ end)
 
 QBCore.Functions.CreateCallback('lj-laptop:server:CanStartBoosting', function(source, cb, cops)
     local amount = 0
-    if cops == 0 then
+    if cops == Config.Boosting.MinCops then
         amount = 1
-    elseif cops > 2 then
-        amount = math.floor(cops / 2)
-    else
-        amount = 2
+    elseif cops > Config.Boosting.MinCops then
+        amount = math.floor(cops / Config.Boosting.MinCops)
     end
+
     if amount < 1 or #currentRuns >= amount then
         cb(false)
     else

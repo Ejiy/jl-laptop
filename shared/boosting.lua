@@ -1,5 +1,7 @@
 Config.Boosting = {}
 
+Config.Boosting.MinCops = 0
+
 Config.Boosting.HackingDevice = "trackerdisabler" -- Whatever item you use to hack a car with
 
 Config.Boosting.HackDelay = 30 -- 180 seconds delay
@@ -401,7 +403,6 @@ Config.Boosting.RandomNames = {
     "Drake",
     "Zooster",
     "Hype Squad",
-    "Slothy",
     "Logan Paul",
     "Jimathy yorass",
     "Tom Cruise"

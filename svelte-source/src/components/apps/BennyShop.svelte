@@ -40,16 +40,14 @@
   function handleCheckout() {
     fetchNui("bennys/checkout", {
         cart: $cart,
-      })
-    .then(() => {
-      console.log("bennys/checkout", $cart);
+      }).then((res) => {
+        if (res.status === "success") {
+          notifications.send(res.message, "bennys", 5000);
+          cart.set([]);
+        } else {
+          notifications.send(res.message, "bennys", 5000);
+        }
     })
-      .catch((err) => {
-      console.log(err);
-    });
-
-    notifications.send("Checkout successful", "bennys");
-    cart.set([]);
   }
 
   function handleCartChange(e: CustomEvent, name: string) {
