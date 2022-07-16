@@ -12,6 +12,7 @@
   import { items, cart } from "../../store/bennys";
   import StoreCard from "./utility/StoreCard.svelte";
   import { flip } from "svelte/animate";
+  import { fetchNui } from "../../utils/eventHandler";
   import StoreCartCard from "./utility/StoreCartCard.svelte";
   import { notifications } from "../../store/notifications";
   let topdata = {
@@ -37,6 +38,17 @@
   }
 
   function handleCheckout() {
+    fetchNui("bennys/checkout", {
+        cart: $cart,
+      })
+    .then(() => {
+      console.log("bennys/checkout", $cart);
+    })
+      .catch((err) => {
+      console.log(err);
+    });
+
+    notifications.send("Checkout successful", "bennys");
     cart.set([]);
   }
 

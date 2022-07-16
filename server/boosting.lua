@@ -21,7 +21,7 @@ local cars = {
 
 
 CreateThread(function()
-    Wait(12500)
+    --Wait(12500)
     for k, v in pairs(QBCore.Shared.Vehicles) do
         if v['tier'] and cars[v['tier']] then
             cars[v['tier']][#cars[v['tier']]+1] = k
@@ -249,7 +249,7 @@ RegisterNetEvent('jl-laptop:server:JoinQueue', function(status)
         LookingForContracts[CID] = {
             src = src,
             skipped = 0,
-            activeContracts = {}
+            active = true
         }
     else
         LookingForContracts[CID] = nil
@@ -346,6 +346,8 @@ local function generateTier(src)
 
     Wait(0)
 
+    if not tier then return generateTier(src) end
+
     if MaxPools[tier] and MaxPools[tier] > 0 then
         MaxPools[tier] -= 1
         return tier
@@ -365,6 +367,7 @@ function GetHoursFromNow(hours)
 
 local function generateContract(src)
     local Player = QBCore.Functions.GetPlayer(src)
+    if not Player then return end
     local CID = Player.PlayerData.citizenid
     if not currentContracts[CID] then currentContracts[CID] = {} end
 
@@ -387,22 +390,30 @@ end
 
 CreateThread(function()
     while true do
+        Wait(2500)
+        --print(json.encode(MaxPools))
+    end
+end)
+
+CreateThread(function()
+    while true do
         if LookingForContracts then
             for k, v in pairs(LookingForContracts) do
                 if currentContracts[k] then
-                    if #currentContracts[k] < 5 then
+                    if #currentContracts[k] < 1 and v.active then
                         local ContractChance = math.random()
-
                         if v.skipped >= 25 or ContractChance >= 0.90 then -- 10% chance of getting a contract
                             generateContract(v.src)
                         else
                             v.skipped += 1
                         end
+                    elseif #currentContracts[k] >= 1 then
+                        v.active = false
                     end
                 end
             end
         end
-        Wait(2 * 60000) -- Once every 2 minutes
+        Wait(2 * 100) -- Once every 2 minutes
     end
 end)
 
@@ -413,18 +424,39 @@ QBCore.Functions.CreateCallback('jl-laptop:server:GetContracts', function(source
     cb(currentContracts[CID], ActivePlates)
 end)
 
-QBCore.Functions.CreateCallback('ps-laptop:server:CanStartBoosting', function(source, cb, cops)
+QBCore.Functions.CreateCallback('lj-laptop:server:CanStartBoosting', function(source, cb, cops)
     local amount = 0
-    if cops == 2 then
+    if cops == 0 then
         amount = 1
     elseif cops > 2 then
         amount = math.floor(cops / 2)
     else
         amount = 2
     end
-    if #currentRuns >= amount then
+    if amount < 1 or #currentRuns >= amount then
         cb(false)
     else
         cb(true)
     end
+end)
+
+
+
+
+-- Player dropped functions --
+local function GetCID(src)
+    if LookingForContracts then
+        for k, v in pairs(LookingForContracts) do
+            if v.src == src then
+                return k
+            end
+        end
+    end
+end
+
+AddEventHandler('playerDropped', function(reason)
+	local src = source
+    local CID = GetCID(src)
+    if not CID then return end
+    LookingForContracts[CID].active = false
 end)
