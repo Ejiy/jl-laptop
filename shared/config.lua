@@ -1,6 +1,6 @@
 Config = {}
 
-Config.LaptopDevice = "elaptop"
+Config.LaptopDevice = "laptop"
 
 Config.PoliceJobs = {
     "police",

@@ -25,16 +25,14 @@
 <div class="notifications">
   {#each notif as notification (notification.id)}
     <div
-      class="notif"
-      on:click={() => {
-        removeNotif(notification.id);
-      }}
+      on:click={() => removeNotif(notification.id)}
+      class="notification-item"
       animate:flip={{ duration: 400, easing: quadInOut }}
       in:fly={{ x: 300, easing: cubicOut }}
       out:fly={{ x: 500, easing: cubicIn }}
     >
       <div
-        class="icon"
+        class="images"
         style="background-color: {notification.app.background};"
       >
         {#if notification.app.useimage}
@@ -46,55 +44,62 @@
           <i class={notification.app.icon} />
         {/if}
       </div>
-      <div class="content">
-        <div class="description">
-          {notification.message}
-        </div>
-      </div>
+      <div class="messages">{notification.message}</div>
     </div>
   {/each}
 </div>
 
 <style>
+  .messages {
+    margin-right: 5px;
+    padding: 5px;
+  }
   .notifications {
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
+    z-index: 1000;
     position: fixed;
     bottom: 5%;
-    right: 0;
+    right: 20px;
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-end;
+
     font-family: "Noto", sans-serif;
     font-size: 15px;
     font-weight: bold;
   }
-  .notif {
-    display: flex;
-    align-items: center;
-    padding: 5px;
-    margin: 3px 6px;
-    min-width: 300px;
-    min-height: 80px;
-    background: rgba(75, 77, 91, 0.508);
-    backdrop-filter: blur(10px);
-    overflow-x: hidden;
-    border-radius: 3px;
-  }
 
-  .icon {
+  .images img {
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+  }
+  .images {
     margin: 0px 10px;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     font-size: 20px;
     width: 50px;
     height: 50px;
     border-radius: 3px;
   }
-
-  .icon img {
-    width: 100%;
-    height: 100%;
-    padding: 10px;
+  .notification-item {
+    overflow: hidden;
+    gap: 5px;
+    min-width: 200px;
+    max-width: 400px;
+    height: 80px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    color: white;
+    background: rgba(75, 77, 91, 0.508);
+    backdrop-filter: blur(10px);
+    border-radius: 4px;
+    margin-bottom: 10px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
   }
 </style>
