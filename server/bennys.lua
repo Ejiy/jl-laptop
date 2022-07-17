@@ -39,6 +39,7 @@ end
 QBCore.Functions.CreateCallback('jl-laptop:server:BuyBennyShit', function(source, cb, data)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
+    if not HasAppAccess(src, "bennys") then return cb("full") end
     local Saved = data
     local Shop = {
         totalBank = 0,
