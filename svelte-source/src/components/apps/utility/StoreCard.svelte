@@ -5,12 +5,13 @@
   export let title = "Dummy";
   export let stock: number = 0;
   export let price: number = 0;
-
+  export let image = "https://cdn3.emoji.gg/emojis/9387-drink-water.png";
   function handleAddCart() {
     dispatch("addCart", {
       name,
       title,
       label: title,
+      image: image,
       stock,
       price,
       quantity: 1,
@@ -20,7 +21,7 @@
 
 <div class="store-card">
   <div class="image">
-    <img src="https://cdn3.emoji.gg/emojis/9387-drink-water.png" alt="lorem" />
+    <img src={image} alt={name} />
   </div>
   <div class="product-title">{title}</div>
   <div class="description">

@@ -2,6 +2,7 @@
   import Apps from "../shared/Apps.svelte";
   import { scale, fly, fade } from "svelte/transition";
   import {
+    backIn,
     backOut,
     cubicIn,
     cubicOut,
@@ -15,6 +16,7 @@
   import { fetchNui } from "../../utils/eventHandler";
   import StoreCartCard from "./utility/StoreCartCard.svelte";
   import { notifications } from "../../store/notifications";
+  import { onMount } from "svelte";
   let topdata = {
     title: "Bennys Shop",
     background: "#1c1b22",
@@ -39,15 +41,15 @@
 
   function handleCheckout() {
     fetchNui("bennys/checkout", {
-        cart: $cart,
-      }).then((res) => {
-        if (res.status === "success") {
-          notifications.send(res.message, "bennys", 5000);
-          cart.set([]);
-        } else {
-          notifications.send(res.message, "bennys", 5000);
-        }
-    })
+      cart: $cart,
+    }).then((res) => {
+      if (res.status === "success") {
+        notifications.send(res.message, "bennys", 5000);
+        cart.set([]);
+      } else {
+        notifications.send(res.message, "bennys", 5000);
+      }
+    });
   }
 
   function handleCartChange(e: CustomEvent, name: string) {
@@ -60,6 +62,12 @@
   function handleRemoveCart(name: string) {
     cart.set($cart.filter((e) => e.name !== name));
   }
+
+  onMount(() => {
+    fetchNui("bennys/getitems", {}).then((res) => {
+      items.set(res);
+    });
+  });
 </script>
 
 <Apps appname="bennys" {topdata} debug={false}>
@@ -99,7 +107,11 @@
           <ion-icon name="cart" style="font-size: 20px;" />
           Cart
           {#if $cart.length > 0}
-            <div in:scale={{ duration: 300, easing: backOut }} class="circle">
+            <div
+              in:scale={{ duration: 300, easing: backOut }}
+              out:scale={{ duration: 300, easing: quadInOut }}
+              class="circle"
+            >
               {$cart.length}
             </div>
           {/if}
@@ -113,6 +125,7 @@
             <div class="card" class:hide={data.category !== currentPage}>
               <StoreCard
                 on:addCart={handleAddCart}
+                image="nui://{data.image}"
                 name={data.name}
                 title={data.label}
                 stock={data.stock}
@@ -138,6 +151,7 @@
                   on:remove={() => {
                     handleRemoveCart(itemcart.name);
                   }}
+                  image={itemcart.image}
                   title={itemcart.label}
                   quantity={itemcart.quantity}
                   max={$items.filter((item) => item.name === itemcart.name)[0]

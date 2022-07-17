@@ -1,5 +1,22 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
+RegisterNUICallback('bennys/getitems', function(_, cb)
+    local translated = {}
+    for _, v in pairs(Config.Bennys.Items) do
+
+        translated[#translated + 1] = {
+            name = v.name,
+            label = QBCore.Shared.Items[v.name].label,
+            image = Config.Bennys.Inventory .. "/html/images/" .. QBCore.Shared.Items[v.name].image,
+            price = v.price,
+            stock = v.stock,
+            category = v.category,
+        }
+    end
+    print(json.encode(translated))
+    cb(translated)
+end)
+
 RegisterNUICallback('bennys/checkout', function(data, cb)
     local newData = data["cart"]
     QBCore.Functions.TriggerCallback('jl-laptop:server:BuyBennyShit', function(result)
@@ -29,11 +46,11 @@ end)
 
 local function openStash()
     local CID = QBCore.Functions.GetPlayerData().citizenid
-    TriggerServerEvent("inventory:server:OpenInventory", "stash","BennyShop_"..CID, {
+    TriggerServerEvent("inventory:server:OpenInventory", "stash", "BennyShop_" .. CID, {
         maxweight = 100000,
         slots = 25,
     })
-    TriggerEvent("inventory:client:SetCurrentStash", "BennyShop_"..CID)
+    TriggerEvent("inventory:client:SetCurrentStash", "BennyShop_" .. CID)
 end
 
 local ped = nil
@@ -48,7 +65,7 @@ CreateThread(function()
         Wait(0)
     end
 
-    ped = CreatePed(0, v.ped, v["coords"].x, v["coords"].y, v["coords"].z-1, v["coords"].w, false, false)
+    ped = CreatePed(0, v.ped, v["coords"].x, v["coords"].y, v["coords"].z - 1, v["coords"].w, false, false)
     PlaceObjectOnGroundProperly(ped)
     FreezeEntityPosition(ped, true)
     SetEntityInvincible(ped, true)
@@ -77,5 +94,4 @@ CreateThread(function()
     BeginTextCommandSetBlipName("STRING")
     AddTextComponentString(v.text)
     EndTextCommandSetBlipName(blip)
-
 end)

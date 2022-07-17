@@ -3,6 +3,7 @@
   export let title;
   export let quantity;
   export let max;
+  export let image = "https://cdn3.emoji.gg/emojis/9387-drink-water.png";
   const dispatch = createEventDispatcher();
   function handleChange(e) {
     dispatch("theChange", e.target.value);
@@ -14,7 +15,7 @@
 
 <div class="cart-card">
   <div class="images">
-    <img src="https://cdn3.emoji.gg/emojis/9387-drink-water.png" alt="test" />
+    <img src={image} alt="test" />
   </div>
   <div class="item-title">
     {title}
