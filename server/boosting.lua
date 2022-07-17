@@ -239,18 +239,49 @@ end)
 RegisterNetEvent('jl-laptop:server:JoinQueue', function(status)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
+    if not Player then return end
+    print(HasAppAccess(src, "boosting"))
+    if not HasAppAccess(src, "boosting") then return end
     local CID = Player.PlayerData.citizenid
     if status then
         if not LookingForContracts[CID] then LookingForContracts[CID] = {} end
         if not currentContracts[CID] then currentContracts[CID] = {} end
-        LookingForContracts[CID] = {
-            src = src,
-            skipped = 0,
-            active = true
-        }
+        if LookingForContracts[CID] and LookingForContracts[CID].skipped then
+            LookingForContracts[CID] = {
+                src = src,
+                skipped = LookingForContracts[CID].skipped,
+                online = true,
+                active = true
+            }
+        else
+            LookingForContracts[CID] = {
+                src = src,
+                online = true,
+                skipped = 0,
+                active = true
+            }
+        end
     else
         if not LookingForContracts[CID] then return end
         LookingForContracts[CID].active = false
+        LookingForContracts[CID].online = true
+    end
+
+    if LookingForContracts[CID].online then
+        TriggerClientEvent('jl-laptop:client:QueueHandler', src, LookingForContracts[CID].active)
+    end
+end)
+
+RegisterNetEvent('jl-laptop:server:QuitQueue', function(source)
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    if not Player then return end
+    local CID = Player.PlayerData.citizenid
+    if not LookingForContracts[CID] or not LookingForContracts[CID].skipped then return end
+    LookingForContracts[CID].active = false
+
+    if LookingForContracts[CID].online then
+        TriggerClientEvent('jl-laptop:client:QueueHandler', src, LookingForContracts[CID].active)
     end
 end)
 
@@ -398,20 +429,20 @@ CreateThread(function()
         if LookingForContracts then
             for k, v in pairs(LookingForContracts) do
                 if currentContracts[k] then
-                    if #currentContracts[k] < 1 and v.active then
+                    if #currentContracts[k] < 5 and v.active then
                         local ContractChance = math.random()
-                        if v.skipped >= 25 or ContractChance >= 0.90 then -- 10% chance of getting a contract
+                        if v.skipped >= 25 or (v.skipped >= 2 and ContractChance >= 0.85) then -- 15% chance of getting a contract
                             generateContract(v.src)
                         else
                             v.skipped += 1
                         end
-                    elseif #currentContracts[k] >= 1 then
+                    elseif #currentContracts[k] >= 5 then
                         v.active = false
                     end
                 end
             end
         end
-        Wait(2 * 100) -- Once every 2 minutes
+        Wait(2 * 250) -- Once every 2 minutes
     end
 end)
 
@@ -456,4 +487,5 @@ AddEventHandler('playerDropped', function(reason)
     local CID = GetCID(src)
     if not CID then return end
     LookingForContracts[CID].active = false
+    LookingForContracts[CID].online = false
 end)

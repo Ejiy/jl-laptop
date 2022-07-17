@@ -63,6 +63,11 @@
     console.log(r);
   });
 
+  fetchNui("boosting/setcontract").then((data) => {
+    $queue = data
+  });
+
+
   fetchNui("boosting/getrep")
     .then((r) => {
       let toarray: any = [];

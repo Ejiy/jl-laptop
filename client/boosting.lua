@@ -11,6 +11,8 @@ local inZone = false
 local canHack = true
 local dropoffBlip = nil
 
+local inQueue = false
+
 local currentCops = 0
 
 RegisterNetEvent('police:SetCopCount', function(amount)
@@ -376,6 +378,10 @@ RegisterNUICallback("boosting/getrep", function(_, cb)
     cb(data)
 end)
 
+RegisterNUICallback("boosting/setcontract", function(_, cb)
+    cb(inQueue)
+end)
+
 -- Handles state right when the player selects their character and location.
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     PlayerData = QBCore.Functions.GetPlayerData()
@@ -390,4 +396,8 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
             })
         end
     end)
+end)
+
+RegisterNetEvent('jl-laptop:client:QueueHandler', function(value)
+    inQueue = value
 end)
