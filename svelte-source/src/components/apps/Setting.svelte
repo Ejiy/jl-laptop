@@ -1,7 +1,7 @@
 <script lang="ts">
   import { settings } from "../../store/settings";
   import Apps from "../shared/Apps.svelte";
-  import LeftBarSetting from "./utility/LeftBarSetting.svelte";
+  import LeftBarSetting from "./utility/Setting/LeftBarSetting.svelte";
   import Toggle from "../shared/Toggle.svelte";
   import { fly, fade } from "svelte/transition";
   import { cubicIn, cubicOut, quadInOut } from "svelte/easing";

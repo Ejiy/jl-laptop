@@ -13,6 +13,8 @@
   import Browser from "../apps/Browser.svelte";
   import Setting from "../apps/Setting.svelte";
   import BennyShop from "../apps/BennyShop.svelte";
+  import Management from "../apps/Management.svelte";
+  import DarkWeb from "../apps/DarkWeb.svelte";
 
   // Register your app component here
   let registeredApp: any = {
@@ -20,6 +22,8 @@
     boosting: Boosting,
     setting: Setting,
     bennys: BennyShop,
+    boss: Management,
+    darkweb: DarkWeb,
   };
 
   let getComponent = (app: string) => {
@@ -118,7 +122,6 @@
   out:fly={{ y: 1000, duration: 500, easing: cubicIn }}
 >
   <Icons on:openApp={handleOpenApp} />
-  <!-- <Shop /> -->
   {#each $openedApps as app, index (app.name)}
     <svelte:component this={app.component} />
   {/each}

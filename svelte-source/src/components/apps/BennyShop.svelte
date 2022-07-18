@@ -11,10 +11,10 @@
     quadOut,
   } from "svelte/easing";
   import { items, cart } from "../../store/bennys";
-  import StoreCard from "./utility/StoreCard.svelte";
+  import StoreCard from "./utility/Bennys/StoreCard.svelte";
   import { flip } from "svelte/animate";
   import { fetchNui } from "../../utils/eventHandler";
-  import StoreCartCard from "./utility/StoreCartCard.svelte";
+  import StoreCartCard from "./utility/Bennys/StoreCartCard.svelte";
   import { notifications } from "../../store/notifications";
   import { onMount } from "svelte";
   let topdata = {
