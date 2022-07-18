@@ -259,7 +259,6 @@ end)
 
 -- Used for both bennys app and darkweb app
 RegisterNUICallback('laptop/checkout', function(data, cb)
-    print(data.app)
     local newData = {
         cart = data['cart'],
         app = data['app']
@@ -287,4 +286,12 @@ RegisterNUICallback('laptop/checkout', function(data, cb)
             })
         end
     end, newData)
+end)
+
+
+RegisterNUICallback('setting/save', function(data, cb)
+    cb("ok")
+    print(data["setting"].background)
+    print(json.encode(data))
+    cb("https://static.toiimg.com/imagenext/toiblogs/photo/blogs/wp-content/uploads/2021/05/edit-Kiran-Jonnalagadda.jpg")
 end)

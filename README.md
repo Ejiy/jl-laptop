@@ -2,6 +2,12 @@
 
 a laptop script
 
+# HOW TO INSTALL
+
+## BOOSTING
+Headover to your qb-core/shared/vehicles and add this to all your following vehicles
+["tier"] = "D" -- Can either be D, C, B, A, A+, S, S+
+
 Shield: [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
 
 This work is licensed under a

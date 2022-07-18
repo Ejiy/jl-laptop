@@ -16,6 +16,8 @@ local function haveItem(items, item)
             return true
         end
     end
+
+    return false
 end
 
 function HasAppAccess(src, app)
@@ -25,11 +27,13 @@ function HasAppAccess(src, app)
 
     if not v then return false end
 
-    if v.default then return true end
-
     local PlayerData = QBCore.Functions.GetPlayer(src).PlayerData
 
     if not PlayerData then return false end
+
+    if not haveItem(PlayerData.items, Config.LaptopDevice) then return false end
+
+    if v.default then return true end
 
     local playerJob, playerGang = PlayerData.job.name, PlayerData.gang.name
     local searches = 0
@@ -66,7 +70,6 @@ end
 
 RegisterNetEvent('jl-laptop:server:LostAccess', function(app)
     local src = source
-    print(app)
     if app == "boosting" then
         TriggerEvent("jl-laptop:server:QuitQueue", src)
     end
