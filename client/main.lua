@@ -256,3 +256,35 @@ CreateThread(function()
         Wait(1000)
     end
 end)
+
+-- Used for both bennys app and darkweb app
+RegisterNUICallback('laptop/checkout', function(data, cb)
+    print(data.app)
+    local newData = {
+        cart = data['cart'],
+        app = data['app']
+    }
+    QBCore.Functions.TriggerCallback('jl-laptop:server:checkout', function(result)
+        if result == "bank" then
+            cb({
+                status = 'error',
+                message = "You do not have enough money in your bank account!!"
+            })
+        elseif result == "full" then
+            cb({
+                status = 'error',
+                message = "You have unclaimed items at the Warehouse already!"
+            })
+        elseif result == "crypto" then
+            cb({
+                status = 'error',
+                message = "You do not have enough crypto!"
+            })
+        elseif result == "done" then
+            cb({
+                status = 'success',
+                message = "You can now pickup the items at the warehouse"
+            })
+        end
+    end, newData)
+end)

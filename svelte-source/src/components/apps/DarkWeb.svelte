@@ -40,8 +40,9 @@
   }
 
   function handleCheckOut() {
-    fetchNui("darkweb/checkout", {
+    fetchNui("laptop/checkout", {
       cart: $darkwebCartItems,
+      app: 'darkweb',
     }).then((res) => {
       if (res.success) {
         notifications.send(res.message, "darkweb", 5000);

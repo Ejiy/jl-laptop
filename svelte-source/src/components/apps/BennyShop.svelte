@@ -40,8 +40,9 @@
   }
 
   function handleCheckout() {
-    fetchNui("bennys/checkout", {
+    fetchNui("laptop/checkout", {
       cart: $cart,
+      app: 'bennys',
     }).then((res) => {
       if (res.status === "success") {
         notifications.send(res.message, "bennys", 5000);

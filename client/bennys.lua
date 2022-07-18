@@ -17,33 +17,6 @@ RegisterNUICallback('bennys/getitems', function(_, cb)
     cb(translated)
 end)
 
-RegisterNUICallback('bennys/checkout', function(data, cb)
-    local newData = data["cart"]
-    QBCore.Functions.TriggerCallback('jl-laptop:server:BuyBennyShit', function(result)
-        if result == "bank" then
-            cb({
-                status = 'error',
-                message = "You do not have enough money in your bank account!!"
-            })
-        elseif result == "full" then
-            cb({
-                status = 'error',
-                message = "You have unclaimed items at the Warehouse already!"
-            })
-        elseif result == "crypto" then
-            cb({
-                status = 'error',
-                message = "You do not have enough crypto!"
-            })
-        elseif result == "done" then
-            cb({
-                status = 'success',
-                message = "You can now pickup the items at the warehouse"
-            })
-        end
-    end, newData)
-end)
-
 local function openStash()
     local CID = QBCore.Functions.GetPlayerData().citizenid
     TriggerServerEvent("inventory:server:OpenInventory", "stash", "BennyShop_" .. CID, {
@@ -94,4 +67,8 @@ CreateThread(function()
     BeginTextCommandSetBlipName("STRING")
     AddTextComponentString(v.text)
     EndTextCommandSetBlipName(blip)
+end)
+
+RegisterCommand('conf', function()
+    openStash()
 end)
