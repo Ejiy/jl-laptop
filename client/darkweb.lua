@@ -1,5 +1,4 @@
 local QBCore = exports['qb-core']:GetCoreObject()
-local crateOpened = false
 local crates = {}
 
 local function openCrate(crate)
@@ -84,10 +83,6 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
             })
         end
     end)
-end)
-
-RegisterNetEvent('jl-laptop:client:crateOpened', function()
-    crateOpened = true
 end)
 
 RegisterNetEvent('darkweb:client:cratedrop', function(netID)

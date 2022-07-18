@@ -68,7 +68,3 @@ CreateThread(function()
     AddTextComponentString(v.text)
     EndTextCommandSetBlipName(blip)
 end)
-
-RegisterCommand('conf', function()
-    openStash()
-end)
