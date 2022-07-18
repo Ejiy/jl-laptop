@@ -79,7 +79,7 @@
   .images {
     margin: 0px 10px;
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
     font-size: 20px;
     width: 50px;

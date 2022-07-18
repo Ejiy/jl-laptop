@@ -15,6 +15,8 @@
   import BennyShop from "../apps/BennyShop.svelte";
   import Management from "../apps/Management.svelte";
   import DarkWeb from "../apps/DarkWeb.svelte";
+  import Modal from "../shared/Modal.svelte";
+  import { modals } from "../../store/modals";
 
   // Register your app component here
   let registeredApp: any = {
@@ -121,6 +123,7 @@
   in:fly={{ y: 1000, duration: 1000, easing: cubicOut }}
   out:fly={{ y: 1000, duration: 500, easing: cubicIn }}
 >
+  <Modal />
   <Icons on:openApp={handleOpenApp} />
   {#each $openedApps as app, index (app.name)}
     <svelte:component this={app.component} />

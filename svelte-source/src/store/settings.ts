@@ -1,9 +1,8 @@
 import { writable } from "svelte/store";
 import type { IDesktopSettings } from "../@types/settings";
-
+import wp1 from "../assets/wallpaper/wp1.png";
 export const settings = writable<IDesktopSettings>({
-  background:
-    "https://i.pinimg.com/originals/67/7d/d0/677dd0ea60b8c98e8ff496449ab65bfe.jpg",
+  background: wp1,
   sound: 0,
   muted: false,
   darkfont: false,

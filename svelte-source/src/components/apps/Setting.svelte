@@ -4,25 +4,57 @@
   import LeftBarSetting from "./utility/Setting/LeftBarSetting.svelte";
   import Toggle from "../shared/Toggle.svelte";
   import { fly, fade } from "svelte/transition";
-  import { cubicIn, cubicOut, quadInOut } from "svelte/easing";
-  let currentPage = "Personalise";
+  import { cubicOut, quadInOut } from "svelte/easing";
 
-  let wallpaperlist = [
-    "https://mishaburnett.files.wordpress.com/2022/04/max.png",
-    "https://techyhost.com/wp-content/uploads/2019/10/Rainmeter-Skin-1.jpg",
-    "https://www.whatspaper.com/wp-content/uploads/2022/03/cyberpunk-wallpaper-whatspaper-9.jpg",
-    "https://wallpapercave.com/wp/wp6065533.png",
-    "https://wallpaperaccess.com/full/5212923.jpg",
-    "https://i.pinimg.com/originals/67/7d/d0/677dd0ea60b8c98e8ff496449ab65bfe.jpg",
-    "https://wallpaperaccess.com/full/3047149.jpg",
-    "https://img3.wallspic.com/crops/1/9/5/6/6/166591/166591-bmw-cars-sports_car-compact_car-a_segment-1920x1080.jpg",
-  ];
+  import wp1 from "../../assets/wallpaper/wp1.png";
+  import wp2 from "../../assets/wallpaper/wp2.jpg";
+  import wp3 from "../../assets/wallpaper/wp3.jpg";
+  import wp4 from "../../assets/wallpaper/wp4.png";
+  import { modals } from "../../store/modals";
+  import { notifications } from "../../store/notifications";
+  import { onDestroy } from "svelte";
+  import { fetchNui } from "../../utils/eventHandler";
+
+  let currentPage = "Personalise";
+  let wallpaperlist = [wp1, wp2, wp3, wp4];
 
   function handleWallpaperClick(src: string) {
     settings.update((s) => {
       return { ...s, background: src };
     });
   }
+
+  function customWallpaper() {
+    modals.show({
+      show: true,
+      onOk: (value) => {
+        const reg = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png)/g;
+        if (reg.test(value)) {
+          settings.update((s) => {
+            return { ...s, background: value };
+          });
+          notifications.send("Wallpaper Changed", "setting");
+        } else {
+          notifications.send("Invalid URL", "setting");
+        }
+      },
+      onCancel: () => {},
+      title: "Custom Wallpaper",
+      input: true,
+      inputPlaceholder: "URL",
+      okText: "Confirm",
+      cancelText: "Cancel",
+      description: "",
+      inputType: "text",
+      inputValue: "",
+    });
+  }
+
+  onDestroy(() => {
+    fetchNui("setting/save", {
+      setting: $settings,
+    });
+  });
 </script>
 
 <Apps
@@ -39,7 +71,6 @@
     <div class="left-bar">
       <LeftBarSetting bind:page={currentPage} />
     </div>
-
     <div class="pages">
       {#if currentPage === "Personalise"}
         <div
@@ -55,9 +86,7 @@
                   class="sh"
                   name="add-circle"
                   size="large"
-                  on:click={() => {
-                    console.log("add");
-                  }}
+                  on:click={customWallpaper}
                 />
               </div>
               {#each wallpaperlist as wp}
