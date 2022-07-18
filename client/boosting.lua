@@ -105,7 +105,6 @@ RegisterNetEvent('lockpicks:UseLockpick', function()
     if NetID and DoesEntityExist(NetworkGetEntityFromNetworkId(NetID)) then
         local carSpawned = NetworkGetEntityFromNetworkId(NetID)
         local dist = #(GetEntityCoords(carSpawned) - GetEntityCoords(PlayerPedId()))
-        print(dist)
         if dist <= 2.5 then -- 2.5 is the distance in qbcore vehiclekeys if you use more or less then please edit this.
             if #(vector3(carCoords.x,carCoords.y,carCoords.z) - GetEntityCoords(carSpawned)) <= 6.9 then
                 AntiSpam = true
@@ -291,7 +290,6 @@ RegisterNetEvent('jl-laptop:client:DeliverVehicle', function()
     Wait(2500)
     QBCore.Functions.Notify('You will be paid when I sucessfully retracted the vehicle', 'success', 7500)
     while #QBCore.Functions.GetPlayersFromCoords(GetEntityCoords(car), 100.0) > 0 do
-        print(#QBCore.Functions.GetPlayersFromCoords(GetEntityCoords(car), 100.0))
         Wait(7500)
     end
     TriggerServerEvent('jl-laptop:server:finishBoost', NetID)
@@ -344,7 +342,62 @@ RegisterNetEvent('jl-laptop:client:finishContract', function()
     SendNUIMessage({ action = 'booting/delivered' })
 end)
 
----- ** NUI CALLBACKS ** ----
+RegisterNetEvent('jl-laptop:client:QueueHandler', function(value)
+    inQueue = value
+end)
+
+-- Handles state right when the player selects their character and location.
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    PlayerData = QBCore.Functions.GetPlayerData()
+
+    QBCore.Functions.TriggerCallback('jl-laptop:server:GetContracts', function(result, plates)
+        Contracts = result
+        ActivePlates = plates
+        if Contracts and #Contracts > 0 then
+            SendNUIMessage({
+                action = 'receivecontracts',
+                contracts = result
+            })
+        end
+    end)
+end)
+
+
+-- ** NUI CALLBACKS ** --
+RegisterNUICallback('boosting/deny', function(data, cb)
+    local contract = data.contractID
+    TriggerServerEvent('jl-laptop:server:DeclineBoost', contract)
+    cb("ok")
+end)
+
+RegisterNUICallback('boosting/transfer', function(data, cb)
+    local id = data.playerid
+    local contract = data.contractID.id
+    QBCore.Functions.TriggerCallback('jl-laptop:server:TransferContracts', function(result)
+        if result == "success" then
+            cb({
+                status = 'success',
+                message = "Transferred Contract to State ID: "..id
+            })
+        elseif result == "yourID" then
+            cb({
+                status = 'error',
+                message = "You cannot transfer the contract to yourself!"
+            })
+        elseif result == "notfound" then
+            cb({
+                status = 'error',
+                message = "Player not found!"
+            })
+        elseif result == "error" then
+            cb({
+                status = 'error',
+                message = "Error 404 Try again!"
+            })
+        end
+    end, id, contract)
+end)
+
 RegisterNUICallback('boosting/queue', function(cb)
     TriggerServerEvent('jl-laptop:server:JoinQueue', cb.status)
 end)
@@ -380,24 +433,4 @@ end)
 
 RegisterNUICallback("boosting/setcontract", function(_, cb)
     cb(inQueue)
-end)
-
--- Handles state right when the player selects their character and location.
-RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    PlayerData = QBCore.Functions.GetPlayerData()
-
-    QBCore.Functions.TriggerCallback('jl-laptop:server:GetContracts', function(result, plates)
-        Contracts = result
-        ActivePlates = plates
-        if Contracts and #Contracts > 0 then
-            SendNUIMessage({
-                action = 'receivecontracts',
-                contracts = result
-            })
-        end
-    end)
-end)
-
-RegisterNetEvent('jl-laptop:client:QueueHandler', function(value)
-    inQueue = value
 end)

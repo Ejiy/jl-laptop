@@ -6,6 +6,8 @@ Config.Boosting.HackingDevice = "trackerdisabler" -- Whatever item you use to ha
 
 Config.Boosting.HackDelay = 30 -- 180 seconds delay
 
+Config.Boosting.MaxBoosts = 5 -- The amount of boosts a player can hold in their laptop at any given time.
+
 Config.Boosting.MinusOne = true -- true or false, detmains wheather the Z is minus 1 or not.
 
 Config.Boosting.PedSettings = {
@@ -17,6 +19,7 @@ Config.Boosting.PedSettings = {
     ["S"] = {weapons = {"weapon_microsmg2", "weapon_minismg2"}},
     ["S+"] = {weapons = {"weapon_assaultrifle", "weapon_combatsmg"}},
 }
+
 Config.Boosting.Locations = {
     ["D"] = {
         [1] = {
@@ -406,59 +409,6 @@ Config.Boosting.RandomNames = {
     "Logan Paul",
     "Jimathy yorass",
     "Tom Cruise"
-}
-
-Config.Boosting.Vehicles = {
-    ["D"] = {
-        "sultan",
-        "sultanrs",
-        "banshee",
-    },
-
-    ["C"] = {
-        'blista',
-        'casco',
-        'virgo',
-        'sadler',
-        'ratloader'
-    },
-
-    ["B"] = {
-        'primo',
-        'chino',
-        'baller3',
-        'guardian'
-    },
-
-    ["A"] = {
-        'infernus2',
-        'massacro',
-        'felon',
-        'oracle2',
-        'jackal'
-    },
-
-    ["A+"] = {
-        'schafter2',
-        'kuruma',
-        'brioso',
-        'infernus'
-    },
-
-    ["S"] = {
-        't20',
-        'zentorno',
-        'turismor',
-        'massacro2',
-        'raptor'
-    },
-
-    ["S+"] = {
-        'nero',
-        'paragon',
-        'mamba',
-        'ztype',
-    },
 }
 
 Config.Boosting.ReturnLocation = {
