@@ -1,6 +1,6 @@
 Config.Bennys = {}
 
-Config.Bennys.Inventory = "qb-inventory"
+
 
 Config.Bennys.Location = {
     ped = "s_m_y_airworker",

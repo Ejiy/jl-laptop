@@ -9,7 +9,8 @@ lua54 'yes' -- Add in case you want to use lua 5.4 (https://www.lua.org/manual/5
 shared_scripts {
     'shared/config.lua',
     'shared/boosting.lua',
-    'shared/bennys.lua'
+    'shared/bennys.lua',
+    'shared/darkweb.lua',
 }
 
 client_scripts {

@@ -1,5 +1,6 @@
 Config = {}
 
+Config.Inventory = "qb-inventory"
 Config.LaptopDevice = "laptop"
 
 Config.PoliceJobs = {
@@ -44,5 +45,18 @@ Config.Apps = {
         gang = {},
         item = {},
         default = true
+    },
+    ['darkweb'] = {
+        app = 'darkweb',
+        name = "Unknown",
+        icon = "fa-solid fa-skull",
+        useimage = false,
+        color = '#fff',
+        background = "black",
+        bannedJobs = { "police" },
+        job = {},
+        gang = {},
+        item = { "vpn" },
+        default = false
     }
 }
