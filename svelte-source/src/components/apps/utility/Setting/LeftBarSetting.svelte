@@ -20,17 +20,11 @@
     </div>
     <div
       class="item"
-      class:active={page === "System"}
+      class:active={page === "About"}
       on:click={() => {
-        page = "System";
+        page = "About";
       }}
     >
-      <div class="icon">
-        <ion-icon name="rocket" />
-      </div>
-      <div class="text">System</div>
-    </div>
-    <div class="item">
       <div class="icon">
         <ion-icon name="alert-circle" />
       </div>
