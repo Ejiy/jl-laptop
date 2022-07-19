@@ -35,6 +35,8 @@ files {
     'html/assets/index.css',
     'html/assets/logo.png',
     'html/assets/pop.ogg',
+    'html/assets/*.png',
+    'html/assets/*.jpg',
     'html/images/*.jpg',
     'html/images/*.png',
     'html/images/apps/*.png',
