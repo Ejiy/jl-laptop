@@ -112,13 +112,80 @@
             </div>
           </div>
         </div>
-      {:else if currentPage === "System"}
+      {:else if currentPage === "About"}
         <div
-          class="main-page"
+          class="main-page about"
           in:fly|local={{ y: 400, easing: cubicOut, duration: 500 }}
           out:fade|local={{ easing: quadInOut, duration: 100 }}
         >
-          test
+          <div class="title">Thanks</div>
+          <div class="desc">
+            I'm JL as the lead developer of this project. I want to say Thanks
+            to all of the people who have helped me to make this project
+            possible. We have worked on this project for more than a month, we
+            glad we could make this project release to the public especially for
+            qbcore community.
+          </div>
+          <div class="title">Main Developer</div>
+          <div class="jl-rn">
+            <div class="justlazzy">
+              <div class="org-logo">
+                <img
+                  src="https://cdn.discordapp.com/attachments/995214046414508094/995214463223464036/Comission_Alit_20220204211842.png"
+                  alt="justlazzy"
+                />
+              </div>
+              <div class="org-title">JL Development</div>
+              <div class="names">
+                <div class="name">• JustLazzy</div>
+                <div class="name">• Darkets</div>
+              </div>
+            </div>
+            <div class="renewed">
+              <div class="org-logo">
+                <img
+                  src="https://media.discordapp.net/attachments/981153056643231744/998868151011921920/9a7d15408011ae470b767fa41a8abaced7370574.png"
+                  alt="renewed"
+                />
+              </div>
+              <div class="org-title">Renewed Scripts</div>
+              <div class="names">
+                <div class="name">• FjamZoo</div>
+                <div class="name">• uShifty</div>
+              </div>
+            </div>
+          </div>
+          <div class="title">Other Contributors</div>
+
+          <div class="other-contributor">
+            <div class="contributor">
+              <div class="contributor-logo">
+                <img
+                  src="https://media.discordapp.net/attachments/921376697792733184/998877019402162206/91106435.jpg"
+                  alt="silent"
+                />
+              </div>
+              <div class="name">S1lentcodes / Silent</div>
+            </div>
+            <div class="contributor">
+              <div class="contributor-logo">
+                <img
+                  src="https://media.discordapp.net/attachments/981153056643231744/998872979100414002/79489495.png"
+                  alt="jayden"
+                />
+              </div>
+              <div class="contributor-name">Alivemonstor / Jayden</div>
+            </div>
+            <div class="contributor">
+              <div class="contributor-logo">
+                <img
+                  src="https://media.discordapp.net/attachments/921376697792733184/998878693764124742/50504920.gif"
+                  alt="hyper"
+                />
+              </div>
+              <div class="name">Hyper / itsHyper</div>
+            </div>
+          </div>
         </div>
       {/if}
     </div>
@@ -126,6 +193,85 @@
 </Apps>
 
 <style>
+  .contributor {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .contributor-logo {
+    width: 100px;
+    height: 100px;
+    overflow: hidden;
+    border-radius: 50%;
+  }
+
+  .other-contributor {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 50px;
+    align-items: center;
+    margin: 50px;
+    margin-bottom: 50px;
+  }
+  .main-page.about::-webkit-scrollbar {
+    display: none;
+  }
+  .main-page.about {
+    scrollbar-width: none;
+  }
+  .main-page {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  .name {
+    font-size: 18px;
+    color: #fff;
+  }
+  .desc {
+    padding: 20px;
+    text-align: justify;
+  }
+  .org-title {
+    margin-bottom: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #fff;
+  }
+  .renewed,
+  .justlazzy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  img {
+    width: 100%;
+    height: 100%;
+  }
+  .org-logo {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+  }
+  .jl-rn {
+    margin-top: 50px;
+    gap: 100px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+  .title {
+    margin-top: 30px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 10px;
+  }
   .sh:hover {
     animation: spinner 4s linear infinite;
   }
