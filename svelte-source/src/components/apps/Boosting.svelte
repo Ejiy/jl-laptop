@@ -1,12 +1,7 @@
 <script lang="ts">
   import moment from "moment";
-  import Apps from "../shared/Apps.svelte";
-  import { flip } from "svelte/animate";
-  import { fly } from "svelte/transition";
-  import Progressbar from "../shared/Progressbar.svelte";
-  import { cubicOut } from "svelte/easing";
-  import Modal from "../shared/Modal.svelte";
   import { modals } from "../../store/modals";
+  import { flip } from "svelte/animate";
   import {
     contracts,
     queue,
@@ -15,28 +10,29 @@
   } from "../../store/boosting";
   import { notifications } from "../../store/notifications";
   import { fetchNui } from "../../utils/eventHandler";
+
+  import Apps from "../shared/Apps.svelte";
+  import Progressbar from "../shared/Progressbar.svelte";
+
+  let tierRing = {
+    D: "rgb(77, 141, 77)",
+    C: "rgb(122, 226, 122)",
+    B: "rgb(30, 99, 121)",
+    A: "rgb(28, 163, 207)",
+    "A+": "rgb(76, 211, 252)",
+    S: "rgb(255, 223, 79)",
+    "S+": "rgb(255, 208, 0)",
+  };
+
+  let iswaiting;
+
+  let currentPage = "My Contracts";
   let topdata = {
     title: "Car Boosting",
-    color: "#2b2d42",
-    background: "rgba(50, 48, 60, 0.978)",
-    blur: true,
-  };
-  let pages = ["My Contracts"];
-
-  let activepage = "My Contracts";
-
-  let color: any = {
-    ["S+"]: "#ff9800",
-    ["D"]: "#4caf50",
-  };
-
-  let handleRemove = (id: number) => {
-    contracts.update((c) => c.filter((n) => n.id !== id));
-    fetchNui("boosting/deny", {
-          contractID: id,
-    }).then(() => {
-        notifications.send("Contract Declined", "boosting", 5000);
-    });
+    color: "#1c1b20",
+    background: "rgb(22, 20, 31)",
+    blur: false,
+    blurstrength: 10,
   };
 
   let repConfig: any;
@@ -64,14 +60,45 @@
     }
   }
 
+  function handleRemove(id: number) {
+    contracts.update((c) => c.filter((n) => n.id !== id));
+    fetchNui("boosting/deny", {
+      contractID: id,
+    }).then(() => {
+      notifications.send("You just decline your contract", "boosting");
+    });
+  }
+
+  function joinQueue() {
+    if (iswaiting) return;
+    iswaiting = true;
+    setTimeout(() => {
+      iswaiting = false;
+      $queue = !$queue;
+      if ($queue) {
+        notifications.send("You have joined the queue", "boosting", 5000);
+      } else {
+        notifications.send("You have left the queue", "boosting", 5000);
+      }
+      fetchNui("boosting/queue", {
+        status: $queue,
+      })
+        .then(() => {
+          console.log("boosting/queue", $queue);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }, 2000);
+  }
+
   fetchNui("boosting/getcontract").then((r) => {
-    console.log(r);
+    contracts.set(r.contracts);
   });
 
-  fetchNui("boosting/setcontract").then((data) => {
-    $queue = data
+  fetchNui("boosting/getqueue").then((data) => {
+    queue.set(data);
   });
-
 
   fetchNui("boosting/getrep")
     .then((r) => {
@@ -98,30 +125,7 @@
       };
     });
 
-  let joinQueue = () => {
-    if (iswaiting) return;
-    iswaiting = true;
-    setTimeout(() => {
-      iswaiting = false;
-      $queue = !$queue;
-      if ($queue) {
-        notifications.send("You have joined the queue", "boosting", 5000);
-      } else {
-        notifications.send("You have left the queue", "boosting", 5000);
-      }
-      fetchNui("boosting/queue", {
-        status: $queue,
-      })
-        .then(() => {
-          console.log("boosting/queue", $queue);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }, 2000);
-  };
-
-  let startContract = (id: number) => {
+  function startContract(id: number) {
     if ($started) return;
     let contract = $contracts.find((n) => n.id === id);
     fetchNui("boosting/start", {
@@ -144,16 +148,6 @@
           5000
         );
       });
-  };
-
-  let iswaiting = false;
-
-  let setActivePage = (e: any, page: string) => {
-    activepage = page;
-  };
-
-  $: {
-    console.log($contracts.length, $startedContracts.length);
   }
 
   function TransferShit(id: number) {
@@ -188,294 +182,259 @@
   }
 </script>
 
-<Apps {topdata} appname="boosting">
-  <div class="boosting">
+<Apps {topdata} appname="boostingrenewed">
+  <div class="apps">
     <div class="top">
       <div class="navigation">
-        {#each pages as page}
+        <div class="left">
           <button
-            class:green={page === "My Contracts"}
-            class:active={page === activepage}
-            on:click={(e) => setActivePage(e, page)}>{page}</button
+            class:active={currentPage === "My Contracts"}
+            on:click={() => {
+              currentPage = "My Contracts";
+            }}>My Contracts</button
           >
-        {/each}
-        <button class="blue" on:click={joinQueue} class:disabled={iswaiting}>
-          {#if iswaiting}
-            <i class="fas fa-regular fa-circle-notch fa-spin" />
-          {:else}
-            {$queue ? "Leave Queue" : "Join Queue"}
-          {/if}
-        </button>
+        </div>
+        <div class="right">
+          <button
+            on:click={joinQueue}
+            class:waiting={iswaiting}
+            disabled={iswaiting}
+            class:active={$queue}
+          >
+            {#if iswaiting}
+              Please Wait
+            {:else}
+              {$queue ? "Leave Queue" : "Join Queue"}
+            {/if}
+          </button>
+        </div>
       </div>
-      <div class="progress">
-        <div class="text-pg">
-          <h1>{currentRep}</h1>
+      <div class="progbar">
+        <div class="currentClass">{currentRep}</div>
+        <div class="proggress">
+          <Progressbar maxValue={progressPercentage} width={"110vh"} />
         </div>
-        <Progressbar maxValue={progressPercentage} />
-        <div class="text-pg">
-          <h1>{nextRep}</h1>
-        </div>
+
+        <div class="nextClass">{nextRep}</div>
       </div>
     </div>
-    <div class="body">
-      {#if activepage === "My Contracts"}
-        <div class="contracts">
-          {#if $contracts.length === 0 && $startedContracts.length === 0}
-            <div class="no-contract">You have no contracts</div>
-          {/if}
-          {#each $startedContracts as started, index (started.id)}
-            <div
-              class="contract-card"
-              out:fly|local={{ duration: 200, x: 300 }}
-              animate:flip={{ duration: 300 }}
-            >
-              <div class="data">
-                <div class="first-data">
-                  <div class="boost-type">
-                    Boost Type : <span style="color: {color[started.contract]};"
-                      >{started.contract}</span
-                    >
-                  </div>
-                  <div class="boost-owner">
-                    Owner : {started.owner}
-                  </div>
-                </div>
-                <div class="second-data">
-                  <div class="vehicle">
-                    <p>Vehicle : {started.car}</p>
-                    <p>
-                      Expires in : <span class="expire">69</span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div class="control">
-                <button
-                  class="green started"
-                  on:click={() => {
-                    startContract(started.id);
-                  }}
-                >
-                  Started
-                </button>
-              </div>
+    <div class="boosting">
+      {#if currentPage === "My Contracts"}
+        {#each $contracts as contract (contract.id)}
+          <div
+            class="boosting-card"
+            animate:flip
+            class:hide={new Date(contract.expire) < new Date(Date.now())}
+          >
+            <div class="typeshit" class:vin={contract.type === "vinscratch"}>
+              {contract.type === "boosting"
+                ? "Boosting Contract"
+                : "Vin Contract"}
             </div>
-          {/each}
-          {#each $contracts as contract (contract.id)}
             <div
-              class="contract-card"
-              in:fly|local={{ duration: 300, y: -300, easing: cubicOut }}
-              out:fly|local={{ duration: 200, x: 300 }}
-              animate:flip={{ duration: 300 }}
+              class="boost-class"
+              style={tierRing[contract.contract]
+                ? "border: 3px solid " + tierRing[contract.contract]
+                : ""}
             >
-              <div class="data">
-                <div class="first-data">
-                  <div class="boost-type">
-                    Boost Type : <span
-                      style="color: {color[contract.contract]};"
-                      >{contract.contract}</span
-                    >
-                  </div>
-                  <div class="boost-owner">
-                    Owner : {contract.owner}
-                  </div>
-                </div>
-                <div class="second-data">
-                  <div class="vehicle">
-                    <p>Vehicle : {contract.car}</p>
-                    <p>
-                      Expires in :
-                      <span class="expire"
-                        >{moment(contract.expire).endOf("hour").fromNow()}</span
-                      >
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div class="control">
-                <button
-                  class="green"
-                  class:active={$started}
-                  on:click={() => {
-                    startContract(contract.id);
-                  }}
-                >
-                  Start Contract
-                </button>
-                <button
-                  class="red"
-                  on:click={() => {
-                    handleRemove(contract.id);
-                  }}
-                >
-                  Decline Contract
-                </button>
-                <button class="blue"
+              {contract.contract}
+            </div>
+            <div class="boost-name">{contract.owner}</div>
+            <div class="boost-car">{contract.car}</div>
+            <div class="boost-reward">Price: your life</div>
+            <div class="expires">
+              Expires: <b>{moment(contract.expire).endOf("hour").fromNow()}</b>
+            </div>
+            <div class="button">
+              <button on:click={() => [startContract(contract.id)]}
+                >Start Contract</button
+              >
+              <button
                 on:click={() => {
                   TransferShit(contract.id);
-                }}
-                > Transfer Contract </button>
-              </div>
+                }}>Transfer Contract</button
+              >
+              <button
+                on:click={() => {
+                  handleRemove(contract.id);
+                }}>Decline Contract</button
+              >
             </div>
-          {/each}
-        </div>
+          </div>
+        {:else}
+          <div class="no-contract">
+            <div class="title">You have no contracts</div>
+          </div>
+        {/each}
       {/if}
     </div>
   </div>
 </Apps>
 
 <style>
-  .expire {
-    color: #51f8b2;
+  .typeshit.vin {
+    background: rgb(45, 39, 126);
   }
-  .first-data {
+  .typeshit {
+    height: 25px;
     width: 100%;
-    height: 100%;
-  }
-
-  .text-pg {
-    font-family: "Noto Sans", sans-serif;
-    font-size: 0.5rem;
-    margin: 0 10px;
-  }
-
-  .progress {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0 10vw;
-  }
-
-  .no-contract {
-    font-family: "Noto Sans", sans-serif;
-    font-weight: 700;
-    text-transform: capitalize;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    font-size: 1.8rem;
-    color: #fff;
-  }
-
-  .second-data {
-    width: 100%;
-    height: 100%;
-  }
-
-  .contracts {
-    margin: 10px;
-    padding: 10px 60px;
-    box-sizing: border-box;
-    overflow-x: hidden;
-    overflow-y: auto;
-    height: 50vh;
-  }
-
-  .data {
-    line-height: 30px;
-    text-align: left;
-    font-family: "Noto Sans", sans-serif;
-    font-weight: 600;
-    font-size: 18px;
-    display: flex;
-    justify-content: space-between;
-    padding: 30px;
-    width: 100%;
-    height: 100%;
-  }
-  .control {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    padding: 20px;
-  }
-  .control button {
-    cursor: pointer;
-    font-weight: 600;
     font-size: 1rem;
-    font-family: "Roboto", sans-serif;
+    font-weight: bold;
     display: flex;
     justify-content: center;
-    text-align: center;
     align-items: center;
-    border: none;
-    width: 150px;
-    height: 35px;
-    margin: 6px;
+    background-color: rgb(65, 60, 131);
   }
-  .contract-card {
+  .apps {
+    overflow: hidden;
+    height: 100%;
+  }
+
+  .no-contract .title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+  }
+  .no-contract {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    width: 100%;
-    max-height: 400px;
-    background-color: rgb(50, 56, 77);
-    margin: 10px;
   }
-  .body {
-    margin: 5px;
-    padding: 10px 60px;
-  }
-
-  .blue.disabled {
-    background: #4e5177;
-    cursor: not-allowed;
-  }
-  .green.active {
-    background: #266329;
-  }
-
-  .green.started {
-    background: #4e5177;
-    cursor: not-allowed;
-  }
-
-  button.blue {
-    background: #6c74cb;
-  }
-
-  button.green {
-    background: #3c8d40;
-  }
-
-  button.red {
-    background: #c95959;
-  }
-
-  .navigation {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin: 20px 30px;
-    padding: 0 30px;
-  }
-  .navigation button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: "Roboto", sans-serif;
-    font-weight: bold;
-    border-radius: 2px;
-    font-size: 15px;
-    text-align: center;
-    font-weight: 600;
-    margin: 0px 10px;
-    padding: 5px;
-    width: 150px;
-    height: 35px;
-    border: none;
-    cursor: pointer;
-    text-transform: capitalize;
+  .boosting::-webkit-scrollbar {
+    display: none;
   }
   .boosting {
-    width: 100%;
+    padding: 20px;
+    display: grid;
+    justify-content: center;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 0.1fr));
+    gap: 15px;
     height: 100%;
-
-    overflow-x: hidden;
+    overflow-x: hidden !important;
   }
-  ::-webkit-scrollbar {
+  .boost-reward,
+  .expires {
+    font-size: 15px;
+    color: #fff;
+  }
+  .boost-car {
+    font-size: 1rem;
+    font-weight: bold;
+  }
+  .boost-name {
+    margin-top: 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  .boost-class {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 50px;
+    font-weight: bold;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid rgb(76, 211, 252);
+    background: #241f35;
+  }
+
+  .button button {
+    background-color: rgb(22, 20, 31);
+    width: 170px;
+    height: 50px;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .button {
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+  }
+  .boosting-card.hide {
     display: none;
+  }
+  .boosting-card {
+    border-radius: 5px;
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    width: 230px;
+    height: 500px;
+    background-color: rgb(18, 16, 24);
+  }
+  .left,
+  .right {
+    font-size: 30px;
+    gap: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  button.active {
+    color: rgb(41, 141, 255);
+  }
+  button.waiting {
+    cursor: not-allowed;
+  }
+  button {
+    color: rgba(255, 255, 255, 0.377);
+    letter-spacing: 2px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    border: none;
+    background: transparent;
+  }
+  .currentClass,
+  .nextClass {
+    font-size: 15px;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+    display: flex;
+    align-items: center;
+  }
+  .navigation {
+    width: 100%;
+    display: flex;
+    margin-top: 10px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 100px;
+  }
+  .proggress {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .progbar {
+    gap: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .top {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  * {
+    font-family: "Noto Sans", sans-serif;
   }
 </style>

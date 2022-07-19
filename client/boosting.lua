@@ -79,25 +79,26 @@ local AntiSpam = false -- Just a true / false boolean to not spam the shit out o
 local carCoords = nil
 
 -- Sends information from server to client that it will start now
-RegisterNetEvent('jl-laptop:client:MissionStarted', function(netID, coords) -- Pretty much just resets every boolean to make sure no issues will occour.
-    NetID = netID
-    carCoords = coords
-    AntiSpam = false
-    canHack = true
-    inZone = false
+RegisterNetEvent('jl-laptop:client:MissionStarted',
+    function(netID, coords) -- Pretty much just resets every boolean to make sure no issues will occour.
+        NetID = netID
+        carCoords = coords
+        AntiSpam = false
+        canHack = true
+        inZone = false
 
-    if PZone then PZone:destroy() PZone = nil end
+        if PZone then PZone:destroy() PZone = nil end
 
-    if missionBlip then RemoveBlip(missionBlip) end
+        if missionBlip then RemoveBlip(missionBlip) end
 
-    if coords then
-        missionBlip = AddBlipForRadius(coords.x, coords.y, coords.z, 150.0)
-        SetBlipAlpha(missionBlip, 150)
-        SetBlipHighDetail(missionBlip, true)
-        SetBlipColour(missionBlip, 1)
-        SetBlipAsShortRange(missionBlip, true)
-    end
-end)
+        if coords then
+            missionBlip = AddBlipForRadius(coords.x, coords.y, coords.z, 150.0)
+            SetBlipAlpha(missionBlip, 150)
+            SetBlipHighDetail(missionBlip, true)
+            SetBlipColour(missionBlip, 1)
+            SetBlipAsShortRange(missionBlip, true)
+        end
+    end)
 
 -- sends information from server to client that we found the car and we started lockpicking
 RegisterNetEvent('lockpicks:UseLockpick', function()
@@ -106,7 +107,7 @@ RegisterNetEvent('lockpicks:UseLockpick', function()
         local carSpawned = NetworkGetEntityFromNetworkId(NetID)
         local dist = #(GetEntityCoords(carSpawned) - GetEntityCoords(PlayerPedId()))
         if dist <= 2.5 then -- 2.5 is the distance in qbcore vehiclekeys if you use more or less then please edit this.
-            if #(vector3(carCoords.x,carCoords.y,carCoords.z) - GetEntityCoords(carSpawned)) <= 6.9 then
+            if #(vector3(carCoords.x, carCoords.y, carCoords.z) - GetEntityCoords(carSpawned)) <= 6.9 then
                 AntiSpam = true
                 TriggerServerEvent('jl-laptop:server:SpawnPed')
                 RemoveBlip(missionBlip)
@@ -246,7 +247,8 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
                     end
                     HackDelay()
                 else
-                    QBCore.Functions.Notify("You must wait atleast " .. Config.Boosting.HackDelay .. " Seconds", 'error', 7500)
+                    QBCore.Functions.Notify("You must wait atleast " .. Config.Boosting.HackDelay .. " Seconds", 'error'
+                        , 7500)
                 end
             end
         end
@@ -377,7 +379,7 @@ RegisterNUICallback('boosting/transfer', function(data, cb)
         if result == "success" then
             cb({
                 status = 'success',
-                message = "Transferred Contract to State ID: "..id
+                message = "Transferred Contract to State ID: " .. id
             })
         elseif result == "yourID" then
             cb({
@@ -431,6 +433,12 @@ RegisterNUICallback("boosting/getrep", function(_, cb)
     cb(data)
 end)
 
-RegisterNUICallback("boosting/setcontract", function(_, cb)
+RegisterNUICallback("boosting/getqueue", function(_, cb)
     cb(inQueue)
+end)
+
+RegisterNUICallback('boosting/getcontract', function(_, cb)
+    cb({
+        contracts = Contracts,
+    })
 end)

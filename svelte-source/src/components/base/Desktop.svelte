@@ -5,12 +5,11 @@
   import ShittyRightSide from "./RightSide.svelte";
   import Winmanager from "./Winmanager.svelte";
   import { apps, openApp, openedApps, setApp } from "../../store/desktop";
-  import { settings } from "../../store/settings";
+  import { setSettings, settings } from "../../store/settings";
   import { cubicIn, cubicOut } from "svelte/easing";
   import { fetchNui } from "../../utils/eventHandler";
   // APP
   import Boosting from "../apps/Boosting.svelte";
-  import Browser from "../apps/Browser.svelte";
   import Setting from "../apps/Setting.svelte";
   import BennyShop from "../apps/BennyShop.svelte";
   import Management from "../apps/Management.svelte";
@@ -20,7 +19,6 @@
 
   // Register your app component here
   let registeredApp: any = {
-    browser: Browser,
     boosting: Boosting,
     setting: Setting,
     bennys: BennyShop,
@@ -50,6 +48,16 @@
     }
   };
 
+  let showRightside = false;
+  let toggleRightside = () => {
+    showRightside = !showRightside;
+  };
+
+  let toggleSetting = (st) => {
+    if (st.detail === true) {
+      handleOpenApp("setting");
+    }
+  };
   fetchNui("getapp", {})
     .then((res) => {
       setApp(res);
@@ -105,16 +113,11 @@
       setApp(data);
     });
 
-  let showRightside = false;
-  let toggleRightside = () => {
-    showRightside = !showRightside;
-  };
-
-  let toggleSetting = (st) => {
-    if (st.detail === true) {
-      handleOpenApp("setting");
+  fetchNui("setting/get", {}).then((res) => {
+    if (res.status) {
+      setSettings(res.data);
     }
-  };
+  });
 </script>
 
 <div
@@ -124,6 +127,7 @@
   out:fly={{ y: 1000, duration: 500, easing: cubicIn }}
 >
   <Modal />
+
   <Icons on:openApp={handleOpenApp} />
   {#each $openedApps as app, index (app.name)}
     <svelte:component this={app.component} />

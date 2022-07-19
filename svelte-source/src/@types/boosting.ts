@@ -5,4 +5,9 @@ export interface IContracts {
   expire: number;
   owner: string;
   vinscratch: boolean;
+  type: "boosting" | "vinscratch";
+}
+
+export interface ISaledContract extends IContracts {
+  price: number;
 }
