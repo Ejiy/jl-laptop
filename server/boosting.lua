@@ -501,11 +501,6 @@ QBCore.Functions.CreateCallback('jl-laptop:server:TransferContracts', function(s
     cb("success")
 end)
 
-
-
-
-
-
 -- Player dropped functions --
 local function GetCID(src)
     if LookingForContracts then

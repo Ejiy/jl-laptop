@@ -67,10 +67,18 @@ function HasAppAccess(src, app)
     end
 end
 
-
 RegisterNetEvent('jl-laptop:server:LostAccess', function(app)
     local src = source
     if app == "boosting" then
         TriggerEvent("jl-laptop:server:QuitQueue", src)
     end
+end)
+
+
+RegisterNetEvent('jl-laptop:server:settings:set', function(setting)
+    if not source then return end
+    if not setting then return end
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    Player.Functions.SetMetaData("laptop", setting)
 end)

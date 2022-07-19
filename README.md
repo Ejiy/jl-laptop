@@ -4,9 +4,30 @@ a laptop script
 
 # HOW TO INSTALL
 
+## General
+
+Go to your qb-core/server/player.lua and add this metadata
+
+```lua
+    PlayerData.metadata['laptop'] = PlayerData.metadata['laptop'] or {
+        background = 'default',
+        darkfont = false,
+    }
+```
+
 ## BOOSTING
+
 Headover to your qb-core/shared/vehicles and add this to all your following vehicles
+
+```lua
 ["tier"] = "D" -- Can either be D, C, B, A, A+, S, S+
+```
+
+Go to your qb-core/server/player.lua and add this metadata
+
+```lua
+    PlayerData.metadata['carboostrep'] = PlayerData.metadata['carboostrep'] or 0
+```
 
 Shield: [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
 

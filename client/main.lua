@@ -59,7 +59,8 @@ local function GetPlayerAppPerms()
                                     TriggerServerEvent('jl-laptop:server:LostAccess', app.app)
                                 end
                                 goto skip
-                            elseif (app.job[k] and app.job[k] == playerJob) or (app.gang[k] and app.gang[k] == playerGang) then
+                            elseif (app.job[k] and app.job[k] == playerJob) or
+                                (app.gang[k] and app.gang[k] == playerGang) then
                                 tempApps[#tempApps + 1] = converted
                                 goto skip
                             elseif (not app.job[k] and not app.gang[k]) then
@@ -120,7 +121,8 @@ local function Animation()
 
     local tabletBoneIndex = GetPedBoneIndex(plyPed, tabletBone)
 
-    AttachEntityToEntity(tabletObj, plyPed, tabletBoneIndex, tabletOffset.x, tabletOffset.y, tabletOffset.z, tabletRot.x, tabletRot.y, tabletRot.z, true, false, false, false, 2, true)
+    AttachEntityToEntity(tabletObj, plyPed, tabletBoneIndex, tabletOffset.x, tabletOffset.y, tabletOffset.z, tabletRot.x
+        , tabletRot.y, tabletRot.z, true, false, false, false, 2, true)
     SetModelAsNoLongerNeeded(tabletProp)
 
     CreateThread(function()
@@ -291,7 +293,23 @@ end)
 
 RegisterNUICallback('setting/save', function(data, cb)
     cb("ok")
-    print(data["setting"].background)
-    print(json.encode(data))
-    cb("https://static.toiimg.com/imagenext/toiblogs/photo/blogs/wp-content/uploads/2021/05/edit-Kiran-Jonnalagadda.jpg")
+    TriggerServerEvent("jl-laptop:server:settings:set", data["setting"])
+end)
+
+RegisterNUICallback("setting/get", function(_, cb)
+    if PlayerData.metadata['laptop'] then
+        cb({
+            status = true,
+            data = PlayerData.metadata['laptop']
+        })
+    else
+        cb({
+            status = false,
+            data = {}
+        })
+    end
+end)
+
+RegisterCommand("testmd", function()
+    print(json.encode(PlayerData.metadata['laptop']))
 end)
