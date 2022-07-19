@@ -442,3 +442,8 @@ RegisterNUICallback('boosting/getcontract', function(_, cb)
         contracts = Contracts,
     })
 end)
+
+RegisterNUICallback("boosting/expire", function(data, cb)
+    print(data["id"])
+    cb("ok")
+end)
