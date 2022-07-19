@@ -3,15 +3,7 @@ import { writable } from "svelte/store";
 import type { IContracts, ISaledContract } from "../@types/boosting";
 
 export const contracts = writable<IContracts[]>([]);
-export const startedContracts = writable<IContracts>({
-  contract: "A+",
-  car: "Audi",
-  expire: 1658208866000,
-  id: 323,
-  owner: "Some guy",
-  type: "boosting",
-  vinscratch: false,
-});
+export const startedContracts = writable<IContracts>(null);
 
 let contractsStore: IContracts[];
 let startedContractStore: IContracts;
