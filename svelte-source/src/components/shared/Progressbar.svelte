@@ -7,10 +7,11 @@
     duration: 2000,
     easing: cubicOut,
   });
+  export let width = "100vh";
   $: value.set(maxValue);
 </script>
 
-<div class="outer">
+<div class="outer" style="--width-progbar: {width}">
   <div class="inner" style="width: {$value}%;" />
 </div>
 
@@ -28,7 +29,7 @@
   }
 
   .outer {
-    width: 90vh;
+    width: var(--width-progbar);
     margin: 30px auto;
     background-color: transparent;
     border: 1px solid #222;
