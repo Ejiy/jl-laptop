@@ -51,6 +51,7 @@
 
 <style>
   .messages {
+    max-width: 80%;
     margin-right: 5px;
     padding: 5px;
   }
