@@ -463,32 +463,7 @@ end)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
--- use this for vinscratching --
---[[
-exports['qb-target']:AddGlobalVehicle({
-    options = {
-        {
-            type = "client",
-            event = "jl-laptop:client:DeliverVehicle",
-            icon = 'fas fa-example',
-            label = 'Turn in Vehicle',
-            canInteract = function(entity)
-                if inZone and entity == NetworkGetEntityFromNetworkId(NetID) then return true end
-            end,
-        }
-    },
-    distance = 2.5, -- This is the distance for you to be at for the target to turn blue, this is in GTA units and has to be a float value
-})
-]]
+RegisterNUICallback("boosting/expire", function(data, cb)
+    print(data["id"])
+    cb("ok")
+end)

@@ -13,6 +13,7 @@
 
   import Apps from "../shared/Apps.svelte";
   import Progressbar from "../shared/Progressbar.svelte";
+  import { quadInOut } from "svelte/easing";
 
   let tierRing = {
     D: "rgb(77, 141, 77)",
@@ -213,10 +214,38 @@
     </div>
     <div class="boosting">
       {#if currentPage === "My Contracts"}
+        {#if $startedContracts}
+          <div class="boosting-card started">
+            <div
+              class="typeshit"
+              class:vin={$startedContracts.type === "vinscratch"}
+            >
+              {$startedContracts.type === "boosting"
+                ? "Boosting Contract"
+                : "Vin Contract"}
+            </div>
+            <div
+              class="boost-class"
+              style={tierRing[$startedContracts.contract]
+                ? "border: 3px solid " + tierRing[$startedContracts.contract]
+                : ""}
+            >
+              {$startedContracts.contract}
+            </div>
+            <div class="boost-name">{$startedContracts.owner}</div>
+            <div class="boost-car">{$startedContracts.car}</div>
+
+            <div class="expires">
+              Expires: <b
+                >{moment($startedContracts.expire).endOf("hour").fromNow()}</b
+              >
+            </div>
+          </div>
+        {/if}
         {#each $contracts as contract (contract.id)}
           <div
             class="boosting-card"
-            animate:flip
+            animate:flip={{ easing: quadInOut, duration: 300 }}
             class:hide={new Date(contract.expire) < new Date(Date.now())}
           >
             <div class="typeshit" class:vin={contract.type === "vinscratch"}>
@@ -253,11 +282,12 @@
               >
             </div>
           </div>
-        {:else}
+        {/each}
+        {#if $contracts.length && !$startedContracts}
           <div class="no-contract">
             <div class="title">You have no contracts</div>
           </div>
-        {/each}
+        {/if}
       {/if}
     </div>
   </div>
@@ -351,6 +381,9 @@
     gap: 10px;
     justify-content: center;
     align-items: center;
+  }
+  .boosting-card.started {
+    border: 1px solid rgb(29, 39, 124);
   }
   .boosting-card.hide {
     display: none;
