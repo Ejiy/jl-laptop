@@ -129,13 +129,14 @@
     });
 
   function startContract(id: number) {
-    if ($started) return;
+    if ($startedContracts) return;
+    const contract = $contracts.find((c) => c.id === id);
     fetchNui("boosting/start", {
       id,
     })
       .then((res) => {
         if (res.status === "success") {
-          startedContracts.set($startedContracts);
+          startedContracts.set(contract);
         }
         notifications.send(res.message, "boosting", 5000);
       })
@@ -233,7 +234,7 @@
               {$startedContracts.contract}
             </div>
             <div class="boost-name">{$startedContracts.owner}</div>
-            <div class="boost-car">{$startedContracts.car}</div>
+            <div class="boost-car">{$startedContracts.carName}</div>
 
             <div class="expires">
               Expires: <b
@@ -268,14 +269,16 @@
               Expires: <b>{moment(contract.expire).endOf("hour").fromNow()}</b>
             </div>
             <div class="button">
-              <button on:click={() => [startContract(contract.id)]}
-                >Start Contract</button
+              <button
+                on:click={() => [startContract(contract.id)]}
+                disabled={$startedContracts !== null}>Start Contract</button
               >
               <button
                 on:click={() => [TransferShit(contract.id)]}
-              >Transfer Contract</button
+                disabled={$startedContracts !== null}>Transfer Contract</button
               >
               <button
+                disabled={$startedContracts !== null}
                 on:click={() => {
                   handleRemove(contract.id);
                 }}>Decline Contract</button
@@ -283,7 +286,7 @@
             </div>
           </div>
         {/each}
-        {#if $contracts.length && !$startedContracts}
+        {#if $contracts.length > 0 && !$startedContracts}
           <div class="no-contract">
             <div class="title">You have no contracts</div>
           </div>
