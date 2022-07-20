@@ -420,7 +420,6 @@ Config.Boosting.RandomNames = {
     "Paul Zac",
     "Gov",
     "Kareem",
-    "B. Rice"
 }
 
 Config.Boosting.MetaReward = {

@@ -280,22 +280,39 @@ end)
 -- Gets the ped from the server side and then gives them tasks and weapons on the client side.
 RegisterNetEvent('jl-laptop:client:SpawnPeds', function(netIds, Location)
     for i = 1, #netIds do
+        -- Get the Ped --
         local APed = NetworkGetEntityFromNetworkId(netIds[i])
-        SetPedDropsWeaponsWhenDead(APed, false)
-        GiveWeaponToPed(APed, joaat(Location.peds[i].weapon), 250, false, true)
+
+        -- health and armor --
         SetEntityMaxHealth(APed, Location.peds[i].health)
         SetEntityHealth(APed, Location.peds[i].health)
         SetPedArmour(APed, Location.peds[i].armor)
-        SetCanAttackFriendly(APed, false, true)
-        TaskCombatPed(APed, PlayerPedId(), 0, 16)
-        SetPedCombatAttributes(APed, 46, true)
-        SetPedCombatAttributes(APed, 0, false)
-        SetPedCombatAbility(APed, 100)
+
+        -- Relationship --
         SetPedAsCop(APed, true)
         SetPedRelationshipGroupHash(APed, joaat("HATES_PLAYER"))
+
+        -- Weapon Stuff --
+        GiveWeaponToPed(APed, joaat(Location.peds[i].weapon), 250, false, true)
+
+        -- combat stuff --
+        SetCanAttackFriendly(APed, false, true)
+        SetPedCombatMovement(APed, 3)
+        SetPedCombatRange(APed, 2)
+        SetPedCombatAttributes(APed, 46, true)
+        SetPedCombatAttributes(APed, 0, false)
         SetPedAccuracy(APed, 60)
-        SetPedFleeAttributes(APed, 0, 0)
+        SetPedCombatAbility(APed, 100)
+        TaskCombatPed(APed, PlayerPedId(), 0, 16)
         SetPedKeepTask(APed, true)
+        SetPedSeeingRange(APed, 150.0)
+        SetPedHearingRange(APed, 150.0)
+        SetPedAlertness(APed, 3)
+
+
+        -- other shit --
+        SetPedDropsWeaponsWhenDead(APed, false)
+        SetPedFleeAttributes(APed, 0, 0)
         TaskGoStraightToCoord(APed, Location.carCoords.x, Location.carCoords.y, Location.carCoords.z, 1, -1, 0.0, 0.0)
     end
 end)
