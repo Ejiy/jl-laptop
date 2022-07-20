@@ -2,6 +2,8 @@ Config.Boosting = {}
 
 Config.Boosting.MinCops = 0
 
+Config.Boosting.Debug = true -- Make this true to make boosting faster lmao
+
 Config.Boosting.HackingDevice = "trackerdisabler" -- Whatever item you use to hack a car with
 
 Config.Boosting.HackDelay = 30 -- 180 seconds delay
@@ -398,17 +400,37 @@ Config.Boosting.TiersPerRep = {
     ["S+"] = 300,
 }
 
+Config.Boosting.Price = {
+    ["D"] = {min = 0, max = 3},
+    ["C"] = {min = 5, max = 10},
+    ["B"] = {min = 10, max = 20},
+    ["A"] = {min = 15, max = 30},
+    ["A+"] = {min = 20, max = 45},
+    ["S"] = {min = 30, max = 50},
+    ["S+"] = {min = 40, max = 80},
+}
+
 Config.Boosting.RandomNames = {
-    "Peter Parker",
     "XgamerX",
-    "Justin Bieber",
     "Just Lazzy",
-    "Drake",
     "Zooster",
     "Hype Squad",
-    "Logan Paul",
+    "Lowkey Paul",
     "Jimathy yorass",
-    "Tom Cruise"
+    "Paul Zac",
+    "Gov",
+    "Kareem",
+    "B. Rice"
+}
+
+Config.Boosting.MetaReward = {
+    ["D"] = {min = 1, max = 1},
+    ["C"] = {min = 1, max = 2},
+    ["B"] = {min = 1, max = 3},
+    ["A"] = {min = 2, max = 4},
+    ["A+"] = {min = 2, max = 5},
+    ["S"] = {min = 2, max = 6},
+    ["S+"] = {min = 3, max = 7},
 }
 
 Config.Boosting.ReturnLocation = {

@@ -61,11 +61,13 @@
   }
 
   function handleRemove(id: number) {
-    contracts.update((c) => c.filter((n) => n.id !== id));
     fetchNui("boosting/deny", {
       contractID: id,
-    }).then(() => {
-      notifications.send("You just decline your contract", "boosting");
+    }).then((res) => {
+      if (res.status === "success") {
+        contracts.update((c) => c.filter((n) => n.id !== id));
+      }
+      notifications.send(res.message, "boosting", 5000);
     });
   }
 
@@ -127,18 +129,14 @@
 
   function startContract(id: number) {
     if ($started) return;
-    let contract = $contracts.find((n) => n.id === id);
     fetchNui("boosting/start", {
       id,
     })
       .then((res) => {
         if (res.status === "success") {
-          startedContracts.set([contract as any, ...$startedContracts]);
-          started.set(true);
-          notifications.send("You just started a contract", "boosting", 5000);
-        } else if (res.status === "error") {
-          notifications.send(res.message, "boosting", 5000);
+          startedContracts.set($startedContracts);
         }
+        notifications.send(res.message, "boosting", 5000);
       })
       .catch((err) => {
         console.log(err);
@@ -151,7 +149,6 @@
   }
 
   function TransferShit(id: number) {
-    let contract = $contracts.find((n) => n.id === id);
     modals.show({
       show: true,
       onOk: (value) => {
@@ -159,13 +156,9 @@
           console.log(value);
           fetchNui("boosting/transfer", {
             playerid: value,
-            contractID: contract,
+            contractID: id,
           }).then((res) => {
-            if (res.status === "success") {
-              notifications.send(res.message, "boosting", 5000);
-            } else {
-              notifications.send(res.message, "boosting", 5000);
-            }
+            notifications.send(res.message, "boosting", 5000);
           });
         }
       },
@@ -182,7 +175,7 @@
   }
 </script>
 
-<Apps {topdata} appname="boostingrenewed">
+<Apps {topdata} appname="boosting">
   <div class="apps">
     <div class="top">
       <div class="navigation">
@@ -240,8 +233,8 @@
               {contract.contract}
             </div>
             <div class="boost-name">{contract.owner}</div>
-            <div class="boost-car">{contract.car}</div>
-            <div class="boost-reward">Price: your life</div>
+            <div class="boost-car">{contract.carName}</div>
+            <div class="boost-reward">Buy In: <b>{contract.cost} GNE</b></div>
             <div class="expires">
               Expires: <b>{moment(contract.expire).endOf("hour").fromNow()}</b>
             </div>
@@ -250,9 +243,8 @@
                 >Start Contract</button
               >
               <button
-                on:click={() => {
-                  TransferShit(contract.id);
-                }}>Transfer Contract</button
+                on:click={() => [TransferShit(contract.id)]}
+              >Transfer Contract</button
               >
               <button
                 on:click={() => {

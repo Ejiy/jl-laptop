@@ -1,9 +1,12 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local display = false
-PlayerData = {}
 local onDuty = false
 local apps = {}
+local fullyLoaded = false
 -- **  LOCALIZED FUNCTIONS WE USE ONLY IN THIS FILE
+
+-- Globalized shits
+PlayerData = QBCore.Functions.GetPlayerData()
 
 local function hadApp(app)
     if not app or not apps then return end
@@ -197,29 +200,6 @@ RegisterNUICallback('loadapps', function(data, cb)
 
 end)
 
-
-
--- Resets state on logout, in case of character change.
-RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
-    PlayerData = nil
-end)
-
--- Handles state when PlayerData is changed. We're just looking for inventory updates.
-RegisterNetEvent('QBCore:Player:SetPlayerData', function(val)
-    PlayerData = val
-
-    GetPlayerAppPerms()
-end)
-
--- Everytime a cop goes on or off duty the cop count is updated.
-RegisterNetEvent('police:SetCopCount', function(amount)
-    CurrentCops = amount
-end)
-
-RegisterNetEvent('QBCore:Client:SetDuty', function(duty)
-    onDuty = duty
-end)
-
 -- NUI Callback
 RegisterNUICallback('getapp', function(_, cb)
     if #apps == 0 then GetPlayerAppPerms() end
@@ -292,6 +272,8 @@ end)
 
 
 RegisterNUICallback('setting/save', function(data, cb)
+    -- prevents spamming metadata and server side settings
+    if data["setting"].darkfont == PlayerData.metadata['laptop'].darkfont and data["setting"].background == PlayerData.metadata['laptop'].background then return end
     cb("ok")
     TriggerServerEvent("jl-laptop:server:settings:set", data["setting"])
 end)
@@ -310,6 +292,26 @@ RegisterNUICallback("setting/get", function(_, cb)
     end
 end)
 
-RegisterCommand("testmd", function()
-    print(json.encode(PlayerData.metadata['laptop']))
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    PlayerData = QBCore.Functions.GetPlayerData()
+end)
+
+-- Resets state on logout, in case of character change.
+RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
+    PlayerData = nil
+end)
+
+-- Handles state when PlayerData is changed. We're just looking for inventory updates.
+RegisterNetEvent('QBCore:Player:SetPlayerData', function(val)
+    PlayerData = val
+    GetPlayerAppPerms()
+end)
+
+-- Everytime a cop goes on or off duty the cop count is updated.
+RegisterNetEvent('police:SetCopCount', function(amount)
+    CurrentCops = amount
+end)
+
+RegisterNetEvent('QBCore:Client:SetDuty', function(duty)
+    onDuty = duty
 end)
