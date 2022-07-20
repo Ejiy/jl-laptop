@@ -286,7 +286,7 @@
             </div>
           </div>
         {/each}
-        {#if $contracts.length > 0 && !$startedContracts}
+        {#if $contracts.length === 0 && !$startedContracts}
           <div class="no-contract">
             <div class="title">You have no contracts</div>
           </div>
