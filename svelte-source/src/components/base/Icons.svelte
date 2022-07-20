@@ -15,6 +15,7 @@
     <div
       class="icon"
       class:hide={icon.hide}
+      class:boosting={icon.name === "boosting"}
       animate:flip={{ duration: 500 }}
       transition:fade|local
     >
@@ -46,6 +47,12 @@
   }
   .text.dark {
     color: rgb(31, 31, 31);
+  }
+
+  .boosting .image {
+    width: 100%;
+    height: 100%;
+    padding: 0;
   }
   .image {
     padding: 5px;
@@ -80,6 +87,10 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+  }
+
+  .boosting .icon-back {
+    padding: 0;
   }
 
   .icon-back {
