@@ -5,7 +5,6 @@
   import {
     contracts,
     queue,
-    started,
     startedContracts,
   } from "../../store/boosting";
   import { notifications } from "../../store/notifications";
@@ -77,21 +76,17 @@
     iswaiting = true;
     setTimeout(() => {
       iswaiting = false;
-      $queue = !$queue;
-      if ($queue) {
-        notifications.send("You have joined the queue", "boosting", 5000);
-      } else {
-        notifications.send("You have left the queue", "boosting", 5000);
-      }
       fetchNui("boosting/queue", {
-        status: $queue,
+        status: !$queue,
       })
-        .then(() => {
-          console.log("boosting/queue", $queue);
+
+        .then((res) => {
+          if (res.status === "success") {
+            $queue = !$queue;
+          }
+
+          notifications.send(res.message, "boosting", 5000);
         })
-        .catch((err) => {
-          console.log(err);
-        });
     }, 2000);
   }
 

@@ -36,8 +36,7 @@ export function handlerMessage() {
         handleContracts(event.data?.contracts);
         break;
       case "booting/delivered":
-        startedContracts.set([]);
-        started.set(false);
+        startedContracts.set(null);
         notifications.send("You have completed the contact", "boosting", 5000);
         break;
     }
