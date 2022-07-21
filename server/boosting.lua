@@ -61,15 +61,6 @@ local function GetRandomDropOff()
     return Config.Boosting.ReturnLocation[Locations[location]].coords, location
 end
 
-
-QBCore.Functions.CreateUseableItem(Config.Boosting.HackingDevice, function(source, item)
-    local Player = QBCore.Functions.GetPlayer(source)
-    if Player.Functions.GetItemByName(Config.Boosting.HackingDevice) ~= nil then
-        TriggerClientEvent('jl-laptop:client:HackCar', source)
-    end
-end)
-
-
 RegisterNetEvent('jl-laptop:server:FinalDestination', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
@@ -296,13 +287,16 @@ end)
 
 ----- ** EVERYTHING TO DO QUEUE ** -----
 
-RegisterNetEvent('jl-laptop:server:JoinQueue', function(status)
+QBCore.Functions.CreateCallback('jl-laptop:server:joinQueue', function(source, cb, status)
+    print(status)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-    if not Player then return end
-    if not HasAppAccess(src, "boosting") then return end
+    if not Player then return cb("error") end
+    if not HasAppAccess(src, "boosting") then return cb("error") end
     local CID = Player.PlayerData.citizenid
     if status then
+        if LookingForContracts[CID] and LookingForContracts[CID].active and LookingForContracts[CID].online and LookingForContracts[CID].src == src then return cb("inqueue") end
+        if currentRuns[CID] then return cb("running") end
         if not LookingForContracts[CID] then LookingForContracts[CID] = {} end
         if not currentContracts[CID] then currentContracts[CID] = {} end
         if LookingForContracts[CID] and LookingForContracts[CID].skipped then
@@ -320,16 +314,19 @@ RegisterNetEvent('jl-laptop:server:JoinQueue', function(status)
                 active = true
             }
         end
+        cb("success")
     else
-        if not LookingForContracts[CID] then return end
+        if not LookingForContracts[CID] then return cb("error") end
         LookingForContracts[CID].active = false
         LookingForContracts[CID].online = true
+        cb("success")
     end
 
     if LookingForContracts[CID].online then
         TriggerClientEvent('jl-laptop:client:QueueHandler', src, LookingForContracts[CID].active)
     end
 end)
+
 
 RegisterNetEvent('jl-laptop:server:QuitQueue', function(source)
     local src = source
@@ -519,7 +516,7 @@ QBCore.Functions.CreateCallback('jl-laptop:server:CanHackCar', function(source, 
             cb(false)
         else
             Cooldowns[plate] = true
-            if not Config.Boosting.Debug then removeCooldown(plate) end
+            if not Config.Boosting.Debug then removeCooldown(plate) else Cooldowns[plate] = false end
             cb(true)
         end
     else
@@ -527,6 +524,12 @@ QBCore.Functions.CreateCallback('jl-laptop:server:CanHackCar', function(source, 
     end
 end)
 
+QBCore.Functions.CreateUseableItem(Config.Boosting.HackingDevice, function(source, item)
+    local Player = QBCore.Functions.GetPlayer(source)
+    if Player.Functions.GetItemByName(Config.Boosting.HackingDevice) ~= nil then
+        TriggerClientEvent('jl-laptop:client:HackCar', source)
+    end
+end)
 
 
 

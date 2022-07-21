@@ -454,8 +454,38 @@ end)
 
 
 -- Queue Functions --
-RegisterNUICallback('boosting/queue', function(cb)
-    TriggerServerEvent('jl-laptop:server:JoinQueue', cb.status)
+RegisterNUICallback('boosting/queue', function(data, cb)
+    QBCore.Functions.TriggerCallback('jl-laptop:server:joinQueue', function(result)
+        print(result)
+        if result == "success" then
+            if data.status then
+                cb({
+                    status = 'success',
+                    message = "You joined the Queue!"
+                })
+            else
+                cb({
+                    status = 'success',
+                    message = "You Left the Queue!<"
+                })
+            end
+        elseif result == "running" then
+            cb({
+                status = 'error',
+                message = "You cannot join queue while doing a contract!"
+            })
+        elseif result == "inqueue" then
+            cb({
+                status = 'error',
+                message = "You are already in the queue!"
+            })
+        elseif result == "error" then
+            cb({
+                status = 'error',
+                message = "Error 404 Try again!"
+            })
+        end
+    end, data.status)
 end)
 
 RegisterNetEvent('jl-laptop:client:QueueHandler', function(value)
