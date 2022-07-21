@@ -45,7 +45,7 @@ function HasAppAccess(src, app)
         searches = #v.bannedJobs
     end
     for i = 1, #v.item do
-        if haveItem(PlayerData.items, v.item[i]) or not v.item[i] then
+        if not v.item[i] or haveItem(PlayerData.items, v.item[i]) then
             if searches > 0 then
                 for k = 1, searches do
                     if v.bannedJobs[k] == playerJob then
@@ -76,9 +76,12 @@ end)
 
 
 RegisterNetEvent('jl-laptop:server:settings:set', function(setting)
-    if not source then return end
-    if not setting then return end
     local src = source
+    if not setting then return end
     local Player = QBCore.Functions.GetPlayer(src)
+
+    if not Player then return end
+
+    if not HasAppAccess(src, "setting") then return end
     Player.Functions.SetMetaData("laptop", setting)
 end)
