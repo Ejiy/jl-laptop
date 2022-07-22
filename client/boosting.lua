@@ -179,9 +179,9 @@ end
 
 
 RegisterNetEvent('jl-laptop:client:ReturnCar', function(coords)
-    PZone = CircleZone:Create(coords, 5, {
+    PZone = CircleZone:Create(coords, 15, {
         name = "NewReturnWhoDis",
-        debugPoly = true,
+        debugPoly = Config.Boosting.Debug,
     })
 
     local info = {
@@ -213,13 +213,16 @@ RegisterNetEvent('jl-laptop:client:ReturnCar', function(coords)
 end)
 
 -- Just a netevent that retracts all the booleans and properly resets the client --
-RegisterNetEvent('jl-laptop:client:finishContract', function()
+RegisterNetEvent('jl-laptop:client:finishContract', function(table)
     if PZone then PZone:destroy() PZone = nil end
     if PZone2 then PZone2:destroy() PZone2 = nil end
     NetID = nil
     if missionBlip then RemoveBlip(missionBlip) missionBlip = nil end
     if dropoffBlip then RemoveBlip(dropoffBlip) dropoffBlip = nil end
     inZone = false
+
+    Contracts = table
+
     SendNUIMessage({ action = 'booting/delivered' })
 end)
 
@@ -350,6 +353,8 @@ end)
 RegisterNetEvent('jl-laptop:client:ContractHandler', function(table)
     if not table then return end
     Contracts = table
+
+    if not display then return end
     SendNUIMessage({
         action = 'receivecontracts',
         contracts = table
@@ -456,7 +461,6 @@ end)
 -- Queue Functions --
 RegisterNUICallback('boosting/queue', function(data, cb)
     QBCore.Functions.TriggerCallback('jl-laptop:server:joinQueue', function(result)
-        print(result)
         if result == "success" then
             if data.status then
                 cb({

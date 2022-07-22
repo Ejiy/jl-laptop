@@ -2,7 +2,7 @@ Config.Boosting = {}
 
 Config.Boosting.MinCops = 0
 
-Config.Boosting.Debug = true -- Make this true to make boosting faster lmao
+Config.Boosting.Debug = false -- Make this true to make boosting faster lmao
 
 Config.Boosting.HackingDevice = "trackerdisabler" -- Whatever item you use to hack a car with
 

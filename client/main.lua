@@ -1,8 +1,12 @@
 local QBCore = exports['qb-core']:GetCoreObject()
-local display = false
 local onDuty = false
 local apps = {}
 local fullyLoaded = false
+
+
+
+
+display = false
 -- **  LOCALIZED FUNCTIONS WE USE ONLY IN THIS FILE
 
 -- Globalized shits

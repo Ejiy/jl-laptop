@@ -159,6 +159,9 @@ RegisterNetEvent('jl-laptop:server:StartBoosting', function(id, cops)
         amount = math.floor(cops / Config.Boosting.MinCops)
     end
 
+
+    if not exports['qb-phone']:RemoveCrypto(src, "gne", currentContracts[CID][id].cost) then return end
+
     if amount < 1 then return end
     local location, place = GerRandomLocation(currentContracts[CID][id].contract)
     if location then
@@ -380,7 +383,7 @@ RegisterNetEvent('jl-laptop:server:finishBoost', function(netId)
         DeleteEntity(NetworkGetEntityFromNetworkId(currentRuns[CID].NetID))
     end
     currentRuns[CID] = nil
-    TriggerClientEvent('jl-laptop:client:finishContract', src)
+    TriggerClientEvent('jl-laptop:client:finishContract', src, currentContracts[CID])
 end)
 
 
@@ -402,7 +405,7 @@ RegisterNetEvent('jl-laptop:server:CancelBoost', function(netId, Plate)
     ActivePlates[Plate] = 0
     currentRuns[CID] = nil
     TriggerClientEvent('jl-laptop:client:SyncPlates', -1, ActivePlates)
-    TriggerClientEvent('jl-laptop:client:finishContract', src)
+    TriggerClientEvent('jl-laptop:client:finishContract', src, currentContracts[CID])
     TriggerClientEvent('QBCore:Notify', src, "You failed to deliver the vehicle and contract has been terminated.", "error")
 end)
 
@@ -721,5 +724,9 @@ AddEventHandler('playerDropped', function(reason)
     if not CID then return end
     LookingForContracts[CID].active = false
     LookingForContracts[CID].online = false
+
+    if currentRuns[CID] then
+        currentRuns[CID] = nil
+    end
 end)
 
