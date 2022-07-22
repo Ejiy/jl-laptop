@@ -21,10 +21,18 @@ local cars = {
 
 
 CreateThread(function()
-    --Wait(12500)
-    for k, v in pairs(QBCore.Shared.Vehicles) do
-        if v['tier'] and cars[v['tier']] then
-            cars[v['tier']][#cars[v['tier']]+1] = k
+    if QBCore then
+        for k, v in pairs(QBCore.Shared.Vehicles) do
+            if v['tier'] and cars[v['tier']] then
+                cars[v['tier']][#cars[v['tier']]+1] = k
+            end
+        end
+    else
+        Wait(20000)
+        for k, v in pairs(QBCore.Shared.Vehicles) do
+            if v['tier'] and cars[v['tier']] then
+                cars[v['tier']][#cars[v['tier']]+1] = k
+            end
         end
     end
 end)
@@ -612,7 +620,7 @@ end
 
 local function missionType(Player, tier)
     local boostData = Player.PlayerData.metadata["carboostrep"] or 0
-    if tier == "D" or tier == "C" then return "boosting" end
+    if tier == "D" or tier == "C" or tier == "B" or tier == "A" then return "boosting" end -- Only A+, S and S+ Can be vinscratched
 
     if boostData >= Config.Boosting.TiersPerRep[tier] then
         if math.random() <= 0.05 then
