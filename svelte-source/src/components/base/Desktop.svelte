@@ -65,6 +65,15 @@
     .catch(() => {
       let data = [
         {
+          name: "darkweb",
+          icon: "fa-solid fa-skull",
+          text: "Dark Web",
+          color: "#fff",
+          background: "black",
+          isopen: false,
+          useimage: false,
+        },
+        {
           name: "boosting",
           icon: "fa-solid fa-bolt",
           text: "Boosting",
@@ -82,15 +91,7 @@
           isopen: false,
           useimage: false,
         },
-        {
-          name: "browser",
-          icon: "fa-solid fa-globe",
-          text: "Browser",
-          color: "#fff",
-          background: "#aa2e25",
-          isopen: false,
-          useimage: false,
-        },
+
         {
           name: "boss",
           icon: "fa-solid fa-circle-user",
@@ -127,7 +128,6 @@
   out:fly={{ y: 1000, duration: 500, easing: cubicIn }}
 >
   <Modal />
-
   <Icons on:openApp={handleOpenApp} />
   {#each $openedApps as app, index (app.name)}
     <svelte:component this={app.component} />
