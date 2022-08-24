@@ -2,11 +2,7 @@
   import moment from "moment";
   import { modals } from "../../store/modals";
   import { flip } from "svelte/animate";
-  import {
-    contracts,
-    queue,
-    startedContracts,
-  } from "../../store/boosting";
+  import { contracts, queue, startedContracts } from "../../store/boosting";
   import { notifications } from "../../store/notifications";
   import { fetchNui } from "../../utils/eventHandler";
 
@@ -78,21 +74,21 @@
       iswaiting = false;
       fetchNui("boosting/queue", {
         status: !$queue,
-      })
+      }).then((res) => {
+        if (res.status === "success") {
+          $queue = !$queue;
+        }
 
-        .then((res) => {
-          if (res.status === "success") {
-            $queue = !$queue;
-          }
-
-          notifications.send(res.message, "boosting", 5000);
-        })
+        notifications.send(res.message, "boosting", 5000);
+      });
     }, 2000);
   }
 
-  fetchNui("boosting/getcontract").then((r) => {
-    contracts.set(r.contracts);
-  });
+  fetchNui("boosting/getcontract")
+    .then((r) => {
+      contracts.set(r.contracts);
+    })
+    .catch((e) => {});
 
   fetchNui("boosting/getqueue").then((data) => {
     queue.set(data);
@@ -242,7 +238,6 @@
           <div
             class="boosting-card"
             animate:flip={{ easing: quadInOut, duration: 300 }}
-            class:hide={new Date(contract.expire) < new Date(Date.now())}
           >
             <div class="typeshit" class:vin={contract.type === "vinscratch"}>
               {contract.type === "boosting"

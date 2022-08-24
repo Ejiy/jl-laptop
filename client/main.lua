@@ -277,7 +277,8 @@ end)
 
 RegisterNUICallback('setting/save', function(data, cb)
     -- prevents spamming metadata and server side settings
-    if data["setting"].darkfont == PlayerData.metadata['laptop'].darkfont and data["setting"].background == PlayerData.metadata['laptop'].background then return end
+    if data["setting"].darkfont == PlayerData.metadata['laptop'].darkfont and
+        data["setting"].background == PlayerData.metadata['laptop'].background then return end
     cb("ok")
     TriggerServerEvent("jl-laptop:server:settings:set", data["setting"])
 end)

@@ -192,7 +192,14 @@ RegisterNetEvent('jl-laptop:server:StartBoosting', function(id, cops)
     end
 end)
 
-QBCore.Functions.CreateCallback('lj-laptop:server:CanStartBoosting', function(source, cb, cops, id)
+QBCore.Functions.CreateCallback('jl-laptop:server:GetTimes', function (source, cb)
+    cb({
+        currentTime = GetCurrentTime(),
+        ExpireTime = GetHoursFromNow(2)
+    })
+end)
+
+QBCore.Functions.CreateCallback('jl-laptop:server:CanStartBoosting', function(source, cb, cops, id)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local CID = Player.PlayerData.citizenid
@@ -635,6 +642,18 @@ function GetHoursFromNow(hours)
     local time = os.date("%c", os.time() + hours * 60 * 60)
     return time
 end
+
+-- Get the fucking server time 
+function GetCurrentTime()
+    local time = os.date("%c", os.time())
+    return time
+end
+
+QBCore.Functions.CreateCallback("jl-laptop:server:getCurrentTime", function (cb)
+    cb({
+        GetCurrentTime()
+    })
+end)
 
 local function generateName()
     return Config.Boosting.RandomNames[math.random(1, #Config.Boosting.RandomNames)]

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { notifications } from "../../store/notifications";
-
+  import { isEnvBrowser } from "../../utils/misc";
   import { fetchNui } from "../../utils/eventHandler";
 
   import type { Items } from "../../@types/bennys";
@@ -8,7 +8,7 @@
   import Apps from "../shared/Apps.svelte";
   import { onMount } from "svelte";
   let topdata = {
-    title: "Unknown",
+    title: "10.5.51.20/??/?id=9923",
     background: "black",
     blur: true,
     blurstrength: 15,
@@ -42,7 +42,7 @@
   function handleCheckOut() {
     fetchNui("laptop/checkout", {
       cart: $darkwebCartItems,
-      app: 'darkweb',
+      app: "darkweb",
     }).then((res) => {
       if (res.success) {
         notifications.send(res.message, "darkweb", 5000);
@@ -96,7 +96,12 @@
             class:hide={darkwebitem.category !== currentPage}
           >
             <div class="images">
-              <img src="nui://{darkwebitem.image}" alt="something" />
+              <img
+                src={isEnvBrowser
+                  ? darkwebitem.image
+                  : `nui://${darkwebitem.image}`}
+                alt="something"
+              />
             </div>
             <div class="info">
               <div class="title">

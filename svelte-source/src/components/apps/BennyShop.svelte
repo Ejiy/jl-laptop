@@ -1,6 +1,7 @@
 <script lang="ts">
   import Apps from "../shared/Apps.svelte";
   import { scale, fly, fade } from "svelte/transition";
+  import { isEnvBrowser } from "../../utils/misc";
   import {
     backIn,
     backOut,
@@ -42,7 +43,7 @@
   function handleCheckout() {
     fetchNui("laptop/checkout", {
       cart: $cart,
-      app: 'bennys',
+      app: "bennys",
     }).then((res) => {
       if (res.status === "success") {
         notifications.send(res.message, "bennys", 5000);
@@ -126,7 +127,7 @@
             <div class="card" class:hide={data.category !== currentPage}>
               <StoreCard
                 on:addCart={handleAddCart}
-                image="nui://{data.image}"
+                image={isEnvBrowser ? data.image : `nui://${data.image}`}
                 name={data.name}
                 title={data.label}
                 stock={data.stock}

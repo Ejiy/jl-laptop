@@ -74,29 +74,30 @@ end)
 -- MISSION STARTER --
 
 -- Sends information from server to client that it will start now
-RegisterNetEvent('jl-laptop:client:MissionStarted', function(netID, coords) -- Pretty much just resets every boolean to make sure no issues will occour.
-    NetID = netID
-    carCoords = coords
-    AntiSpam = false
-    inZone = false
+RegisterNetEvent('jl-laptop:client:MissionStarted',
+    function(netID, coords) -- Pretty much just resets every boolean to make sure no issues will occour.
+        NetID = netID
+        carCoords = coords
+        AntiSpam = false
+        inZone = false
 
-    print(coords)
+        print(coords)
 
-    if PZone then PZone:destroy() PZone = nil end
+        if PZone then PZone:destroy() PZone = nil end
 
-    if missionBlip then RemoveBlip(missionBlip) end
+        if missionBlip then RemoveBlip(missionBlip) end
 
-    if coords then
-        missionBlip = AddBlipForRadius(coords.x, coords.y, coords.z, 150.0)
-        SetBlipAlpha(missionBlip, 150)
-        SetBlipHighDetail(missionBlip, true)
-        SetBlipColour(missionBlip, 1)
-        SetBlipAsShortRange(missionBlip, true)
-    end
-end)
+        if coords then
+            missionBlip = AddBlipForRadius(coords.x, coords.y, coords.z, 150.0)
+            SetBlipAlpha(missionBlip, 150)
+            SetBlipHighDetail(missionBlip, true)
+            SetBlipColour(missionBlip, 1)
+            SetBlipAsShortRange(missionBlip, true)
+        end
+    end)
 
 RegisterNUICallback('boosting/start', function(data, cb)
-    QBCore.Functions.TriggerCallback('lj-laptop:server:CanStartBoosting', function(result)
+    QBCore.Functions.TriggerCallback('jl-laptop:server:CanStartBoosting', function(result)
         if result == "success" then
             TriggerServerEvent('jl-laptop:server:StartBoosting', data.id, currentCops)
             cb({
@@ -153,7 +154,6 @@ local function DeliverCar()
     RemoveBlip(dropoffBlip)
 end
 
-
 local function VehicleCheck()
     CreateThread(function()
         local inCar = false
@@ -176,7 +176,6 @@ local function VehicleCheck()
         end
     end)
 end
-
 
 RegisterNetEvent('jl-laptop:client:ReturnCar', function(coords)
     PZone = CircleZone:Create(coords, 15, {
@@ -261,7 +260,8 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
                             QBCore.Functions.Notify('You failed nuub :)', 'error', 7500)
                         end
                     else
-                        QBCore.Functions.Notify("You must wait atleast " .. Config.Boosting.HackDelay .. " Seconds", 'error', 7500)
+                        QBCore.Functions.Notify("You must wait atleast " .. Config.Boosting.HackDelay .. " Seconds",
+                            'error', 7500)
                     end
                 end, plate)
             else

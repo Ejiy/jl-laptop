@@ -1,5 +1,7 @@
 export interface IContracts {
+  // ID of the contract
   id: number;
+  // Car Name
   contract: string;
   carName: string;
   expire: number;

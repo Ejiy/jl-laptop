@@ -4,7 +4,7 @@ export interface Items {
   image: string;
   price: number;
   stock: number;
-  category: string;
+  category: "Cosmetic Parts" | "Performance Parts" | "Consumable Parts";
 }
 
 export interface CartItems extends Items {
