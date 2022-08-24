@@ -15,7 +15,6 @@
     <div
       class="icon"
       class:hide={icon.hide}
-      class:boosting={icon.name === "boosting"}
       animate:flip={{ duration: 500 }}
       transition:fade|local
     >
