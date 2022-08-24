@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let page = "Personalise";
+  export let page = "Manage Employee";
 </script>
 
 <div class="left-bar">
@@ -10,9 +10,9 @@
   <div class="list">
     <div
       class="item"
-      class:active={page === "Personalise"}
+      class:active={page === "Manage Employee"}
       on:click={() => {
-        page = "Personalise";
+        page = "Manage Employee";
       }}
     >
       <div class="icon">
@@ -24,23 +24,15 @@
     </div>
     <div
       class="item"
-      class:active={page === "System"}
+      class:active={page === "Money"}
       on:click={() => {
-        page = "System";
+        page = "Money";
       }}
     >
       <div class="icon">
         <ion-icon name="cash" />
       </div>
       <div class="text">Money Management</div>
-    </div>
-    <div class="item">
-      <div class="icon">
-        <ion-icon name="alert-circle" />
-      </div>
-      <div class="text">
-        <span>About</span>
-      </div>
     </div>
   </div>
 </div>

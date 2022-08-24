@@ -20,9 +20,7 @@
 </script>
 
 <div class="store-card">
-  <div class="image">
-    <img src={image} alt={name} />
-  </div>
+  <div class="image" style="background-image: url({image});" />
   <div class="product-title">{title}</div>
   <div class="description">
     <span>Stock: <span style="color: green;">{stock}</span></span>
@@ -52,17 +50,18 @@
     margin-top: 30px;
     margin-bottom: 0.5rem;
   }
-  img {
-    width: 100%;
-    height: 100%;
-  }
+
   .image {
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    border-radius: 2px;
     width: 100px;
     height: 100px;
   }
   .store-card {
     font-family: "Bebas Neue", cursive;
-    padding: 30px;
+    padding: 10px 30px;
     display: flex;
     flex-direction: column;
     align-items: center;
