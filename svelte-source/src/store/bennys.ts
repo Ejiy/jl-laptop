@@ -1,7 +1,7 @@
 import { writable } from "svelte/store";
-import type { CartItems, Items } from "../@types/bennys";
+import type { BennysItem, BennysCartItems } from "../@types/bennys";
 
-export const items = writable<Items[]>([
+export const items = writable<BennysItem[]>([
   {
     name: "Coca-Cola",
     price: 300,
@@ -22,4 +22,4 @@ export const items = writable<Items[]>([
   },
 ]);
 
-export const cart = writable<CartItems[]>([]);
+export const cart = writable<BennysCartItems[]>([]);

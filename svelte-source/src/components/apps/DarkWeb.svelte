@@ -3,7 +3,7 @@
   import { isEnvBrowser } from "../../utils/misc";
   import { fetchNui } from "../../utils/eventHandler";
 
-  import type { Items } from "../../@types/bennys";
+  import type { DarkWebItems } from "../../@types/bennys";
   import { darkwebCartItems, darkwebItems } from "../../store/darkweb";
   import Apps from "../shared/Apps.svelte";
   import { onMount } from "svelte";
@@ -17,7 +17,7 @@
   let currentPage = "hacking";
   let categories = ["hacking", "guns", "drugs", "cart"];
 
-  function handleAddCart(data: Items) {
+  function handleAddCart(data: DarkWebItems) {
     if ($darkwebCartItems.find((x) => x.name === data.name)) {
       darkwebCartItems.update((y) => {
         y.find((x) => x.name === data.name).quantity += 1;
