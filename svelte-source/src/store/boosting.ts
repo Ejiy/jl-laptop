@@ -57,17 +57,6 @@ const unsubscribeContractStart = startedContracts.subscribe((v) => {
   startedContractStore = v;
 });
 
-// setInterval(() => {
-//   if (contractsStore.length > 0) {
-//     contractsStore.forEach((x) => {
-//       if (new Date(x.expire) < new Date()) {
-//         contracts.set(contractsStore.filter((y) => y.id !== x.id));
-//         fetchNui("boosting/expire", { id: x.id });
-//       }
-//     });
-//   }
-// }, 1000);
-
 export function handleContracts(data: IContracts[]) {
   contracts.set(data);
 }

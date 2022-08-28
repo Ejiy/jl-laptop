@@ -378,9 +378,7 @@
   .boosting-card.started {
     border: 1px solid rgb(29, 39, 124);
   }
-  .boosting-card.hide {
-    display: none;
-  }
+
   .boosting-card {
     border-radius: 5px;
     overflow: hidden;
