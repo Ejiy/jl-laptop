@@ -3,6 +3,8 @@ Config = {}
 Config.Inventory = "qb-inventory"
 Config.LaptopDevice = "laptop"
 
+Config.RenewedPhone = false
+
 Config.PoliceJobs = {
     "police",
     "bcso"

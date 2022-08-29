@@ -21,6 +21,7 @@ local cars = {
 
 
 CreateThread(function()
+    Wait(2500)
     if QBCore then
         for k, v in pairs(QBCore.Shared.Vehicles) do
             if v['tier'] and cars[v['tier']] then
@@ -157,8 +158,8 @@ RegisterNetEvent('jl-laptop:server:StartBoosting', function(id, cops)
     local Player = QBCore.Functions.GetPlayer(src)
     local CID = Player.PlayerData.citizenid
 
-    if currentRuns[CID] then return end
-    if not currentContracts[CID][id] then return end
+    if currentRuns[CID] then return print("already started a run") end
+    if not currentContracts[CID][id] then return print("Contract dosnt exsist") end
 
     local amount = 0
     if cops == Config.Boosting.MinCops then
@@ -168,9 +169,9 @@ RegisterNetEvent('jl-laptop:server:StartBoosting', function(id, cops)
     end
 
 
-    if not exports['qb-phone']:RemoveCrypto(src, "gne", currentContracts[CID][id].cost) then return end
+    if Config.RenewedPhone and not exports['qb-phone']:RemoveCrypto(src, "gne", currentContracts[CID][id].cost) then return print("NOT ENOUGH CRYPTO") end
 
-    if amount < 1 then return end
+    if amount < 1 then return print("Not enough cops") end
     local location, place = GerRandomLocation(currentContracts[CID][id].contract)
     if location then
         currentRuns[CID] = {
@@ -206,7 +207,7 @@ QBCore.Functions.CreateCallback('jl-laptop:server:CanStartBoosting', function(so
 
     if currentRuns[CID] then return cb("running") end
     if not currentContracts[CID][id] then return cb("notfound") end
-    if not exports['qb-phone']:hasEnough(src, "gne", currentContracts[CID][id].cost) then return cb("notenough") end
+    if Config.RenewedPhone and not exports['qb-phone']:hasEnough(src, "gne", currentContracts[CID][id].cost) then return cb("notenough") end
     local amount = 0
     if cops == Config.Boosting.MinCops then
         amount = 1
@@ -391,7 +392,9 @@ RegisterNetEvent('jl-laptop:server:finishBoost', function(netId)
         currentRuns[CID].cost = math.random(1,2) -- makes it so they can actually get GNE when the boost is Free
     end
 
-    exports['qb-phone']:AddCrypto(src, "gne", math.ceil(currentRuns[CID].cost * math.random(2,3)))
+    if Config.RenewedPhone then
+        exports['qb-phone']:AddCrypto(src, "gne", math.ceil(currentRuns[CID].cost * math.random(2,3)))
+    end
 
 
     if DoesEntityExist(NetworkGetEntityFromNetworkId(currentRuns[CID].NetID)) then
@@ -458,6 +461,8 @@ QBCore.Functions.CreateCallback('jl-laptop:server:DeclineContract', function(sou
 
     MaxPools[currentContracts[CID][contract].contract] += 1
     table.remove(currentContracts[CID], contract)
+
+    TriggerClientEvent('jl-laptop:client:ContractHandler', src, currentContracts[CID])
     cb("success")
 end)
 
@@ -643,7 +648,7 @@ function GetHoursFromNow(hours)
     return time
 end
 
--- Get the fucking server time 
+-- Get the fucking server time
 function GetCurrentTime()
     local time = os.date("%c", os.time())
     return time
@@ -715,7 +720,7 @@ CreateThread(function()
                 if currentContracts[k] then
                     if #currentContracts[k] < Config.Boosting.MaxBoosts and v.active then
                         local ContractChance = math.random()
-                        if v.skipped >= 25 or (v.skipped >= 2 and ContractChance >= 0.85) then -- 15% chance of getting a contract
+                        if v.skipped >= 25 or (v.skipped >= math.random(2, 10) and ContractChance >= 0.85) then -- 15% chance of getting a contract
                             generateContract(v.src)
                         else
                             v.skipped += 1
