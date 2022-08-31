@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { notifications } from "../../store/notifications";
-  import { isEnvBrowser } from "../../utils/misc";
-  import { fetchNui } from "../../utils/eventHandler";
+  import { notifications } from "@store/notifications";
+  import { isEnvBrowser } from "@utils/misc";
+  import { fetchNui } from "@utils/eventHandler";
 
   import type { DarkWebItems } from "../../@types/bennys";
-  import { darkwebCartItems, darkwebItems } from "../../store/darkweb";
-  import Apps from "../shared/Apps.svelte";
+  import { darkwebCartItems, darkwebItems } from "@store/darkweb";
+  import Apps from "@shared/Apps.svelte";
   import { onMount } from "svelte";
   let topdata = {
     title: "10.5.51.20/??/?id=9923",

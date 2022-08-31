@@ -1,4 +1,3 @@
-import { fetchNui } from "../utils/eventHandler";
 import { writable } from "svelte/store";
 import type { IContracts, ISaledContract } from "../@types/boosting";
 

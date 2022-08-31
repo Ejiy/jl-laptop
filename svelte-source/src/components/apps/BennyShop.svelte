@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Apps from "../shared/Apps.svelte";
+  import Apps from "@shared/Apps.svelte";
   import { scale, fly, fade } from "svelte/transition";
-  import { isEnvBrowser } from "../../utils/misc";
+  import { isEnvBrowser } from "@utils/misc";
   import {
     backIn,
     backOut,
@@ -11,12 +11,12 @@
     quadInOut,
     quadOut,
   } from "svelte/easing";
-  import { items, cart } from "../../store/bennys";
+  import { items, cart } from "@store/bennys";
   import StoreCard from "./utility/Bennys/StoreCard.svelte";
   import { flip } from "svelte/animate";
-  import { fetchNui } from "../../utils/eventHandler";
+  import { fetchNui } from "@utils/eventHandler";
   import StoreCartCard from "./utility/Bennys/StoreCartCard.svelte";
-  import { notifications } from "../../store/notifications";
+  import { notifications } from "@store/notifications";
   import { onMount } from "svelte";
   let topdata = {
     title: "Bennys Shop",

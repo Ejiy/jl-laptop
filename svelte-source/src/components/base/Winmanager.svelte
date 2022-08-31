@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onDestroy, onMount } from "svelte";
-  import logo from "../../assets/logo.png";
-  import { openedApps } from "../../store/desktop";
+  import logo from "@assets/logo.png";
+  import { openedApps } from "@store/desktop";
   import { flip } from "svelte/animate";
   import { fade, scale } from "svelte/transition";
   import { cubicIn, cubicInOut, cubicOut } from "svelte/easing";
@@ -32,11 +32,6 @@
       data.minute = "0" + data.minute;
     }
 
-    if (data.hour <= 12) {
-      data.minute = data.minute + " AM";
-    } else {
-      data.minute = data.minute + " PM";
-    }
     const date = new Date();
     const month = date.getMonth() + 1;
     const day = date.getDate();

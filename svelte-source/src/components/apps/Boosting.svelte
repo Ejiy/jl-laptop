@@ -1,13 +1,13 @@
 <script lang="ts">
   import moment from "moment";
-  import { modals } from "../../store/modals";
+  import { modals } from "@store/modals";
   import { flip } from "svelte/animate";
-  import { contracts, queue, startedContracts } from "../../store/boosting";
-  import { notifications } from "../../store/notifications";
-  import { fetchNui } from "../../utils/eventHandler";
+  import { contracts, queue, startedContracts } from "@store/boosting";
+  import { notifications } from "@store/notifications";
+  import { fetchNui } from "@utils/eventHandler";
 
-  import Apps from "../shared/Apps.svelte";
-  import Progressbar from "../shared/Progressbar.svelte";
+  import Apps from "@shared/Apps.svelte";
+  import Progressbar from "@shared/Progressbar.svelte";
   import { quadInOut } from "svelte/easing";
 
   let tierRing = {

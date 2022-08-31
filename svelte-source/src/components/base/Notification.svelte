@@ -1,7 +1,7 @@
 <script lang="ts">
   import { flip } from "svelte/animate";
   import { fly } from "svelte/transition";
-  import { notifications } from "../../store/notifications";
+  import { notifications } from "@store/notifications";
   import {
     cubicIn,
     cubicInOut,

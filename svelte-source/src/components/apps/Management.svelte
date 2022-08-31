@@ -1,5 +1,5 @@
 <script>
-  import Apps from "../shared/Apps.svelte";
+  import Apps from "@shared/Apps.svelte";
   import ManagementCard from "./utility/Management/ManagementCard.svelte";
   import ManagementLeftBar from "./utility/Management/ManagementLeftBar.svelte";
   let currentPage = "Manage Employee";

@@ -1,7 +1,7 @@
 import { onMount, onDestroy } from "svelte";
-import { handleContracts, started, startedContracts } from "../store/boosting";
-import { toggleVisible } from "../store/desktop";
-import { notifications } from "../store/notifications";
+import { handleContracts, started, startedContracts } from "@store/boosting";
+import { toggleVisible } from "@store/desktop";
+import { notifications } from "@store/notifications";
 
 interface nuiMessage {
   data: {
