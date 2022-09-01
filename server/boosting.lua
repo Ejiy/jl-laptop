@@ -21,19 +21,11 @@ local cars = {
 
 
 CreateThread(function()
-    Wait(2500)
-    if QBCore then
-        for k, v in pairs(QBCore.Shared.Vehicles) do
-            if v['tier'] and cars[v['tier']] then
-                cars[v['tier']][#cars[v['tier']]+1] = k
-            end
-        end
-    else
-        Wait(20000)
-        for k, v in pairs(QBCore.Shared.Vehicles) do
-            if v['tier'] and cars[v['tier']] then
-                cars[v['tier']][#cars[v['tier']]+1] = k
-            end
+    while not QBCore do Wait(250) end
+
+    for k, v in pairs(QBCore.Shared.Vehicles) do
+        if v['tier'] and cars[v['tier']] then
+            cars[v['tier']][#cars[v['tier']]+1] = k
         end
     end
 end)
@@ -717,12 +709,18 @@ CreateThread(function()
     while true do
         if LookingForContracts then
             for k, v in pairs(LookingForContracts) do
+                print(k)
                 if currentContracts[k] then
+                    print(json.encode(currentContracts[k]))
+                    print(#currentContracts[k])
                     if #currentContracts[k] < Config.Boosting.MaxBoosts and v.active then
                         local ContractChance = math.random()
+                        print(v.skipped)
                         if v.skipped >= 25 or (v.skipped >= math.random(2, 10) and ContractChance >= 0.85) then -- 15% chance of getting a contract
+                            print("Got Contract")
                             generateContract(v.src)
                         else
+                            print("Skipped queue")
                             v.skipped += 1
                         end
                     elseif #currentContracts[k] >= Config.Boosting.MaxBoosts then
@@ -731,6 +729,8 @@ CreateThread(function()
                             TriggerClientEvent('jl-laptop:client:QueueHandler', v.src, false)
                         end
                     end
+                elseif not currentContracts[k] then
+                    currentContracts[k] = {}
                 end
             end
         end
