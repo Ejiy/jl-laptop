@@ -1,19 +1,19 @@
 <script lang="ts">
-  import { settings } from "../../store/settings";
-  import Apps from "../shared/Apps.svelte";
+  import { settings } from "@store/settings";
+  import Apps from "@shared/Apps.svelte";
   import LeftBarSetting from "./utility/Setting/LeftBarSetting.svelte";
-  import Toggle from "../shared/Toggle.svelte";
+  import Toggle from "@shared/Toggle.svelte";
   import { fly, fade } from "svelte/transition";
   import { cubicOut, quadInOut } from "svelte/easing";
 
-  import wp1 from "../../assets/wallpaper/wp1.png";
-  import wp2 from "../../assets/wallpaper/wp2.jpg";
-  import wp3 from "../../assets/wallpaper/wp3.jpg";
-  import wp4 from "../../assets/wallpaper/wp4.png";
-  import { modals } from "../../store/modals";
-  import { notifications } from "../../store/notifications";
+  import wp1 from "@assets/wallpaper/wp1.png";
+  import wp2 from "@assets/wallpaper/wp2.jpg";
+  import wp3 from "@assets/wallpaper/wp3.jpg";
+  import wp4 from "@assets/wallpaper/wp4.png";
+  import { modals } from "@store/modals";
+  import { notifications } from "@store/notifications";
   import { onDestroy } from "svelte";
-  import { fetchNui } from "../../utils/eventHandler";
+  import { fetchNui } from "@utils/eventHandler";
 
   let currentPage = "Personalise";
   let wallpaperlist = [wp1, wp2, wp3, wp4];

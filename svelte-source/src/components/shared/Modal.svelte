@@ -1,7 +1,7 @@
 <script lang="ts">
   import { fade, fly } from "svelte/transition";
   import { cubicInOut, cubicOut } from "svelte/easing";
-  import { modals } from "../../store/modals";
+  import { modals } from "@store/modals";
 
   function _onOk() {
     $modals.onOk($modals?.inputValue);

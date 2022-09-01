@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { apps } from "../../store/desktop";
-  import { settings } from "../../store/settings";
+  import { apps } from "@store/desktop";
+  import { settings } from "@store/settings";
   import { flip } from "svelte/animate";
   import { fade } from "svelte/transition";
   import { createEventDispatcher } from "svelte";
@@ -48,11 +48,11 @@
     color: rgb(31, 31, 31);
   }
 
-  .boosting .image {
+  /* .boosting .image {
     width: 100%;
     height: 100%;
     padding: 0;
-  }
+  } */
   .image {
     padding: 5px;
     width: 80%;
@@ -88,9 +88,9 @@
     align-items: center;
   }
 
-  .boosting .icon-back {
+  /* .boosting .icon-back {
     padding: 0;
-  }
+  } */
 
   .icon-back {
     width: 50px;

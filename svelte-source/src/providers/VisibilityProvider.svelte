@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { visible, toggleVisible } from "../store/desktop";
-  import { fetchNui } from "../utils/eventHandler";
+  import { visible, toggleVisible } from "@store/desktop";
+  import { fetchNui } from "@utils/eventHandler";
 
   onMount(() => {
     const keyHandler = (e: KeyboardEvent) => {

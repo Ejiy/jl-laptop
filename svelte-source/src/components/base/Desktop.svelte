@@ -9,13 +9,12 @@
   import { cubicIn, cubicOut } from "svelte/easing";
   import { fetchNui } from "../../utils/eventHandler";
   // APP
-  import Boosting from "../apps/Boosting.svelte";
-  import Setting from "../apps/Setting.svelte";
-  import BennyShop from "../apps/BennyShop.svelte";
-  import Management from "../apps/Management.svelte";
-  import DarkWeb from "../apps/DarkWeb.svelte";
-  import Modal from "../shared/Modal.svelte";
-  import { modals } from "../../store/modals";
+  import Boosting from "@apps/Boosting.svelte";
+  import Setting from "@apps/Setting.svelte";
+  import BennyShop from "@apps/BennyShop.svelte";
+  import Management from "@apps/Management.svelte";
+  import DarkWeb from "@apps/DarkWeb.svelte";
+  import Modal from "@shared/Modal.svelte";
 
   // Register your app component here
   let registeredApp: any = {

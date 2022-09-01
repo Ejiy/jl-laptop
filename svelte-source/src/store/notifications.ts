@@ -2,7 +2,7 @@ import { writable, derived } from "svelte/store";
 import oldNotifications, { oldNotificationsType } from "./oldnotification";
 import { apps } from "./desktop";
 import type { IApp } from "../@types/apps";
-import popsound from "../assets/audio/pop.ogg";
+import popsound from "@assets/audio/pop.ogg";
 
 let appsdata: IApp[];
 
