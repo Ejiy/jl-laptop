@@ -38,7 +38,19 @@ local LookingForContracts = {}
 
 
 
-
+local function Notify(src, text, type, time)
+    if Config.Boosting.Notifications == "phone" then
+        TriggerClientEvent("qb-phone:client:CustomNotification", src,
+            "Boosting...",
+            text,
+            "fas fa-user-secret",
+            "#00008B",
+            time
+        )
+    else
+        TriggerClientEvent('QBCore:Notify', src, text, type, time)
+    end
+end
 
 
 
@@ -108,8 +120,12 @@ local function SpawnCar(src)
     local CreateAutomobile = joaat('CREATE_AUTOMOBILE')
     local car = Citizen.InvokeNative(CreateAutomobile, joaat(carModel), coords, true, false)
 
+    local Checks = 0
+
     while not DoesEntityExist(car) do
-        Wait(10)
+        if Checks == 10 then break end -- Incase the above native dosnt work this will then reset the contracts
+        Wait(25)
+        Checks += 1
     end
 
     if DoesEntityExist(car) then
@@ -123,17 +139,21 @@ local function SpawnCar(src)
 
         TriggerClientEvent('jl-laptop:client:SyncPlates', -1, ActivePlates)
         TriggerClientEvent('jl-laptop:client:MissionStarted', src, currentRuns[CID].NetID, coords)
+
+        return true
+    else
+        return false
     end
 end
 
 local function GerRandomLocation(Tier)
     local Locations = {}
     for i = 1, #Config.Boosting.Locations[Tier] do
-        print(Config.Boosting.Locations[Tier][i].isBusy)
         if not Config.Boosting.Locations[Tier][i].isBusy then
             Locations[#Locations+1] = i
         end
     end
+    if Locations == 0 then return false, false end
     local location = Locations[math.random(1, #Locations)]
     Config.Boosting.Locations[Tier][location].isBusy = true
     return Config.Boosting.Locations[Tier][location], location
@@ -145,14 +165,18 @@ local function ResetShit(Tier, location)
     end)
 end
 
-RegisterNetEvent('jl-laptop:server:StartBoosting', function(id, cops)
+
+QBCore.Functions.CreateCallback('jl-laptop:server:CanStartBoosting', function(source, cb, cops, id)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
+
+    if not Player then return cb("error") end
+
     local CID = Player.PlayerData.citizenid
 
-    if currentRuns[CID] then return print("already started a run") end
-    if not currentContracts[CID][id] then return print("Contract dosnt exsist") end
-
+    if currentRuns[CID] then return cb("running") end
+    if not currentContracts[CID][id] then return cb("notfound") end
+    if Config.RenewedPhone and not exports['qb-phone']:hasEnough(src, "gne", currentContracts[CID][id].cost) then return cb("notenough") end
     local amount = 0
     if cops == Config.Boosting.MinCops then
         amount = 1
@@ -160,10 +184,8 @@ RegisterNetEvent('jl-laptop:server:StartBoosting', function(id, cops)
         amount = math.floor(cops / Config.Boosting.MinCops)
     end
 
+    if amount < 1 or #currentRuns >= amount then return cb("cops") end
 
-    if Config.RenewedPhone and not exports['qb-phone']:RemoveCrypto(src, "gne", currentContracts[CID][id].cost) then return print("NOT ENOUGH CRYPTO") end
-
-    if amount < 1 then return print("Not enough cops") end
     local location, place = GerRandomLocation(currentContracts[CID][id].contract)
     if location then
         currentRuns[CID] = {
@@ -177,41 +199,29 @@ RegisterNetEvent('jl-laptop:server:StartBoosting', function(id, cops)
             NetID = nil,
             PedSpawned = false,
         }
-        MaxPools[currentContracts[CID][id].contract] += 1
-        ResetShit(currentContracts[CID][id].contract, place)
-        table.remove(currentContracts[CID], id) -- has to be table.remove for some dumb ass reason
-        TriggerClientEvent('jl-laptop:client:ContractHandler', src, currentContracts[CID])
-        SpawnCar(src)
-    end
-end)
 
-QBCore.Functions.CreateCallback('jl-laptop:server:GetTimes', function (source, cb)
-    cb({
-        currentTime = GetCurrentTime(),
-        ExpireTime = GetHoursFromNow(2)
-    })
-end)
+        if SpawnCar(src) then
 
-QBCore.Functions.CreateCallback('jl-laptop:server:CanStartBoosting', function(source, cb, cops, id)
-    local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-    local CID = Player.PlayerData.citizenid
+            if Config.RenewedPhone then
+                exports['qb-phone']:RemoveCrypto(src, "gne", currentContracts[CID][id].cost)
+            else
 
-    if currentRuns[CID] then return cb("running") end
-    if not currentContracts[CID][id] then return cb("notfound") end
-    if Config.RenewedPhone and not exports['qb-phone']:hasEnough(src, "gne", currentContracts[CID][id].cost) then return cb("notenough") end
-    local amount = 0
-    if cops == Config.Boosting.MinCops then
-        amount = 1
-    elseif cops > Config.Boosting.MinCops then
-        amount = math.floor(cops / Config.Boosting.MinCops)
-    end
+            end
 
-    if amount < 1 or #currentRuns >= amount then
-        cb("cops")
+
+            MaxPools[currentContracts[CID][id].contract] += 1
+            ResetShit(currentContracts[CID][id].contract, place)
+            table.remove(currentContracts[CID], id) -- has to be table.remove for some dumb ass reason
+            TriggerClientEvent('jl-laptop:client:ContractHandler', src, currentContracts[CID])
+
+            cb("success")
+        else
+            currentRuns[CID] = nil
+        end
     else
-        cb("success")
+        cb("busy")
     end
+
 end)
 
 
@@ -263,22 +273,37 @@ end)
 
 
 
--- EVERYTHING TO DO WITH BLIPS SYNCING --
+-- EVERYTHING TO DO WITH BLIPS SYNCING AND CAR HACKING --
 RegisterNetEvent('jl-laptop:server:SyncBlips', function(coords, plate)
-    local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-    local CID = Player.PlayerData.citizenid
-
-
-    if currentRuns[CID] and currentRuns[CID].PedSpawned and currentRuns[CID].NetID then
+    if ActivePlates[plate] > 0 then
         TriggerClientEvent('jl-laptop:client:SyncBlips', -1, coords, plate)
     end
 end)
 
+-- ** Hacking Cars ** --
+local Cooldowns = {}
+
+local function removeCooldown(plate)
+    SetTimeout(Config.Boosting.HackDelay * 1000, function()
+        Cooldowns[plate] = false
+    end)
+end
+
 RegisterNetEvent('jl-laptop:server:SyncPlates', function(success)
     local src = source
+
+    local Player = QBCore.Functions.GetPlayer(src)
+
+    if not Player then return end
+    if not Player.Functions.GetItemByName(Config.Boosting.HackingDevice) then return end
+
+
     local ped = GetPlayerPed(src)
     local plate = GetVehicleNumberPlateText(GetVehiclePedIsIn(ped, false))
+
+    if Cooldowns and Cooldowns[plate] then return end
+
+    Cooldowns[plate] = true
 
     if ActivePlates[plate] and ActivePlates[plate] >= 1 and success then
         if Config.Boosting.Debug then
@@ -288,9 +313,16 @@ RegisterNetEvent('jl-laptop:server:SyncPlates', function(success)
         end
         TriggerClientEvent('jl-laptop:client:SyncPlates', -1, ActivePlates)
     end
+
+    if not Config.Boosting.Debug then removeCooldown(plate) else Cooldowns[plate] = false end
 end)
 
-
+QBCore.Functions.CreateUseableItem(Config.Boosting.HackingDevice, function(source, item)
+    local Player = QBCore.Functions.GetPlayer(source)
+    if Player.Functions.GetItemByName(Config.Boosting.HackingDevice) ~= nil then
+        TriggerClientEvent('jl-laptop:client:HackCar', source)
+    end
+end)
 
 
 
@@ -385,7 +417,9 @@ RegisterNetEvent('jl-laptop:server:finishBoost', function(netId)
     end
 
     if Config.RenewedPhone then
-        exports['qb-phone']:AddCrypto(src, "gne", math.ceil(currentRuns[CID].cost * math.random(2,3)))
+        local reward = math.ceil(currentRuns[CID].cost * math.random(2,3))
+        exports['qb-phone']:AddCrypto(src, "gne", reward)
+        Notify(src, "You have recieved your reward of "..reward.." GNE", "success", 7500)
     end
 
 
@@ -416,7 +450,8 @@ RegisterNetEvent('jl-laptop:server:CancelBoost', function(netId, Plate)
     currentRuns[CID] = nil
     TriggerClientEvent('jl-laptop:client:SyncPlates', -1, ActivePlates)
     TriggerClientEvent('jl-laptop:client:finishContract', src, currentContracts[CID])
-    TriggerClientEvent('QBCore:Notify', src, "You failed to deliver the vehicle and contract has been terminated.", "error")
+
+    Notify(src, "You failed to deliver the vehicle and contract has been terminated.", "error", 7500)
 end)
 
 
@@ -514,39 +549,6 @@ end)
 
 
 
--- ** Hacking Cars ** --
-local Cooldowns = {}
-
-local function removeCooldown(plate)
-    SetTimeout(Config.Boosting.HackDelay * 1000, function()
-        Cooldowns[plate] = false
-    end)
-end
-
-QBCore.Functions.CreateCallback('jl-laptop:server:CanHackCar', function(source, cb, plate)
-    if ActivePlates and ActivePlates[plate] then
-        if not Cooldowns then Cooldowns[plate] = false end
-
-        if Cooldowns[plate] then
-            cb(false)
-        else
-            Cooldowns[plate] = true
-            if not Config.Boosting.Debug then removeCooldown(plate) else Cooldowns[plate] = false end
-            cb(true)
-        end
-    else
-        cb(false)
-    end
-end)
-
-QBCore.Functions.CreateUseableItem(Config.Boosting.HackingDevice, function(source, item)
-    local Player = QBCore.Functions.GetPlayer(source)
-    if Player.Functions.GetItemByName(Config.Boosting.HackingDevice) ~= nil then
-        TriggerClientEvent('jl-laptop:client:HackCar', source)
-    end
-end)
-
-
 
 
 
@@ -619,11 +621,15 @@ local function generateTier(src)
 end
 
 local function generateCar(tier)
+    if not cars[tier] or (cars[tier] and #cars[tier] < 1) then return nil end
     return cars[tier][math.random(1, #cars[tier])]
 end
 
 local function missionType(Player, tier)
     local boostData = Player.PlayerData.metadata["carboostrep"] or 0
+
+    if not boostData then return end
+
     if tier == "D" or tier == "C" or tier == "B" or tier == "A" then return "boosting" end -- Only A+, S and S+ Can be vinscratched
 
     if boostData >= Config.Boosting.TiersPerRep[tier] then
@@ -660,8 +666,7 @@ local function calcPrice(tier, type)
     if not tier or not type then return end
     local price = math.random(Config.Boosting.Price[tier].min, Config.Boosting.Price[tier].max)
     if type == "boosting" then price = price else price = price * math.random(2,5) end
-    print(price)
-    return price
+    return Config.Boosting.Debug and 0 or price
 end
 
 local function generateContract(src)
@@ -709,18 +714,15 @@ CreateThread(function()
     while true do
         if LookingForContracts then
             for k, v in pairs(LookingForContracts) do
-                print(k)
                 if currentContracts[k] then
-                    print(json.encode(currentContracts[k]))
-                    print(#currentContracts[k])
-                    if #currentContracts[k] < Config.Boosting.MaxBoosts and v.active then
+                    if #currentContracts[k] < Config.Boosting.MaxBoosts and v.active and v.online then
                         local ContractChance = math.random()
                         print(v.skipped)
-                        if v.skipped >= 25 or (v.skipped >= math.random(2, 10) and ContractChance >= 0.85) then -- 15% chance of getting a contract
-                            print("Got Contract")
+                        -- If skipped is bigger or equal to 25 we give player a contract for waiting
+                        -- Otherwise we say if they been in queue longer than 2-7 skips and their chance is higher than 0.75 (meaning 25% chance) we will reward them with a contract
+                        if v.skipped >= 25 or (v.skipped >= math.random(2, 7) and ContractChance >= 0.75) then
                             generateContract(v.src)
                         else
-                            print("Skipped queue")
                             v.skipped += 1
                         end
                     elseif #currentContracts[k] >= Config.Boosting.MaxBoosts then
@@ -734,7 +736,7 @@ CreateThread(function()
                 end
             end
         end
-        Wait(2 * 100) -- Once every 2 minutes
+        Wait(Config.Boosting.Debug and 200 or (math.random(1, 4) * 60000 )) -- Once every 2 minutes
     end
 end)
 
@@ -750,7 +752,7 @@ local function GetCID(src)
     end
 end
 
-AddEventHandler('playerDropped', function(reason)
+AddEventHandler('playerDropped', function()
 	local src = source
     local CID = GetCID(src)
     if not CID then return end

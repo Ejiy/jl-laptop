@@ -12,6 +12,25 @@ local inQueue = false
 
 local currentCops = 0
 
+
+---- Notify functions ----
+
+local function Notify(text, type, time)
+    if Config.Boosting.Notifications == "phone" then
+        TriggerEvent('qb-phone:client:CustomNotification',
+            "Boosting...",
+            text,
+            "fas fa-user-secret",
+            "#00008B",
+            time
+        )
+    else
+        QBCore.Functions.Notify(text, type, time)
+    end
+end
+
+
+
 -- ALL THE BLIP FUNCTIONS --
 local function DelayDelivery()
     SetTimeout(math.random(10, 30 * 1000), function()
@@ -28,20 +47,21 @@ local function UpdateBlips()
             while ActivePlates[Plate] > 0 do
                 local checks = 0
                 if DoesEntityExist(car) then
-                    Wait(10000 / ActivePlates[Plate]) -- Max 10 seconds, the more times hacked the less time it updates
                     local pos = GetEntityCoords(car)
                     TriggerServerEvent('jl-laptop:server:SyncBlips', pos, Plate)
                 else
-                    Wait(2500)
                     checks = checks + 1
                     if checks >= 3 and not DoesEntityExist(car) then
                         TriggerServerEvent('jl-laptop:server:CancelBoost', NetID, Plate)
                     end -- additional safety check JUST incase, make a cancel events cancelling everything
                 end
+
+
+                Wait(10000 / ActivePlates[Plate]) -- Max 10 seconds, the more times hacked the less time it updates
             end
 
             TriggerServerEvent('jl-laptop:server:SyncBlips', nil, Plate)
-            QBCore.Functions.Notify('Successfully removed tracker', 'success', 7500)
+            Notify('Successfully removed tracker', "success", 7500)
             DelayDelivery()
         end)
     end
@@ -74,32 +94,31 @@ end)
 -- MISSION STARTER --
 
 -- Sends information from server to client that it will start now
-RegisterNetEvent('jl-laptop:client:MissionStarted',
-    function(netID, coords) -- Pretty much just resets every boolean to make sure no issues will occour.
-        NetID = netID
-        carCoords = coords
-        AntiSpam = false
-        inZone = false
+RegisterNetEvent('jl-laptop:client:MissionStarted', function(netID, coords) -- Pretty much just resets every boolean to make sure no issues will occour.
+    NetID = netID
+    carCoords = coords
+    AntiSpam = false
+    inZone = false
 
-        print(coords)
+    print(coords)
 
-        if PZone then PZone:destroy() PZone = nil end
+    if PZone then PZone:destroy() PZone = nil end
 
-        if missionBlip then RemoveBlip(missionBlip) end
+    if missionBlip then RemoveBlip(missionBlip) end
 
-        if coords then
-            missionBlip = AddBlipForRadius(coords.x, coords.y, coords.z, 150.0)
-            SetBlipAlpha(missionBlip, 150)
-            SetBlipHighDetail(missionBlip, true)
-            SetBlipColour(missionBlip, 1)
-            SetBlipAsShortRange(missionBlip, true)
-        end
-    end)
+    if coords then
+        missionBlip = AddBlipForRadius(coords.x, coords.y, coords.z, 150.0)
+        SetBlipAlpha(missionBlip, 150)
+        SetBlipHighDetail(missionBlip, true)
+        SetBlipColour(missionBlip, 1)
+        SetBlipAsShortRange(missionBlip, true)
+    end
+end)
 
 RegisterNUICallback('boosting/start', function(data, cb)
     QBCore.Functions.TriggerCallback('jl-laptop:server:CanStartBoosting', function(result)
         if result == "success" then
-            TriggerServerEvent('jl-laptop:server:StartBoosting', data.id, currentCops)
+            --TriggerServerEvent('jl-laptop:server:StartBoosting', data.id, currentCops)
             cb({
                 status = 'success',
                 message = "You started a boost!"
@@ -124,6 +143,16 @@ RegisterNUICallback('boosting/start', function(data, cb)
                 status = 'error',
                 message = "Not enough GNE to start the contract!"
             })
+        elseif result == "busy" then
+            cb({
+                status = 'error',
+                message = "Couldn't locate the car try again later!"
+            })
+        elseif result == "error" then
+            cb({
+                status = 'error',
+                message = "Error 69420 Try Again!"
+            })
         end
     end, currentCops, data.id)
 end)
@@ -137,7 +166,7 @@ end)
 
 -- DELIVERING VEHICLE --
 local function DeliverCar()
-    QBCore.Functions.Notify('Get away before anyone sees you!', 'error', 7500)
+    Notify('Get away before anyone sees you!', 'error', 7500)
     local car = NetworkGetEntityFromNetworkId(NetID)
     FreezeEntityPosition(car, true)
     if PZone then
@@ -145,8 +174,8 @@ local function DeliverCar()
         PZone = nil
     end
 
-    Wait(5000)
-    QBCore.Functions.Notify('You will be paid when I sucessfully retracted the vehicle', 'success', 7500)
+    Wait(7500)
+    Notify('You will be paid when I sucessfully retracted the vehicle', 'success', 7500)
     while #QBCore.Functions.GetPlayersFromCoords(GetEntityCoords(car), 100.0) > 0 do
         Wait(7500)
     end
@@ -188,7 +217,6 @@ RegisterNetEvent('jl-laptop:client:ReturnCar', function(coords)
             ['Text'] = 'Boost Drop-off',
             ['Coords'] = coords
         },
-        Notification = 'GPS updated with the drop-off location. Bring the car there.'
     }
 
     PZone:onPlayerInOut(function(isPointInside)
@@ -199,7 +227,8 @@ RegisterNetEvent('jl-laptop:client:ReturnCar', function(coords)
             inZone = false
         end
     end)
-    QBCore.Functions.Notify(info.Notification)
+
+    Notify('GPS updated with the drop-off location. Bring the car there.', 'success', 7500)
 
     dropoffBlip = AddBlipForCoord(info['blip'].Coords.x, info['blip'].Coords.y, info['blip'].Coords.z)
     SetBlipSprite(dropoffBlip, 326)
@@ -239,35 +268,57 @@ local psUI = {
     "runes"
 }
 
+local clientHack = true
+
+local function ClientDelay()
+    SetTimeout(Config.Boosting.HackDelay * 1000, function()
+        clientHack = true
+    end)
+end
+
+local currentHacking = false
+
 RegisterNetEvent('jl-laptop:client:HackCar', function()
+    -- Makes it so if they are doing hacking or whatever it will not let them do it again, as people could hard spam before the delay was added --
+    if currentHacking then return end
+    currentHacking = true
+
     local ped = PlayerPedId()
-    if haveItem(Config.Boosting.HackingDevice) then
-        if IsPedInAnyVehicle(ped, false) then
-            local vehicle = GetVehiclePedIsIn(ped, false)
-            local plate = GetVehicleNumberPlateText(vehicle)
-            if ActivePlates[plate] and ActivePlates[plate] > 0 then
-                QBCore.Functions.TriggerCallback('jl-laptop:server:CanHackCar', function(canHack)
-                    if canHack then
-                        local pushingP = promise.new()
-                        exports['ps-ui']:Scrambler(function(cb)
-                            pushingP:resolve(cb)
-                        end, psUI[math.random(1, #psUI)], 30, 0)
-                        local success = Citizen.Await(pushingP)
-                        if success then
-                            QBCore.Functions.Notify('You delayed the police Tracker', 'success', 7500)
-                            TriggerServerEvent('jl-laptop:server:SyncPlates', true)
-                        else
-                            QBCore.Functions.Notify('You failed nuub :)', 'error', 7500)
+    if clientHack then
+        if haveItem(Config.Boosting.HackingDevice) then
+            if IsPedInAnyVehicle(ped, false) then
+                local vehicle = GetVehiclePedIsIn(ped, false)
+                local plate = GetVehicleNumberPlateText(vehicle)
+                if ActivePlates[plate] and ActivePlates[plate] > 0 then
+                    local pushingP = promise.new()
+                    exports['ps-ui']:Scrambler(function(cb)
+                        pushingP:resolve(cb)
+                    end, psUI[math.random(1, #psUI)], 30, 0)
+                    local success = Citizen.Await(pushingP)
+                    if success then
+                        TriggerServerEvent('jl-laptop:server:SyncPlates', true)
+                        local newThing = ActivePlates[plate] - 1
+                        Notify(newThing.. " Hacks Left", 'success', 7500)
+
+                        if not Config.Boosting.Debug then
+                            clientHack = false
+                            ClientDelay()
                         end
-                    else
-                        QBCore.Functions.Notify("You must wait atleast " .. Config.Boosting.HackDelay .. " Seconds",
-                            'error', 7500)
                     end
-                end, plate)
+                    currentHacking = false
+                else
+                    Notify("There's no tracker here!", 'error', 7500)
+                    currentHacking = false
+                end
             else
-                QBCore.Functions.Notify("There's no tracker here!", 'error', 7500)
+                currentHacking = false
             end
+        else
+            currentHacking = false
         end
+    else
+        currentHacking = false
+        Notify("You must wait atleast " .. Config.Boosting.HackDelay .. " Seconds", 'error', 7500)
     end
 end)
 
