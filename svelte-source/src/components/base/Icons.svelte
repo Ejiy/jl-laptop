@@ -31,8 +31,13 @@
             alt={icon.name}
             class="image"
           />
-        {:else}
+        {:else if icon.icon.startsWith("fa-")}
           <i class={icon.icon} style="color: {icon.color};" />
+        {:else}
+          <ion-icon
+            name={icon.icon}
+            style="color: {icon.color}; font-size: 25px"
+          />
         {/if}
       </div>
       <p class="text" class:dark={$settings.darkfont}>{icon.text}</p>

@@ -15,16 +15,16 @@
     date: "-/-/----",
   };
   let showRightside = false;
-  let dispatcher = createEventDispatcher();
+  let dispatch = createEventDispatcher();
   let toggleRightside = () => {
     showRightside = !showRightside;
-    dispatcher("toggleRightside", showRightside);
+    dispatch("toggleRightside", showRightside);
   };
 
   let showsetting = false;
   let showingSetting = () => {
     showsetting = !showsetting;
-    dispatcher("showingSetting", showsetting);
+    dispatch("showingSetting", showsetting);
   };
 
   function SetTime(data: any) {
@@ -50,6 +50,10 @@
     }
   }
 
+  function IClick(appname: string) {
+    dispatch("IClick", appname);
+  }
+
   onMount(() => {
     window.addEventListener("message", Event);
   });
@@ -68,6 +72,7 @@
       <div class="opened-apps" style="margin-left: 5px;">
         {#each $openedApps as openApp (openApp.name)}
           <div
+            on:click={() => IClick(openApp.name)}
             animate:flip={{ easing: cubicOut, duration: 200 }}
             class="open-icon"
             style="background-color: {openApp.background};"
@@ -81,8 +86,16 @@
                 src={`./images/apps/${openApp.name}.png`}
                 alt={openApp.name}
               />
+            {:else if openApp.icon.startsWith("fa-")}
+              <i
+                class={openApp.icon}
+                style="font-size: 18px; color: {openApp.color};"
+              />
             {:else}
-              <i class={openApp.icon} style="font-size: 18px;" />
+              <ion-icon
+                name={openApp.icon}
+                style="font-size: 25px; color: {openApp.color};"
+              />
             {/if}
           </div>
         {/each}
