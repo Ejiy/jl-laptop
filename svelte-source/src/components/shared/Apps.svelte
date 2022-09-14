@@ -7,7 +7,8 @@
   let moving = false;
   let left = 200;
   let top = 150;
-  export let appname: string;
+
+  export let appname: string = "Don't Know";
 
   export let debug = false;
 
@@ -36,6 +37,8 @@
         )[0]
       );
       openedApps.set($openedApps);
+    } else {
+      console.log("DEBUG MODE: " + appname);
     }
   }
 
