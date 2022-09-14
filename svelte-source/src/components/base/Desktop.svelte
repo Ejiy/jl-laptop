@@ -6,15 +6,17 @@
   import Winmanager from "./Winmanager.svelte";
   import { apps, openApp, openedApps, setApp } from "../../store/desktop";
   import { setSettings, settings } from "../../store/settings";
-  import { cubicIn, cubicOut } from "svelte/easing";
+  import { cubicIn, cubicOut, quadOut } from "svelte/easing";
   import { fetchNui } from "../../utils/eventHandler";
+  import Modal from "@shared/Modal.svelte";
+  import { InitDumyAppData } from "@utils/initDumyData";
+  import { flip } from "svelte/animate";
   // APP
   import Boosting from "@apps/Boosting.svelte";
   import Setting from "@apps/Setting.svelte";
   import BennyShop from "@apps/BennyShop.svelte";
   import Management from "@apps/Management.svelte";
   import DarkWeb from "@apps/DarkWeb.svelte";
-  import Modal from "@shared/Modal.svelte";
 
   // Register your app component here
   let registeredApp: any = {
@@ -39,6 +41,7 @@
           icon: filtered[0].icon,
           background: filtered[0].background,
           useimage: filtered[0].useimage,
+          color: filtered[0].color,
         };
         if ($openedApps.filter((app) => app.name === data.name).length === 0) {
           openApp(data);
@@ -62,55 +65,7 @@
       setApp(res);
     })
     .catch(() => {
-      let data = [
-        {
-          name: "darkweb",
-          icon: "fa-solid fa-skull",
-          text: "Dark Web",
-          color: "#fff",
-          background: "black",
-          isopen: false,
-          useimage: false,
-        },
-        {
-          name: "boosting",
-          icon: "fa-solid fa-bolt",
-          text: "Boosting",
-          color: "#fff",
-          background: "#1d2029",
-          isopen: false,
-          useimage: true,
-        },
-        {
-          name: "bennys",
-          icon: "fa-solid fa-shopping-cart",
-          text: "Bennys Shop",
-          color: "#fff",
-          background: "#352968",
-          isopen: false,
-          useimage: false,
-        },
-
-        {
-          name: "boss",
-          icon: "fa-solid fa-circle-user",
-          text: "Management",
-          color: "#fff",
-          background: "#4B5D67",
-          isopen: false,
-          useimage: false,
-        },
-        {
-          name: "setting",
-          icon: "fa-solid fa-cog",
-          text: "Setting",
-          color: "#fff",
-          background: "#4B5D67",
-          isopen: false,
-          useimage: false,
-        },
-      ];
-      setApp(data);
+      InitDumyAppData();
     });
 
   fetchNui("setting/get", {}).then((res) => {
@@ -118,6 +73,17 @@
       setSettings(res.data);
     }
   });
+
+  function IClick(e) {
+    const appname = e.detail;
+    $openedApps.push(
+      $openedApps.splice(
+        $openedApps.findIndex((r) => r.name === appname),
+        1
+      )[0]
+    );
+    openedApps.set($openedApps);
+  }
 </script>
 
 <div
@@ -128,12 +94,16 @@
 >
   <Modal />
   <Icons on:openApp={handleOpenApp} />
-  {#each $openedApps as app, index (app.name)}
-    <svelte:component this={app.component} />
+
+  {#each $openedApps as app (app.name)}
+    <div animate:flip={{ duration: 300, easing: quadOut }}>
+      <svelte:component this={app.component} />
+    </div>
   {/each}
   <Notification />
   <ShittyRightSide {showRightside} />
   <Winmanager
+    on:IClick={IClick}
     on:toggleRightside={toggleRightside}
     on:showingSetting={toggleSetting}
   />
