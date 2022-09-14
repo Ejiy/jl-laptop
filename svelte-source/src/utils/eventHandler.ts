@@ -10,6 +10,14 @@ interface nuiMessage {
   };
 }
 
+/**
+ * It sends a POST request to the NUI resource with the specified event name and data, and returns the
+ * response as a JSON object
+ * @param {string} eventName - The name of the event you want to send to the NUI.
+ * @param {unknown} data - The data you want to send to the NUI.
+ * @returns The return value is a Promise that resolves to the JSON-decoded response body.
+ */
+
 export async function fetchNui<T = any>(
   eventName: string,
   data: unknown = {}
