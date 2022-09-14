@@ -13,6 +13,7 @@ export interface IOpenedApp {
   name: string;
   component: any;
   icon: string;
+  color: string;
   background: string;
   useimage: boolean;
 }
