@@ -9,6 +9,8 @@
   import Apps from "@shared/Apps.svelte";
   import Progressbar from "@shared/Progressbar.svelte";
   import { quadInOut } from "svelte/easing";
+  import { DumyBoostingData } from "@utils/initDumyData";
+  import { onMount } from "svelte";
 
   let tierRing = {
     D: "rgb(77, 141, 77)",
@@ -166,6 +168,9 @@
       inputValue: "",
     });
   }
+  onMount(() => {
+    DumyBoostingData();
+  });
 </script>
 
 <Apps {topdata} appname="boosting">
