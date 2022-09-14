@@ -65,7 +65,7 @@
   });
 </script>
 
-<Apps {topdata} appname="darkweb" debug={true}>
+<Apps {topdata} appname="darkweb">
   <div class="nav-bar">
     <div class="logo">
       <img
