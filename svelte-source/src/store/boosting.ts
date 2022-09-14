@@ -1,48 +1,7 @@
 import { writable } from "svelte/store";
 import type { IContracts, ISaledContract } from "../@types/boosting";
 
-export const contracts = writable<IContracts[]>([
-  {
-    id: 5,
-    contract: "S+",
-    carName: "Zentorno",
-    expire: 1660578622000,
-    cost: 1000,
-    owner: "Shitr",
-    type: "boosting",
-    vinscratch: false,
-  },
-  {
-    id: 7,
-    contract: "B",
-    carName: "Banshee",
-    expire: 1660578622000,
-    cost: 1000,
-    owner: "Fjamzoo",
-    type: "vinscratch",
-    vinscratch: true,
-  },
-  {
-    id: 6,
-    contract: "A+",
-    carName: "Sultan",
-    expire: 1660578622000,
-    cost: 1000,
-    owner: "Not Lazzy",
-    type: "vinscratch",
-    vinscratch: true,
-  },
-  {
-    id: 9,
-    contract: "D",
-    carName: "Banshee",
-    expire: 1660578622000,
-    cost: 1000,
-    owner: "Lazzy",
-    type: "boosting",
-    vinscratch: false,
-  },
-]);
+export const contracts = writable<IContracts[]>([]);
 export const startedContracts = writable<IContracts>(null);
 
 let contractsStore: IContracts[];
