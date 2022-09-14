@@ -81,24 +81,17 @@
           <div class="wallpaper-setting">
             <h2>Wallpaper</h2>
             <div class="list">
-              <div class="custom">
-                <ion-icon
-                  class="sh"
-                  name="add-circle"
-                  size="large"
-                  on:click={customWallpaper}
-                />
+              <div class="custom" on:click={customWallpaper}>
+                <ion-icon class="sh" name="add-circle" size="large" />
               </div>
               {#each wallpaperlist as wp}
-                <img
-                  class:active={$settings.background === wp}
+                <div
+                  class="images"
+                  class:active={wp === $settings.background}
+                  style="background-image: url('{wp}');"
                   on:click={() => {
                     handleWallpaperClick(wp);
                   }}
-                  src={wp}
-                  class="wallpaper-item"
-                  alt="wlpper"
-                  style="width: 500px; margin: 10px;"
                 />
               {/each}
             </div>
@@ -193,6 +186,14 @@
 </Apps>
 
 <style>
+  .images {
+    border-radius: 2px;
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+    width: 500px;
+    height: 270px;
+    background-position: center;
+    background-size: cover;
+  }
   .contributor {
     display: flex;
     align-items: center;
@@ -276,8 +277,14 @@
     animation: spinner 4s linear infinite;
   }
 
+  .custom:hover {
+    background-color: rgba(0, 0, 0, 0.226);
+  }
   .custom {
+    transition: background-color 0.5s ease;
+    border-radius: 2px;
     width: 500px;
+    height: 270px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -293,27 +300,26 @@
     color: #fff;
     font-size: 15px;
   }
-  .wallpaper-item.active {
+  .images.active {
     border: 2px solid #fff;
     transform: scale(1.01);
   }
   .font-setting {
     margin-top: 20px;
   }
-  .wallpaper-item:hover {
+  .images:hover {
     cursor: pointer;
     transform: scale(1.01);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   }
 
-  .wallpaper-item {
-    transition: all 0.1s ease-in-out;
-  }
   .list {
+    padding: 10px 0;
+    box-sizing: border-box;
     margin-top: 10px;
     display: flex;
     flex-wrap: wrap;
-
+    gap: 15px;
     justify-content: center;
     width: 100%;
     height: 300px;
