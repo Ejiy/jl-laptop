@@ -205,8 +205,7 @@ QBCore.Functions.CreateCallback('jl-laptop:server:CanStartBoosting', function(so
             if Config.RenewedPhone then
                 exports['qb-phone']:RemoveCrypto(src, "gne", currentContracts[CID][id].cost)
             else
-                if Player.Functions.RemoveMoney("crypto", currentContracts[CID][id].cost, Lang:t('boosting.info.bought_boost')) then
-                else
+              	if not Player.Functions.RemoveMoney("crypto", currentContracts[CID][id].cost, Lang:t('boosting.info.bought_boost')) then
                     cb("busy")
                     return
                 end
