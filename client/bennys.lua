@@ -5,9 +5,9 @@ RegisterNUICallback('bennys/getitems', function(_, cb)
     for _, v in pairs(Config.Bennys.Items) do
 
         translated[#translated + 1] = {
-             name = v.item,
-            label = QBCore.Shared.Items[v.item].label,
-            image = Config.Inventory .. "/html/images/" .. QBCore.Shared.Items[v.item].image,
+            name = v.name,
+            label = QBCore.Shared.Items[v.name].label,
+            image = Config.Inventory .. "/html/images/" .. QBCore.Shared.Items[v.name].image,
             price = v.price,
             stock = v.stock,
             category = v.category,
