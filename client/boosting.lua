@@ -82,7 +82,7 @@ RegisterNetEvent('lockpicks:UseLockpick', function()
                 RemoveBlip(missionBlip)
                 UpdateBlips()
 
-                exports['qb-dispatch']:CarBoosting(carSpawned)
+                exports['qb-dispatch']:VehicleBoost()
             else
                 TriggerServerEvent('jl-laptop:server:CancelBoost', NetID, Plate)
             end
@@ -260,6 +260,14 @@ end)
 
 
 -- ** HACKING THE VEHICLE ** --
+local psUI = {
+    "numeric",
+    "alphabet",
+    "alphanumeric",
+    "greek",
+    "braille",
+    "runes"
+}
 
 local clientHack = true
 
@@ -285,7 +293,11 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
                 local vehicle = GetVehiclePedIsIn(ped, false)
                 local plate = GetVehicleNumberPlateText(vehicle)
                 if ActivePlates[plate] and ActivePlates[plate] > 0 then
-                    local success = exports['boostinghack']:StartHack()
+                    local pushingP = promise.new()
+                    exports['ps-ui']:Scrambler(function(cb)
+                        pushingP:resolve(cb)
+                    end, psUI[math.random(1, #psUI)], 30, 0)
+                    local success = Citizen.Await(pushingP)
                     if success then
                         TriggerServerEvent('jl-laptop:server:SyncPlates', true)
                         local newThing = ActivePlates[plate] - 1
@@ -299,7 +311,9 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
                         end
                     else
                         QBCore.Functions.Notify(Lang:t('boosting.error.disable_fail'), "error")
-                        TriggerServerEvent("jl-laptop:server:RemoveItem", Config.Boosting.HackingDevice)
+                        if math.random(0, 1) <= 0.5 then
+                            TriggerServerEvent("jl-laptop:server:RemoveItem", Config.Boosting.HackingDevice)
+                        end
                     end
                     currentHacking = false
                 else
@@ -351,7 +365,7 @@ RegisterNetEvent('jl-laptop:client:SpawnPeds', function(netIds, Location)
         SetPedCombatRange(APed, 2)
         SetPedCombatAttributes(APed, 46, true)
         SetPedCombatAttributes(APed, 0, false)
-        SetPedAccuracy(APed, 30)
+        SetPedAccuracy(APed, 60)
         SetPedCombatAbility(APed, 100)
         TaskCombatPed(APed, PlayerPedId(), 0, 16)
         SetPedKeepTask(APed, true)
