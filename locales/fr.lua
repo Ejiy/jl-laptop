@@ -2,7 +2,6 @@ local Translations = {
     boosting = {
         error = {
             disable_fail = "Vous n'avez pas réussi à désactiver le traqueur",
-            must_wait = "Vous devez attendre au moins %{time} Secondes",
             no_tracker = "Ce véhicule n'est pas traqué",
             get_away = "Fuyez avant que quelqu'un vous ne vous voit!",
             cancelboost = "Vous n'avez pas réussi a livrer le véhicule et la mission a été terminée.",
