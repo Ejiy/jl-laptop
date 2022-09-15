@@ -7,7 +7,7 @@ local function AddItems(stash, Items)
 
     for k, v in pairs(Items) do
         local itemInfo = QBCore.Shared.Items[k:lower()]
-        items[#items+1] = {
+        items[#items + 1] = {
             name = itemInfo["name"],
             amount = tonumber(v),
             info = "",
@@ -18,19 +18,20 @@ local function AddItems(stash, Items)
             unique = itemInfo["unique"],
             useable = itemInfo["useable"],
             image = itemInfo["image"],
-            slot = #items+1,
+            slot = #items + 1,
         }
     end
 
-    MySQL.Async.insert('INSERT INTO stashitems (stash, items) VALUES (:stash, :items) ON DUPLICATE KEY UPDATE items = :items', {
+    MySQL.Async.insert('INSERT INTO stashitems (stash, items) VALUES (:stash, :items) ON DUPLICATE KEY UPDATE items = :items'
+        , {
         ['stash'] = stash,
         ['items'] = json.encode(items)
     })
 end
 
 local function HasStashItems(stashId)
-	local result = MySQL.Sync.fetchScalar('SELECT items FROM stashitems WHERE stash = ?', {stashId})
-	if not result then return end
+    local result = MySQL.Sync.fetchScalar('SELECT items FROM stashitems WHERE stash = ?', { stashId })
+    if not result then return end
     local stashItems = json.decode(result)
     if not stashItems then return end
 
@@ -44,14 +45,15 @@ local function boxDeletionTimer(netID)
 end
 
 local function createCrate(items)
-    local crateObj = CreateObject(`prop_lev_crate_01`, Config.DarkWeb.CrateSpawn.x, Config.DarkWeb.CrateSpawn.y, Config.DarkWeb.CrateSpawn.z, true, false)
+    local crateObj = CreateObject(`prop_lev_crate_01`, Config.DarkWeb.CrateSpawn.x, Config.DarkWeb.CrateSpawn.y,
+        Config.DarkWeb.CrateSpawn.z, true, false)
     while not DoesEntityExist(crateObj) do
         Wait(50)
     end
     if DoesEntityExist(crateObj) then
         local netID = NetworkGetNetworkIdFromEntity(crateObj)
         TriggerClientEvent('darkweb:client:cratedrop', -1, netID)
-        AddItems("DarkWebCrate_"..crateCount + 1, items)
+        AddItems("DarkWebCrate_" .. crateCount + 1, items)
         crates[netID] = {
             ['id'] = crateCount + 1,
             ['isOpened'] = false
@@ -90,7 +92,7 @@ QBCore.Functions.CreateCallback('jl-laptop:server:checkout', function(source, cb
         end
 
         print(json.encode(Saved))
-        local hasItem, amount = HasStashItems(appLabel.."Shop_"..Player.PlayerData.citizenid)
+        local hasItem, amount = HasStashItems(appLabel .. "Shop_" .. Player.PlayerData.citizenid)
         if hasItem and amount > 0 then return cb("full") end
         local checks = 0
         local bank = false
@@ -117,22 +119,26 @@ QBCore.Functions.CreateCallback('jl-laptop:server:checkout', function(source, cb
 
         if checks == 0 then
             if bank then Player.Functions.RemoveMoney("bank", Shop.totalBank) end
+
             if crypto then Player.Functions.RemoveMoney("crypto", Shop.totalCrypto) end
+
             if data['app'] == 'darkweb' then
+                cb("done")
                 createCrate(Shop.items)
             else
-                AddItems("BennyShop_"..Player.PlayerData.citizenid, Shop.items)
+                AddItems("BennyShop_" .. Player.PlayerData.citizenid, Shop.items)
+                cb("done")
             end
-            cb("done")
+
         end
     end
 end)
 
 -- For dev environment
 AddEventHandler('onResourceStop', function(resource)
-   if resource == GetCurrentResourceName() then
-    for box, _ in pairs(crates) do
-        DeleteEntity(NetworkGetEntityFromNetworkId(box))
+    if resource == GetCurrentResourceName() then
+        for box, _ in pairs(crates) do
+            DeleteEntity(NetworkGetEntityFromNetworkId(box))
+        end
     end
-   end
 end)

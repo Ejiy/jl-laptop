@@ -266,10 +266,18 @@ RegisterNUICallback('laptop/checkout', function(data, cb)
                 message = "You do not have enough crypto!"
             })
         elseif result == "done" then
-            cb({
-                status = 'success',
-                message = "You can now pickup the items at the warehouse"
-            })
+            if newData.app == "darkweb" then
+                cb({
+                    status = 'success',
+                    message = "Go fast!, pickup the crate before anyone else get it"
+                })
+            else
+                cb({
+                    status = 'success',
+                    message = "You can now pickup the items at the warehouse"
+                })
+            end
+
         end
     end, newData)
 end)
