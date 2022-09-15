@@ -6,24 +6,23 @@ local function openCrate(crate)
     QBCore.Functions.TriggerCallback('jl-laptop:server:getCrateStatus', function(data)
         if data.isOpened then
             openCrate(data.crate)
+        else
+            TriggerServerEvent("inventory:server:OpenInventory", "stash", "DarkWebCrate_" .. data.crateID, {
+                maxweight = 100000,
+                slots = 25,
+            })
+            TriggerEvent("inventory:client:SetCurrentStash", "DarkWebCrate_" .. data.crateID)
         end
-    end, crateID)
-
-    local CID = QBCore.Functions.GetPlayerData().citizenid
-    TriggerServerEvent("inventory:server:OpenInventory", "stash", "DarkWebCrate_" .. crateID, {
-        maxweight = 100000,
-        slots = 25,
-    })
-    TriggerEvent("inventory:client:SetCurrentStash", "DarkWebCrate_" .. crateID)
+    end, crateID, crate)
 end
 
 RegisterNUICallback('darkweb/items', function(_, cb)
     local translated = {}
     for _, v in pairs(Config.DarkWeb.Items) do
         translated[#translated + 1] = {
-            name = v.name,
-            label = QBCore.Shared.Items[v.name].label,
-            image = Config.Inventory .. "/html/images/" .. QBCore.Shared.Items[v.name].image,
+            name = v.item,
+            label = QBCore.Shared.Items[v.item].label,
+            image = Config.Inventory .. "/html/images/" .. QBCore.Shared.Items[v.item].image,
             price = v.price,
             stock = v.stock,
             category = v.category,
