@@ -1,6 +1,8 @@
 # jl-laptop
 A laptop script for qbcore.
 
+### REMEMBER THIS IS STILL IN BETA PHASE DON'T EXPECT YOU WILL HAVE 0 BUGS
+
 Has ability to create more apps.
 
 It comes with 4 default apps
