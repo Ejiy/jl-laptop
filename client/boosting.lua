@@ -300,6 +300,7 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
                     local success = Citizen.Await(pushingP)
                     if success then
                         TriggerServerEvent('jl-laptop:server:SyncPlates', true)
+                        ActivePlates[plate] -= 1
                         local newThing = ActivePlates[plate] - 1
                         if newThing >= 1 then
                             Notify(Lang:t('boosting.success.tracker_off', {tracker_left = newThing}), 'success', 7500)
@@ -328,7 +329,6 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
         end
     else
         currentHacking = false
-        Notify(Lang:t('boosting.error.must_wait', {time = randomSeconds}), 'error', 7500)
     end
 end)
 
