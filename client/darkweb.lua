@@ -35,13 +35,11 @@ end)
 -- Prolly a better minigame for this and needs a drilling anim
 local function breakCrate(entity)
     if haveItem('drill') then
-        exports["memorygame"]:thermiteminigame(10, 3, 3, 10,
-        function() -- success
-            TriggerServerEvent('jl-laptop:server:crateOpened', NetworkGetNetworkIdFromEntity(entity))
-        end,
-        function() -- failure
-            QBCore.Functions.Notify("Vous avez échoué!")
-        end)
+            exports['ps-ui']:Thermite(function(success)
+            if success then
+                TriggerServerEvent('jl-laptop:server:crateOpened', NetworkGetNetworkIdFromEntity(entity))
+            end
+        end, 10, 3, 3) -- Time, Gridsize (5, 6, 7, 8, 9, 10), IncorrectBlocks
     else
         QBCore.Functions.Notify(Lang:t('darkweb.need_drill'))
     end
