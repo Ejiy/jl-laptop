@@ -1,4 +1,5 @@
 # jl-laptop
+
 A laptop script for qbcore.
 
 ### REMEMBER THIS IS STILL IN BETA PHASE DON'T EXPECT YOU WILL HAVE 0 BUGS
@@ -12,6 +13,9 @@ It comes with 4 default apps
 - Management/Boss App (Not Yet Done)
 
 You can create app for specific job, gang, or even only when player have an item!
+
+| Join my discord server [here](https://discord.gg/fqUjRyhW2z) |
+| ------------------------------------------------------------ |
 
 ## Read the documentation [here](https://justlazzy.gitbook.io/home/free-resources/jl-laptop)
 
