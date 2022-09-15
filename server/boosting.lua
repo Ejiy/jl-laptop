@@ -176,7 +176,7 @@ QBCore.Functions.CreateCallback('jl-laptop:server:CanStartBoosting', function(so
 
     if currentRuns[CID] then return cb("running") end
     if not currentContracts[CID][id] then return cb("notfound") end
-    if Config.RenewedPhone and not exports['qb-phone']:hasEnough(src, "qbit", currentContracts[CID][id].cost) then return cb("notenough") end
+    if Config.RenewedPhone and not exports['qb-phone']:hasEnough(src, "gne", currentContracts[CID][id].cost) then return cb("notenough") end
     local amount = 0
     if cops == Config.Boosting.MinCops then
         amount = 1
@@ -729,7 +729,7 @@ CreateThread(function()
                 end
             end
         end
-        Wait((Config.Boosting.Debug and 200) or (math.random(1, 8) * 1000 * 60 ))
+        Wait(Config.Boosting.Debug and 200 or (math.random(1, 4) * 60000 )) -- Once every 1 to 4 minutes
     end
 end)
 
