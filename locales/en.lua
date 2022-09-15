@@ -2,7 +2,6 @@ local Translations = {
     boosting = {
         error = {
             disable_fail = "You failed to disable the tracker",
-            must_wait = "You must wait atleast %{time} Seconds",
             no_tracker = "This vehicle doesn't have a tracker",
             get_away = "Get away before anyone sees you!",
             cancelboost = "You failed to deliver the vehicle and contract has been terminated.",
