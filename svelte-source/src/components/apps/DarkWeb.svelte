@@ -44,8 +44,9 @@
       cart: $darkwebCartItems,
       app: "darkweb",
     }).then((res) => {
-      if (res.success) {
+      if (res.status === "success") {
         notifications.send(res.message, "darkweb", 5000);
+        darkwebCartItems.set([]);
       } else {
         notifications.send(res.message, "darkweb", 5000);
       }
