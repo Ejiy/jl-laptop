@@ -20,9 +20,9 @@ RegisterNUICallback('darkweb/items', function(_, cb)
     local translated = {}
     for _, v in pairs(Config.DarkWeb.Items) do
         translated[#translated + 1] = {
-            name = v.item,
-            label = QBCore.Shared.Items[v.item].label,
-            image = Config.Inventory .. "/html/images/" .. QBCore.Shared.Items[v.item].image,
+            name = v.name,
+            label = QBCore.Shared.Items[v.name].label,
+            image = Config.Inventory .. "/html/images/" .. QBCore.Shared.Items[v.name].image,
             price = v.price,
             stock = v.stock,
             category = v.category,
@@ -34,8 +34,8 @@ end)
 -- Prolly a better minigame for this and needs a drilling anim
 local function breakCrate(entity)
     if haveItem('drill') then
-		exports['ps-ui']:Thermite(function(success)
-			if success then
+        exports['ps-ui']:Thermite(function(success)
+            if success then
                 TriggerServerEvent('jl-laptop:server:crateOpened', NetworkGetNetworkIdFromEntity(entity))
             end
         end, 10, 3, 3) -- Time, Gridsize (5, 6, 7, 8, 9, 10), IncorrectBlocks
