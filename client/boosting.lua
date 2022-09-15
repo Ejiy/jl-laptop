@@ -18,7 +18,7 @@ local currentCops = 0
 local function Notify(text, type, time)
     if Config.Boosting.Notifications == "phone" then
         TriggerEvent('qb-phone:client:CustomNotification',
-            "Boosting...",
+            Lang:t('boosting.info.phonenotify'),
             text,
             "fas fa-user-secret",
             "#00008B",
@@ -61,7 +61,7 @@ local function UpdateBlips()
             end
 
             TriggerServerEvent('jl-laptop:server:SyncBlips', nil, Plate)
-            Notify('Successfully removed tracker', "success", 7500)
+            Notify(Lang:t("boosting.success.disable_tracker"), 'success', 7500)
             DelayDelivery()
         end)
     end
@@ -81,7 +81,8 @@ RegisterNetEvent('lockpicks:UseLockpick', function()
                 TriggerServerEvent('jl-laptop:server:SpawnPed')
                 RemoveBlip(missionBlip)
                 UpdateBlips()
-                exports['qb-dispatch']:VehicleBoost()
+
+                exports['qb-dispatch']:CarBoosting(carSpawned)
             else
                 TriggerServerEvent('jl-laptop:server:CancelBoost', NetID, Plate)
             end
@@ -100,7 +101,7 @@ RegisterNetEvent('jl-laptop:client:MissionStarted', function(netID, coords) -- P
     AntiSpam = false
     inZone = false
 
-    print(coords)
+    --print(coords)
 
     if PZone then PZone:destroy() PZone = nil end
 
@@ -121,37 +122,37 @@ RegisterNUICallback('boosting/start', function(data, cb)
             --TriggerServerEvent('jl-laptop:server:StartBoosting', data.id, currentCops)
             cb({
                 status = 'success',
-                message = "You started a boost!"
+                message = Lang:t('boosting.laptop.boosting.success')
             })
         elseif result == "cops" then
             cb({
                 status = 'error',
-                message = "Not enough cops on Duty!"
+                message = Lang:t('boosting.laptop.boosting.cops')
             })
         elseif result == "running" then
             cb({
                 status = 'error',
-                message = "You already have a contract running!"
+                message = Lang:t('boosting.laptop.boosting.running')
             })
         elseif result == "notfound" then
             cb({
                 status = 'error',
-                message = "Contract not found!"
+                message = Lang:t('boosting.laptop.boosting.notfound')
             })
         elseif result == "notenough" then
             cb({
                 status = 'error',
-                message = "Not enough GNE to start the contract!"
+                message = Lang:t('boosting.laptop.boosting.notenough')
             })
         elseif result == "busy" then
             cb({
                 status = 'error',
-                message = "Couldn't locate the car try again later!"
+                message = Lang:t('boosting.laptop.boosting.busy')
             })
         elseif result == "error" then
             cb({
                 status = 'error',
-                message = "Error 69420 Try Again!"
+                message = Lang:t('boosting.laptop.boosting.error')
             })
         end
     end, currentCops, data.id)
@@ -166,7 +167,7 @@ end)
 
 -- DELIVERING VEHICLE --
 local function DeliverCar()
-    Notify('Get away before anyone sees you!', 'error', 7500)
+    Notify(Lang:t('boosting.error.get_away'), 'error', 7500)
     local car = NetworkGetEntityFromNetworkId(NetID)
     FreezeEntityPosition(car, true)
     if PZone then
@@ -175,7 +176,7 @@ local function DeliverCar()
     end
 
     Wait(7500)
-    Notify('You will be paid when I sucessfully retracted the vehicle', 'success', 7500)
+    Notify(Lang:t('boosting.success.youllbepaid'), 'success', 7500)
     while #QBCore.Functions.GetPlayersFromCoords(GetEntityCoords(car), 100.0) > 0 do
         Wait(7500)
     end
@@ -214,7 +215,7 @@ RegisterNetEvent('jl-laptop:client:ReturnCar', function(coords)
 
     local info = {
         ['blip'] = {
-            ['Text'] = 'Boost Drop-off',
+            ['Text'] = Lang:t('boosting.blip.dropoff'),
             ['Coords'] = coords
         },
     }
@@ -228,7 +229,7 @@ RegisterNetEvent('jl-laptop:client:ReturnCar', function(coords)
         end
     end)
 
-    Notify('GPS updated with the drop-off location. Bring the car there.', 'success', 7500)
+    Notify(Lang:t('boosting.success.gps_dropoff'), 'success', 7500)
 
     dropoffBlip = AddBlipForCoord(info['blip'].Coords.x, info['blip'].Coords.y, info['blip'].Coords.z)
     SetBlipSprite(dropoffBlip, 326)
@@ -259,20 +260,13 @@ end)
 
 
 -- ** HACKING THE VEHICLE ** --
-local psUI = {
-    "numeric",
-    "alphabet",
-    "alphanumeric",
-    "greek",
-    "braille",
-    "runes"
-}
 
 local clientHack = true
 
-local function ClientDelay()
-    SetTimeout(Config.Boosting.HackDelay * 1000, function()
+local function ClientDelay(time)
+    SetTimeout(time * 1000, function()
         clientHack = true
+        Notify(Lang:t("boosting.info.tracker_backon"), 'primary', 7500)
     end)
 end
 
@@ -282,6 +276,7 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
     -- Makes it so if they are doing hacking or whatever it will not let them do it again, as people could hard spam before the delay was added --
     if currentHacking then return end
     currentHacking = true
+    local randomSeconds = math.random(Config.Boosting.HackDelayMin, Config.Boosting.HackDelayMax)
 
     local ped = PlayerPedId()
     if clientHack then
@@ -290,24 +285,25 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
                 local vehicle = GetVehiclePedIsIn(ped, false)
                 local plate = GetVehicleNumberPlateText(vehicle)
                 if ActivePlates[plate] and ActivePlates[plate] > 0 then
-                    local pushingP = promise.new()
-                    exports['ps-ui']:Scrambler(function(cb)
-                        pushingP:resolve(cb)
-                    end, psUI[math.random(1, #psUI)], 30, 0)
-                    local success = Citizen.Await(pushingP)
+                    local success = exports['boostinghack']:StartHack()
                     if success then
                         TriggerServerEvent('jl-laptop:server:SyncPlates', true)
                         local newThing = ActivePlates[plate] - 1
-                        Notify(newThing.. " Hacks Left", 'success', 7500)
+                        if newThing >= 1 then
+                            Notify(Lang:t('boosting.success.tracker_off', {tracker_left = newThing}), 'success', 7500)
+                        end
 
                         if not Config.Boosting.Debug then
                             clientHack = false
-                            ClientDelay()
+                            ClientDelay(randomSeconds)
                         end
+                    else
+                        QBCore.Functions.Notify(Lang:t('boosting.error.disable_fail'), "error")
+                        TriggerServerEvent("jl-laptop:server:RemoveItem", Config.Boosting.HackingDevice)
                     end
                     currentHacking = false
                 else
-                    Notify("There's no tracker here!", 'error', 7500)
+                    Notify(Lang:t("boosting.error.no_tracker"), 'error', 7500)
                     currentHacking = false
                 end
             else
@@ -318,7 +314,7 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
         end
     else
         currentHacking = false
-        Notify("You must wait atleast " .. Config.Boosting.HackDelay .. " Seconds", 'error', 7500)
+        Notify(Lang:t('boosting.error.must_wait', {time = randomSeconds}), 'error', 7500)
     end
 end)
 
@@ -355,7 +351,7 @@ RegisterNetEvent('jl-laptop:client:SpawnPeds', function(netIds, Location)
         SetPedCombatRange(APed, 2)
         SetPedCombatAttributes(APed, 46, true)
         SetPedCombatAttributes(APed, 0, false)
-        SetPedAccuracy(APed, 60)
+        SetPedAccuracy(APed, 30)
         SetPedCombatAbility(APed, 100)
         TaskCombatPed(APed, PlayerPedId(), 0, 16)
         SetPedKeepTask(APed, true)
@@ -449,7 +445,7 @@ RegisterNUICallback('boosting/deny', function(data, cb)
     if not canDeny then
         cb({
             status = 'error',
-            message = "You must wait 10 seconds to deny another contract!"
+            message = Lang:t('boosting.laptop.must_wait')
         })
         return
     end
@@ -458,12 +454,12 @@ RegisterNUICallback('boosting/deny', function(data, cb)
         if result == "success" then
             cb({
                 status = 'success',
-                message = "You declined the boost!"
+                message = Lang:t('boosting.laptop.declinedboost')
             })
         else
             cb({
                 status = 'error',
-                message = "Error! Try Again"
+                message = Lang:t('boosting.laptop.try_again')
             })
         end
         canDeny = false
@@ -482,27 +478,27 @@ RegisterNUICallback('boosting/transfer', function(data, cb)
         if result == "success" then
             cb({
                 status = 'success',
-                message = "Transferred Contract to State ID: " .. id
+                message = Lang:t('boosting.laptop.transfer.success', {id = id})
             })
         elseif result == "self" then
             cb({
                 status = 'error',
-                message = "You cannot transfer the contract to yourself!"
+                message = Lang:t('boosting.laptop.transfer.self')
             })
         elseif result == "notfound" then
             cb({
                 status = 'error',
-                message = "Player not found!"
+                message = Lang:t('boosting.laptop.transfer.notfound')
             })
         elseif result == "full" then
             cb({
                 status = 'error',
-                message = "State ID has too many contracts!"
+                message = Lang:t('boosting.laptop.transfer.full')
             })
         elseif result == "error" then
             cb({
                 status = 'error',
-                message = "Error 404 Try again!"
+                message = Lang:t('boosting.laptop.transfer.error')
             })
         end
     end, id, contract)
@@ -516,28 +512,28 @@ RegisterNUICallback('boosting/queue', function(data, cb)
             if data.status then
                 cb({
                     status = 'success',
-                    message = "You joined the Queue!"
+                    message = Lang:t('boosting.laptop.queue.success')
                 })
             else
                 cb({
                     status = 'success',
-                    message = "You Left the Queue!<"
+                    message = Lang:t('boosting.laptop.queue.successquit')
                 })
             end
         elseif result == "running" then
             cb({
                 status = 'error',
-                message = "You cannot join queue while doing a contract!"
+                message = Lang:t('boosting.laptop.queue.running')
             })
         elseif result == "inqueue" then
             cb({
                 status = 'error',
-                message = "You are already in the queue!"
+                message = Lang:t('boosting.laptop.queue.inqueue')
             })
         elseif result == "error" then
             cb({
                 status = 'error',
-                message = "Error 404 Try again!"
+                message = Lang:t('boosting.laptop.queue.error')
             })
         end
     end, data.status)

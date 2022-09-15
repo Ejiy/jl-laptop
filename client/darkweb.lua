@@ -35,13 +35,15 @@ end)
 -- Prolly a better minigame for this and needs a drilling anim
 local function breakCrate(entity)
     if haveItem('drill') then
-        exports['ps-ui']:Thermite(function(success)
-            if success then
-                TriggerServerEvent('jl-laptop:server:crateOpened', NetworkGetNetworkIdFromEntity(entity))
-            end
-        end, 10, 3, 3) -- Time, Gridsize (5, 6, 7, 8, 9, 10), IncorrectBlocks
+        exports["memorygame"]:thermiteminigame(10, 3, 3, 10,
+        function() -- success
+            TriggerServerEvent('jl-laptop:server:crateOpened', NetworkGetNetworkIdFromEntity(entity))
+        end,
+        function() -- failure
+            QBCore.Functions.Notify("Vous avez échoué!")
+        end)
     else
-        QBCore.Functions.Notify("You don't have the appropriate tools") 
+        QBCore.Functions.Notify(Lang:t('darkweb.need_drill'))
     end
 end
 
@@ -55,7 +57,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
             exports['qb-target']:AddTargetEntity(obj, {
                 options = {
                     {
-                        label = "Break Open Crate",
+                        label = Lang:t('darkweb.target.breakcrateopen'),
                         icon = "fas fa-box-open",
                         action = function(entity)
                             breakCrate(entity)
@@ -67,7 +69,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
                         end,
                     },
                     {
-                        label = "Open Crate",
+                        label = Lang:t('darkweb.target.opencrate'),
                         icon = "fas fa-box-open",
                         action = function(entity)
                             openCrate(entity)
@@ -92,7 +94,7 @@ RegisterNetEvent('darkweb:client:cratedrop', function(netID)
     exports['qb-target']:AddTargetEntity(obj, {
         options = {
             {
-                label = "Break Open Crate",
+                label = Lang:t('darkweb.target.breakcrateopen'),
                 icon = "fas fa-box-open",
                 action = function(entity)
                     breakCrate(entity)
@@ -104,7 +106,7 @@ RegisterNetEvent('darkweb:client:cratedrop', function(netID)
                 end,
             },
             {
-                label = "Open Crate",
+                label = Lang:t('darkweb.target.opencrate'),
                 icon = "fas fa-box-open",
                 action = function(entity)
                     openCrate(entity)

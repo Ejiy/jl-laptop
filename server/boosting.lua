@@ -41,7 +41,7 @@ local LookingForContracts = {}
 local function Notify(src, text, type, time)
     if Config.Boosting.Notifications == "phone" then
         TriggerClientEvent("qb-phone:client:CustomNotification", src,
-            "Boosting...",
+            Lang:t('boosting.info.phonenotify'),
             text,
             "fas fa-user-secret",
             "#00008B",
@@ -176,7 +176,7 @@ QBCore.Functions.CreateCallback('jl-laptop:server:CanStartBoosting', function(so
 
     if currentRuns[CID] then return cb("running") end
     if not currentContracts[CID][id] then return cb("notfound") end
-    if Config.RenewedPhone and not exports['qb-phone']:hasEnough(src, "gne", currentContracts[CID][id].cost) then return cb("notenough") end
+    if Config.RenewedPhone and not exports['qb-phone']:hasEnough(src, "qbit", currentContracts[CID][id].cost) then return cb("notenough") end
     local amount = 0
     if cops == Config.Boosting.MinCops then
         amount = 1
@@ -205,7 +205,11 @@ QBCore.Functions.CreateCallback('jl-laptop:server:CanStartBoosting', function(so
             if Config.RenewedPhone then
                 exports['qb-phone']:RemoveCrypto(src, "gne", currentContracts[CID][id].cost)
             else
-
+                if Player.Functions.RemoveMoney("crypto", currentContracts[CID][id].cost, Lang:t('boosting.info.bought_boost')) then
+                else
+                    cb("busy")
+                    return
+                end
             end
 
 
@@ -319,7 +323,7 @@ end)
 
 QBCore.Functions.CreateUseableItem(Config.Boosting.HackingDevice, function(source, item)
     local Player = QBCore.Functions.GetPlayer(source)
-    if Player.Functions.GetItemByName(Config.Boosting.HackingDevice) ~= nil then
+    if Player.Functions.GetItemByName(Config.Boosting.HackingDevice) then
         TriggerClientEvent('jl-laptop:client:HackCar', source)
     end
 end)
@@ -416,11 +420,13 @@ RegisterNetEvent('jl-laptop:server:finishBoost', function(netId)
         currentRuns[CID].cost = math.random(1,2) -- makes it so they can actually get GNE when the boost is Free
     end
 
+    local reward = math.ceil(currentRuns[CID].cost * math.random(2,3))
     if Config.RenewedPhone then
-        local reward = math.ceil(currentRuns[CID].cost * math.random(2,3))
         exports['qb-phone']:AddCrypto(src, "gne", reward)
-        Notify(src, "You have recieved your reward of "..reward.." GNE", "success", 7500)
+    else
+        Player.Functions.AddMoney("crypto", reward, Lang:t('boosting.info.rewardboost'))
     end
+    Notify(src, Lang:t('boosting.success.received_reward', {reward = reward}), "success", 7500)
 
 
     if DoesEntityExist(NetworkGetEntityFromNetworkId(currentRuns[CID].NetID)) then
@@ -451,7 +457,7 @@ RegisterNetEvent('jl-laptop:server:CancelBoost', function(netId, Plate)
     TriggerClientEvent('jl-laptop:client:SyncPlates', -1, ActivePlates)
     TriggerClientEvent('jl-laptop:client:finishContract', src, currentContracts[CID])
 
-    Notify(src, "You failed to deliver the vehicle and contract has been terminated.", "error", 7500)
+    Notify(src, Lang:t('boosting.error.cancelboost'), "error", 7500)
 end)
 
 
@@ -696,19 +702,6 @@ local function generateContract(src)
     end
 end
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 -- QUEUE LOOP --
 CreateThread(function()
     while true do
@@ -736,7 +729,7 @@ CreateThread(function()
                 end
             end
         end
-        Wait(Config.Boosting.Debug and 200 or (math.random(1, 4) * 60000 )) -- Once every 2 minutes
+        Wait((Config.Boosting.Debug and 200) or (math.random(1, 8) * 1000 * 60 ))
     end
 end)
 
