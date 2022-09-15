@@ -12,8 +12,9 @@ local Translations = {
             youllbepaid = "Vous serez payé quand j'aurais récupéré le véhicule",
             gps_dropoff = "GPS mis-à-jour avec la position de livraison. Ramène-y la voiture.",
             received_reward = "Vous avez reçu votre récompense de %{reward} crypto",
+            disable_tracker = "Traqueur désactivé avec succès!",
         },
-        blips = {
+        blip = {
             dropoff = "Livraison Boost",
         },
         info = {
