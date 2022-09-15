@@ -6,7 +6,7 @@ local function AddItems(stash, Items)
     local items = {}
 
     for k, v in pairs(Items) do
-        local itemInfo = QBCore.Shared.Items[k:lower()]
+        local itemInfo = QBCore.Shared.Items[k.item]
         items[#items + 1] = {
             name = itemInfo["name"],
             amount = tonumber(v),
@@ -81,7 +81,7 @@ QBCore.Functions.CreateCallback('jl-laptop:server:checkout', function(source, cb
     }
     if Saved then
         for _, v in pairs(Saved) do
-            Shop.items[Config[appLabel].Items[v.name].name] = v.quantity
+            Shop.items[Config[appLabel].Items[v.name]] = v.quantity
             if Config[appLabel].Items[v.name].type == "bank" then
                 Shop.totalBank = Shop.totalBank + (Config[appLabel].Items[v.name].price * v.quantity)
             elseif Config[appLabel].Items[v.name].type == "crypto" then
