@@ -96,12 +96,7 @@
             class:hide={darkwebitem.category !== currentPage}
           >
             <div class="images">
-              <img
-                src={isEnvBrowser
-                  ? darkwebitem.image
-                  : `nui://${darkwebitem.image}`}
-                alt="something"
-              />
+              <img src={`nui://${darkwebitem.image}`} alt="something" />
             </div>
             <div class="info">
               <div class="title">

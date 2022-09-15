@@ -127,7 +127,7 @@
             <div class="card" class:hide={data.category !== currentPage}>
               <StoreCard
                 on:addCart={handleAddCart}
-                image={isEnvBrowser ? data.image : `nui://${data.image}`}
+                image={`nui://${data.image}`}
                 name={data.name}
                 title={data.label}
                 stock={data.stock}
