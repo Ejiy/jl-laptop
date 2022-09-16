@@ -57,7 +57,9 @@ local function GetPlayerAppPerms()
                 searches = #app.bannedJobs
             end
 
-            for i = 1, #app.item do
+            local count = #app.item
+            if count == 0 then count = 1 end
+            for i = 1, count do
                 if haveItem(app.item[i]) or not app.item[i] then
                     if searches > 0 then
                         for k = 1, searches do
@@ -253,28 +255,28 @@ RegisterNUICallback('laptop/checkout', function(data, cb)
         if result == "bank" then
             cb({
                 status = 'error',
-                message = "You do not have enough money in your bank account!!"
+                message = Lang:t('main.checkout.bank')
             })
         elseif result == "full" then
             cb({
                 status = 'error',
-                message = "You have unclaimed items at the Warehouse already!"
+                message = Lang:t('main.checkout.full')
             })
         elseif result == "crypto" then
             cb({
                 status = 'error',
-                message = "You do not have enough crypto!"
+                message = Lang:t('main.checkout.crypto')
             })
         elseif result == "done" then
             if newData.app == "darkweb" then
                 cb({
                     status = 'success',
-                    message = "Go fast!, pickup the crate before anyone else get it"
+                    message = Lang:t('main.checkout.done_darkweb')
                 })
             else
                 cb({
                     status = 'success',
-                    message = "You can now pickup the items at the warehouse"
+                    message = Lang:t('main.checkout.done_else')
                 })
             end
 
