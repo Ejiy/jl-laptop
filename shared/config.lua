@@ -5,6 +5,10 @@ Config.LaptopDevice = "laptop"
 
 Config.RenewedPhone = false
 
+Config.Thermite = "memorygame"
+
+Config.BoostHack = "boostinghack"
+
 Config.PoliceJobs = {
     "police",
     "bcso"
