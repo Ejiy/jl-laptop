@@ -44,7 +44,9 @@ function HasAppAccess(src, app)
     else
         searches = #v.bannedJobs
     end
-    for i = 1, #v.item do
+    local count = #v.item
+    if count == 0 then count = 1 end
+    for i = 1, count do
         if not v.item[i] or haveItem(PlayerData.items, v.item[i]) then
             if searches > 0 then
                 for k = 1, searches do
