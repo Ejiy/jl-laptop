@@ -57,7 +57,9 @@ local function GetPlayerAppPerms()
                 searches = #app.bannedJobs
             end
 
-            for i = 1, #app.item do
+            local count = #app.item
+            if count == 0 then count = 1 end
+            for i = 1, count do
                 if haveItem(app.item[i]) or not app.item[i] then
                     if searches > 0 then
                         for k = 1, searches do
