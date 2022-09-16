@@ -7,7 +7,7 @@ local Translations = {
             cancelboost = "Vous n'avez pas réussi a livrer le véhicule et la mission a été terminée.",
         },
         success = {
-            tracker_off = "Il reste %{tracker_left} traqueurs",
+            tracker_off = "Le traqueur est désactivé pendant %{time} secondes, Il restera %{tracker_left} traqueurs",
             youllbepaid = "Vous serez payé quand j'aurais récupéré le véhicule",
             gps_dropoff = "GPS mis-à-jour avec la position de livraison. Ramène-y la voiture.",
             received_reward = "Vous avez reçu votre récompense de %{reward} crypto",

@@ -303,7 +303,7 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
                         ActivePlates[plate] -= 1
                         local newThing = ActivePlates[plate] - 1
                         if newThing >= 1 then
-                            Notify(Lang:t('boosting.success.tracker_off', {tracker_left = newThing}), 'success', 7500)
+                            Notify(Lang:t('boosting.success.tracker_off', {tracker_left = newThing, time = randomSeconds}), 'success', 7500)
                         end
 
                         if not Config.Boosting.Debug then
