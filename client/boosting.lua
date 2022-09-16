@@ -290,19 +290,33 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
                 local vehicle = GetVehiclePedIsIn(ped, false)
                 local plate = GetVehicleNumberPlateText(vehicle)
                 if ActivePlates[plate] and ActivePlates[plate] > 0 then
-                    local pushingP = promise.new()
-                    exports['ps-ui']:Scrambler(function(cb)
-                        pushingP:resolve(cb)
-                    end, psUI[math.random(1, #psUI)], 30, 0)
-                    local success = Citizen.Await(pushingP)
-                    if success then
-                        TriggerServerEvent('jl-laptop:server:SyncPlates', true)
-                        local newThing = ActivePlates[plate] - 1
-                        Notify(newThing.. " Hacks Left", 'success', 7500)
+                    if Config.BoostHack == "ps-ui" then
+                        local pushingP = promise.new()
+                        exports['ps-ui']:Scrambler(function(cb)
+                            pushingP:resolve(cb)
+                        end, psUI[math.random(1, #psUI)], 30, 0)
+                        local success = Citizen.Await(pushingP)
+                        if success then
+                            TriggerServerEvent('jl-laptop:server:SyncPlates', true)
+                            local newThing = ActivePlates[plate] - 1
+                            Notify(newThing.. " Hacks Left", 'success', 7500)
 
-                        if not Config.Boosting.Debug then
-                            clientHack = false
-                            ClientDelay()
+                            if not Config.Boosting.Debug then
+                                clientHack = false
+                                ClientDelay()
+                            end
+                        end
+                    elseif Config.BoostHack == "boostinghack" then
+                        local success =  exports['boostinghack']:StartHack()
+                        if success then
+                            TriggerServerEvent('jl-laptop:server:SyncPlates', true)
+                            local newThing = ActivePlates[plate] - 1
+                            Notify(newThing.. " Hacks Left", 'success', 7500)
+
+                            if not Config.Boosting.Debug then
+                                clientHack = false
+                                ClientDelay()
+                            end
                         end
                     end
                     currentHacking = false
