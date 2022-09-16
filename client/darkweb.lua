@@ -39,7 +39,7 @@ local function breakCrate(entity)
             exports["memorygame"]:thermiteminigame(10, 3, 3, 10, function()
                 TriggerServerEvent('jl-laptop:server:crateOpened', NetworkGetNetworkIdFromEntity(entity))
             end,function()-- Time, Gridsize (5, 6, 7, 8, 9, 10), IncorrectBlocks
-                QBCore.Functions.Notify("You don't have the appropriate tools")
+
             end)
         elseif Config.Thermite == "ps-ui" then
             exports['ps-ui']:Thermite(function(success)
@@ -47,9 +47,9 @@ local function breakCrate(entity)
                     TriggerServerEvent('jl-laptop:server:crateOpened', NetworkGetNetworkIdFromEntity(entity))
                 end
             end, 10, 3, 3) -- Time, Gridsize (5, 6, 7, 8, 9, 10), IncorrectBlocks
-        else
-            QBCore.Functions.Notify("You don't have the appropriate tools")
         end
+    else
+        QBCore.Functions.Notify("You don't have the appropriate tools")
     end
 end
 
