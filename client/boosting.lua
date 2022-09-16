@@ -7,11 +7,8 @@ local NetID = nil
 local missionBlip = nil
 local inZone = false
 local dropoffBlip = nil
-
 local inQueue = false
-
 local currentCops = 0
-
 
 ---- Notify functions ----
 
@@ -28,8 +25,6 @@ local function Notify(text, type, time)
         QBCore.Functions.Notify(text, type, time)
     end
 end
-
-
 
 -- ALL THE BLIP FUNCTIONS --
 local function DelayDelivery()
@@ -88,8 +83,6 @@ RegisterNetEvent('lockpicks:UseLockpick', function()
         end
     end
 end)
-
-
 
 -- MISSION STARTER --
 
@@ -156,13 +149,6 @@ RegisterNUICallback('boosting/start', function(data, cb)
         end
     end, currentCops, data.id)
 end)
-
-
-
-
-
-
-
 
 -- DELIVERING VEHICLE --
 local function DeliverCar()
@@ -254,10 +240,6 @@ RegisterNetEvent('jl-laptop:client:finishContract', function(table)
     SendNUIMessage({ action = 'booting/delivered' })
 end)
 
-
-
-
-
 -- ** HACKING THE VEHICLE ** --
 local psUI = {
     "numeric",
@@ -290,6 +272,7 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
                 local vehicle = GetVehiclePedIsIn(ped, false)
                 local plate = GetVehicleNumberPlateText(vehicle)
                 if ActivePlates[plate] and ActivePlates[plate] > 0 then
+                        
                     if Config.BoostHack == "ps-ui" then
                         local pushingP = promise.new()
                         exports['ps-ui']:Scrambler(function(cb)
@@ -306,6 +289,7 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
                                 ClientDelay()
                             end
                         end
+                            
                     elseif Config.BoostHack == "boostinghack" then
                         local success =  exports['boostinghack']:StartHack()
                         if success then
@@ -319,6 +303,7 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
                             end
                         end
                     end
+                        
                     currentHacking = false
                 else
                     Notify("There's no tracker here!", 'error', 7500)
@@ -335,13 +320,6 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
         Notify("You must wait atleast " .. Config.Boosting.HackDelay .. " Seconds", 'error', 7500)
     end
 end)
-
-
-
-
-
-
-
 
 -- ** EVERYTHING TO DO WITH PEDS ATTACKING YOU ** --
 
@@ -385,7 +363,6 @@ RegisterNetEvent('jl-laptop:client:SpawnPeds', function(netIds, Location)
     end
 end)
 
-
 ---- ALL THE BLIP SYNCS ----
 -- This sync just makes it so anyone can hack a vehicle, that is hackable from boosting
 RegisterNetEvent('jl-laptop:client:SyncPlates', function(data)
@@ -405,12 +382,6 @@ RegisterNetEvent('jl-laptop:client:SyncBlips', function(coords, plate)
         SetBlipAsShortRange(blips[plate], true)
     end
 end)
-
-
-
-
-
-
 
 -- ** CONTRACT HANDLER ** --
 
@@ -445,9 +416,6 @@ RegisterNUICallback('boosting/getcontract', function(_, cb)
         contracts = Contracts,
     })
 end)
-
-
-
 
 -- ** DENY CONTRACTS ** --
 local canDeny = true
@@ -485,7 +453,6 @@ RegisterNUICallback('boosting/deny', function(data, cb)
     end, contract)
 end)
 
-
 -- ** TRANSFER CONTRACTS ** --
 
 -- Transfer Boosts between players --
@@ -521,7 +488,6 @@ RegisterNUICallback('boosting/transfer', function(data, cb)
         end
     end, id, contract)
 end)
-
 
 -- Queue Functions --
 RegisterNUICallback('boosting/queue', function(data, cb)
@@ -565,8 +531,6 @@ RegisterNUICallback("boosting/getqueue", function(_, cb)
     cb(inQueue)
 end)
 
-
-
 -- Gets all the reps --
 -- Getters for when you open the boost app --
 RegisterNUICallback("boosting/getrep", function(_, cb)
@@ -576,8 +540,6 @@ RegisterNUICallback("boosting/getrep", function(_, cb)
     }
     cb(data)
 end)
-
-
 
 RegisterNUICallback("boosting/expire", function(data, cb)
     print(data["id"])
