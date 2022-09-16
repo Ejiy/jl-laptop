@@ -2,7 +2,20 @@ Config.DarkWeb = {}
 
 Config.DarkWeb.Police = 2 -- Maybe we need this? just remove it if we don't need it Zoo
 
-Config.DarkWeb.CrateSpawn = vector3(1173.82, -3335.0, 5.8) -- This is where the bennys ped is at [needs changing/more locations]
+Config.DarkWeb.CrateSpawn = {
+    [1] = {
+        coords = vector3(1546.62, 3821.22, 30.94),
+        isbusy = false
+    },
+    [2] = {
+        coords = vector3(2126.4, 3345.57, 45.64),
+        isbusy = false
+    },
+    [3] = {
+        coords = vector3(2149.96, 2246.62, 107.37),
+        isbusy = false
+    }
+}
 
 -- NAME = Spawn code how you spawn in the item
 -- PRICE = How much it costs to buy the item

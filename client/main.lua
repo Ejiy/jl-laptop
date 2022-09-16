@@ -265,6 +265,11 @@ RegisterNUICallback('laptop/checkout', function(data, cb)
                 status = 'error',
                 message = Lang:t('main.checkout.crypto')
             })
+        elseif result == "spaces" then
+            cb({
+                status = "error",
+                message = Lang:t("main.checkout.spaces")
+            })
         elseif result == "done" then
             if newData.app == "darkweb" then
                 cb({

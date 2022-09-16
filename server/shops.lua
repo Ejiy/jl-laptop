@@ -38,15 +38,44 @@ local function HasStashItems(stashId)
     return true, #stashItems
 end
 
+local function GenerateCrateSpawn()
+    local count = 0
+    for i = 1, #Config.DarkWeb.CrateSpawn do
+        if Config.DarkWeb.CrateSpawn[i].isbusy then
+            count += 1
+        end
+    end
+    if count >= #Config.DarkWeb.CrateSpawn then
+        return false
+    end
+    local config = Config.DarkWeb.CrateSpawn[math.random(#Config.DarkWeb.CrateSpawn)]
+    if config.isbusy then
+        return GenerateCrateSpawn()
+    end
+
+    return config
+end
+
+local function SetCrateCoordsState(coords)
+    for i = 1, #Config.DarkWeb.CrateSpawn do
+        if Config.DarkWeb.CrateSpawn[i].coords == coords then
+            Config.DarkWeb.CrateSpawn[i].isbusy = false
+            break
+        end
+    end
+end
+
 local function boxDeletionTimer(netID)
     Wait(60 * 1000 * 60) -- 1 hour ( i think )
-    DeleteObject(NetworkGetEntityFromNetworkId(netID))
+    DeleteEntity(NetworkGetEntityFromNetworkId(netID))
+    SetCrateCoordsState(crates[netID]['coords'])
     crates[netID] = nil
 end
 
-local function createCrate(items)
-    local crateObj = CreateObject(`prop_lev_crate_01`, Config.DarkWeb.CrateSpawn.x, Config.DarkWeb.CrateSpawn.y,
-        Config.DarkWeb.CrateSpawn.z, true, false)
+
+
+local function createCrate(items, coords)
+    local crateObj = CreateObject(`prop_lev_crate_01`, coords.x, coords.y, coords.z - 1.0, true, false)
     while not DoesEntityExist(crateObj) do
         Wait(50)
     end
@@ -56,7 +85,8 @@ local function createCrate(items)
         AddItems("DarkWebCrate_" .. crateCount + 1, items)
         crates[netID] = {
             ['id'] = crateCount + 1,
-            ['isOpened'] = false
+            ['isOpened'] = false,
+            ['coords'] = coords
         }
         TriggerClientEvent('jl-laptop:client:updateCrates', -1, crates)
         boxDeletionTimer(netID)
@@ -69,8 +99,8 @@ QBCore.Functions.CreateCallback('jl-laptop:server:checkout', function(source, cb
     if data.app == 'darkweb' then
         appLabel = 'DarkWeb'
     end
-
     local Player = QBCore.Functions.GetPlayer(src)
+    local darkwebCrateSpawn = GenerateCrateSpawn()
     if not HasAppAccess(src, data['app']) then return cb("full") end
     local Saved = data['cart']
     local Shop = {
@@ -90,8 +120,6 @@ QBCore.Functions.CreateCallback('jl-laptop:server:checkout', function(source, cb
                 Shop.totalGNE = Shop.totalGNE + (Config[appLabel].Items[v.name].price * v.quantity)
             end
         end
-
-        print(json.encode(Saved))
         local hasItem, amount = HasStashItems(appLabel .. "Shop_" .. Player.PlayerData.citizenid)
         if hasItem and amount > 0 then return cb("full") end
         local checks = 0
@@ -117,6 +145,15 @@ QBCore.Functions.CreateCallback('jl-laptop:server:checkout', function(source, cb
             end
         end
 
+        if data['app'] == "darkweb" then
+            if not darkwebCrateSpawn then
+                return cb("spaces")
+            else
+                darkwebCrateSpawn.isbusy = true
+                print(json.encode(Config.DarkWeb.CrateSpawn))
+            end
+        end
+
         if checks == 0 then
             if bank then Player.Functions.RemoveMoney("bank", Shop.totalBank) end
 
@@ -124,7 +161,9 @@ QBCore.Functions.CreateCallback('jl-laptop:server:checkout', function(source, cb
 
             if data['app'] == 'darkweb' then
                 cb("done")
-                createCrate(Shop.items)
+                if darkwebCrateSpawn then
+                    createCrate(Shop.items, darkwebCrateSpawn.coords)
+                end
             else
                 AddItems("BennyShop_" .. Player.PlayerData.citizenid, Shop.items)
                 cb("done")
