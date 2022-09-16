@@ -66,6 +66,7 @@ local Translations = {
         checkout = {
             bank = "Vous n'avez pas assez d'argent dans votre comtpe en banque!!",
             full = "Vous avez déjà trop d'objets a l'entrepôt!",
+            spaces = "Nous n'avons pas trouvé d'endroit oû livrer votre caisse..",
             crypto = "Vous n'avez pas assez de crypto!",
             done_darkweb = "Allez-vite! Récuperez la caisse avant les autres!",
             done_else = "Vous pouvez récuperer les objets a l'entrpôt",
