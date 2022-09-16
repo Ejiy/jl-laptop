@@ -299,7 +299,7 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
                     end, psUI[math.random(1, #psUI)], 30, 0)
                     local success = Citizen.Await(pushingP)
                     if success then
-                        TriggerServerEvent('jl-laptop:server:SyncPlates', true)
+                        TriggerServerEvent('jl-laptop:server:SyncPlates', true, randomSeconds)
                         ActivePlates[plate] -= 1
                         local newThing = ActivePlates[plate] - 1
                         if newThing >= 1 then
