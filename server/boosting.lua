@@ -286,13 +286,13 @@ end)
 -- ** Hacking Cars ** --
 local Cooldowns = {}
 
-local function removeCooldown(plate)
-    SetTimeout(Config.Boosting.HackDelay * 1000, function()
+local function removeCooldown(plate, time)
+    SetTimeout(time * 1000, function()
         Cooldowns[plate] = false
     end)
 end
 
-RegisterNetEvent('jl-laptop:server:SyncPlates', function(success)
+RegisterNetEvent('jl-laptop:server:SyncPlates', function(success, time)
     local src = source
 
     local Player = QBCore.Functions.GetPlayer(src)
@@ -312,12 +312,12 @@ RegisterNetEvent('jl-laptop:server:SyncPlates', function(success)
         if Config.Boosting.Debug then
             ActivePlates[plate] = 0
         else
-            ActivePlates[plate] = ActivePlates[plate] - 1
+            ActivePlates[plate] -= 1
         end
         TriggerClientEvent('jl-laptop:client:SyncPlates', -1, ActivePlates)
     end
 
-    if not Config.Boosting.Debug then removeCooldown(plate) else Cooldowns[plate] = false end
+    if not Config.Boosting.Debug then removeCooldown(plate, time) else Cooldowns[plate] = false end
 end)
 
 QBCore.Functions.CreateUseableItem(Config.Boosting.HackingDevice, function(source, item)
