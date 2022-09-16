@@ -47,7 +47,7 @@ CreateThread(function()
     exports['qb-target']:AddTargetEntity(ped, {
         options = {
             {
-                label = "View Warehouse Stock",
+                label = Lang:t('bennys.warehouse'),
                 icon = "fa-solid fa-warehouse",
                 action = function()
                     openStash()

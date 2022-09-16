@@ -6,15 +6,14 @@ local function openCrate(crate)
     QBCore.Functions.TriggerCallback('jl-laptop:server:getCrateStatus', function(data)
         if data.isOpened then
             openCrate(data.crate)
+        else
+            TriggerServerEvent("inventory:server:OpenInventory", "stash", "DarkWebCrate_" .. data.crateID, {
+                maxweight = 100000,
+                slots = 25,
+            })
+            TriggerEvent("inventory:client:SetCurrentStash", "DarkWebCrate_" .. data.crateID)
         end
-    end, crateID)
-
-    local CID = QBCore.Functions.GetPlayerData().citizenid
-    TriggerServerEvent("inventory:server:OpenInventory", "stash", "DarkWebCrate_" .. crateID, {
-        maxweight = 100000,
-        slots = 25,
-    })
-    TriggerEvent("inventory:client:SetCurrentStash", "DarkWebCrate_" .. crateID)
+    end, crateID, crate)
 end
 
 RegisterNUICallback('darkweb/items', function(_, cb)
@@ -41,7 +40,7 @@ local function breakCrate(entity)
             end
         end, 10, 3, 3) -- Time, Gridsize (5, 6, 7, 8, 9, 10), IncorrectBlocks
     else
-        QBCore.Functions.Notify("You don't have the appropriate tools") 
+        QBCore.Functions.Notify(Lang:t('darkweb.need_drill'))
     end
 end
 
@@ -55,7 +54,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
             exports['qb-target']:AddTargetEntity(obj, {
                 options = {
                     {
-                        label = "Break Open Crate",
+                        label = Lang:t('darkweb.target.breakcrateopen'),
                         icon = "fas fa-box-open",
                         action = function(entity)
                             breakCrate(entity)
@@ -67,7 +66,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
                         end,
                     },
                     {
-                        label = "Open Crate",
+                        label = Lang:t('darkweb.target.opencrate'),
                         icon = "fas fa-box-open",
                         action = function(entity)
                             openCrate(entity)
@@ -92,7 +91,7 @@ RegisterNetEvent('darkweb:client:cratedrop', function(netID)
     exports['qb-target']:AddTargetEntity(obj, {
         options = {
             {
-                label = "Break Open Crate",
+                label = Lang:t('darkweb.target.breakcrateopen'),
                 icon = "fas fa-box-open",
                 action = function(entity)
                     breakCrate(entity)
@@ -104,7 +103,7 @@ RegisterNetEvent('darkweb:client:cratedrop', function(netID)
                 end,
             },
             {
-                label = "Open Crate",
+                label = Lang:t('darkweb.target.opencrate'),
                 icon = "fas fa-box-open",
                 action = function(entity)
                     openCrate(entity)

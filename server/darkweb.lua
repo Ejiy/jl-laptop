@@ -7,12 +7,13 @@ RegisterNetEvent('jl-laptop:server:crateOpened', function(crateID)
     TriggerClientEvent('jl-laptop:client:updateCrates', -1, crates)
 end)
 
-QBCore.Functions.CreateCallback('jl-laptop:server:getCrateStatus', function(source, cb, crateNetID)
-    local isOpened = false
+QBCore.Functions.CreateCallback('jl-laptop:server:getCrateStatus', function(source, cb, crateNetID, crateentity)
+    crates[crateNetID].isOpened = false
 
     local data = {
         isOpened = crates[crateNetID].isOpened,
-        crate = crates[crateNetID].id
+        crateID = crates[crateNetID].id,
+        crate = crateentity
     }
 	cb(data)
 end)
