@@ -108,7 +108,7 @@ RegisterNetEvent('jl-laptop:client:MissionStarted', function(netID, coords) -- P
     if missionBlip then RemoveBlip(missionBlip) end
 
     if coords then
-        missionBlip = AddBlipForRadius(coords.x, coords.y, coords.z, 150.0)
+        missionBlip = AddBlipForRadius(coords.x + math.random(20, 100), coords.y + math.random(20, 100), coords.z, 250.0)
         SetBlipAlpha(missionBlip, 150)
         SetBlipHighDetail(missionBlip, true)
         SetBlipColour(missionBlip, 1)
@@ -395,7 +395,7 @@ RegisterNetEvent('jl-laptop:client:SyncBlips', function(coords, plate)
     if not isPolice() then return end
     if blips[plate] then RemoveBlip(blips[plate]) end
     if coords then
-        blips[plate] = AddBlipForRadius(coords.x, coords.y, coords.z, 35.0)
+        blips[plate] = AddBlipForRadius(coords.x + math.random(5, 15), coords.y + math.random(5, 15), coords.z, 35.0)
         SetBlipHighDetail(blips[plate], true)
         SetBlipColour(blips[plate], 1)
         SetBlipAsShortRange(blips[plate], true)
