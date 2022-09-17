@@ -176,7 +176,11 @@ QBCore.Functions.CreateCallback('jl-laptop:server:CanStartBoosting', function(so
 
     if currentRuns[CID] then return cb("running") end
     if not currentContracts[CID][id] then return cb("notfound") end
-    if Config.RenewedPhone and not exports['qb-phone']:hasEnough(src, "gne", currentContracts[CID][id].cost) then return cb("notenough") end
+    if Config.RenewedPhone and not exports['qb-phone']:hasEnough(src, "gne", currentContracts[CID][id].cost) then
+        return cb("notenough")
+    elseif Player.PlayerData.money.crypto < currentContracts[CID][id].cost then
+        return cb("notenough")
+    end
     local amount = 0
     if cops == Config.Boosting.MinCops then
         amount = 1
