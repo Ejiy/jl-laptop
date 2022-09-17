@@ -787,13 +787,17 @@ end, "god")
 
 QBCore.Commands.Add('settier', Lang:t('boosting.command.command_tier_desc'), {{ name = Lang:t('boosting.command.command_name_ID'), help = Lang:t('boosting.command.command_help_ID')}, { name = Lang:t('boosting.command.command_name_tier'), help = Lang:t('boosting.command.command_help_tier')} }, false, function(source, args)
     if args and type(tonumber(args[1])) == "number" then
-        local Player = QBCore.Functions.GetPlayer(tonumber(args[1]))
-        if Player then
-            local rep = Player.PlayerData.metadata["carboostrep"] or 0
-            rep = Config.Boosting.TiersPerRep[args[2]]
-            Player.Functions.SetMetaData('carboostrep', rep)
+         if args[2] and type(tonumber(args[2])) == "string" then
+            local Player = QBCore.Functions.GetPlayer(tonumber(args[1]))
+            if Player then
+                local rep = Player.PlayerData.metadata["carboostrep"] or 0
+                rep = Config.Boosting.TiersPerRep[args[2]]
+                Player.Functions.SetMetaData('carboostrep', rep)
+            else
+                TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.player_offline'), 'error', 5000)
+            end
         else
-            TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.player_offline'), 'error', 5000)
+            TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.missingarg'), "error", 5000)
         end
     else
         TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.incorrect_format'), "error", 5000)
