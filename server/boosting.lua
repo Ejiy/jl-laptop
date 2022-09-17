@@ -756,3 +756,30 @@ AddEventHandler('playerDropped', function()
     end
 end)
 
+-- Commands --
+QBCore.Commands.Add('giveboost', Lang:t('boosting.command.command_desc'), {{ name = Lang:t('boosting.command.command_name_ID'), help = Lang:t('boosting.command.command_help_ID')}, { name = Lang:t('boosting.command.command_name_tier'), help = Lang:t('boosting.command.command_help_tier')}, { name = Lang:t('boosting.command.command_name_vehicle'), help = Lang:t('boosting.command.command_help_vehicle')}, { name = 'Type', help = 'boosting/vinscratch'}, }, false, function(source, args)
+    if args and type(tonumber(args[1])) == "number" then
+        local Player = QBCore.Functions.GetPlayer(tonumber(args[1]))
+        if Player then
+            local CID = Player.PlayerData.citizenid
+            if LookingForContracts[CID] then
+                if args[4] and not (args[4] == 'boosting' or args[4] == 'vinscratch') then
+                    TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.incorrect_type'), 'error', 7500)
+                elseif args[3] and not type(args[3]) == "string" then
+                    TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.incorrect_vehicle'), 'error', 7500)
+                elseif args[2] and not (args[2] == "D" or args[2] == "C" or args[2] == "B" or args[2] == "A" or args[2] == "A+" or args[2] == "S" or args[2] == "S+") then
+                    TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.incorrect_tier'), 'error', 7500)
+                else
+                    generateContract(tonumber(args[1]), args[2], args[3], args[4])
+                    TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.created'), 'success', 7500)
+                end
+            else
+                TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.not_inqueue'), 'error', 5000)
+            end
+        else
+            TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.player_offline'), 'error', 5000)
+        end
+    else
+        TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.incorrect_format'), "error", 5000)
+    end
+end, "god")
