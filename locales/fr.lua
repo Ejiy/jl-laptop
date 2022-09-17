@@ -37,6 +37,7 @@ local Translations = {
             player_offline = "Joueur introuvable",
             not_inqueue = "Le joueur n'est pas dans la queue!",
             incorrect_format = "Format d'ID Incorrect (doit être un nombre)",
+            command_tier_desc = "Défini le Tier du joueur"
         },
 
         laptop = {
