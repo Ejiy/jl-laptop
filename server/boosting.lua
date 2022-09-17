@@ -674,15 +674,16 @@ local function calcPrice(tier, type)
     return Config.Boosting.Debug and 0 or price
 end
 
-local function generateContract(src)
+local function generateContract(src, contract, vehicle, mission)
     local Player = QBCore.Functions.GetPlayer(src)
     if not Player then return end
     local CID = Player.PlayerData.citizenid
     if not currentContracts[CID] then currentContracts[CID] = {} end
 
-    local contract = generateTier(src)
-    local vehicle = generateCar(contract)
-    local mission = missionType(Player, contract)
+    contract = contract or generateTier(src)
+    vehicle = vehicle or generateCar(contract)
+    mission = mission or missionType(Player, contract)
+
     if contract and vehicle and mission then
         currentContracts[CID][#currentContracts[CID]+1] = {
             id = #currentContracts[CID]+1,
