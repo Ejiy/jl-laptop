@@ -37,6 +37,7 @@ local Translations = {
             player_offline = "Player not online.",
             not_inqueue = "Player not in boost queue!",
             incorrect_format = "ID Format Incorrect (must be a number)",
+            command_tier_desc = "Sets the player's boosting Tier"
         },
 
         laptop = {
