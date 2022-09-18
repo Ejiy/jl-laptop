@@ -176,7 +176,11 @@ QBCore.Functions.CreateCallback('jl-laptop:server:CanStartBoosting', function(so
 
     if currentRuns[CID] then return cb("running") end
     if not currentContracts[CID][id] then return cb("notfound") end
-    if Config.RenewedPhone and not exports['qb-phone']:hasEnough(src, "gne", currentContracts[CID][id].cost) then return cb("notenough") end
+    if Config.RenewedPhone and not exports['qb-phone']:hasEnough(src, "gne", currentContracts[CID][id].cost) then
+        return cb("notenough")
+    elseif Player.PlayerData.money.crypto < currentContracts[CID][id].cost then
+        return cb("notenough")
+    end
     local amount = 0
     if cops == Config.Boosting.MinCops then
         amount = 1
@@ -674,15 +678,16 @@ local function calcPrice(tier, type)
     return Config.Boosting.Debug and 0 or price
 end
 
-local function generateContract(src)
+local function generateContract(src, contract, vehicle, mission)
     local Player = QBCore.Functions.GetPlayer(src)
     if not Player then return end
     local CID = Player.PlayerData.citizenid
     if not currentContracts[CID] then currentContracts[CID] = {} end
 
-    local contract = generateTier(src)
-    local vehicle = generateCar(contract)
-    local mission = missionType(Player, contract)
+    contract = contract or generateTier(src)
+    vehicle = vehicle or generateCar(contract)
+    mission = mission or missionType(Player, contract)
+
     if contract and vehicle and mission then
         currentContracts[CID][#currentContracts[CID]+1] = {
             id = #currentContracts[CID]+1,
@@ -756,3 +761,49 @@ AddEventHandler('playerDropped', function()
     end
 end)
 
+-- Commands --
+QBCore.Commands.Add('giveboost', Lang:t('boosting.command.command_desc'), {{ name = Lang:t('boosting.command.command_name_ID'), help = Lang:t('boosting.command.command_help_ID')}, { name = Lang:t('boosting.command.command_name_tier'), help = Lang:t('boosting.command.command_help_tier')}, { name = Lang:t('boosting.command.command_name_vehicle'), help = Lang:t('boosting.command.command_help_vehicle')}, { name = 'Type', help = 'boosting/vinscratch'}, }, false, function(source, args)
+    if args and type(tonumber(args[1])) == "number" then
+        local Player = QBCore.Functions.GetPlayer(tonumber(args[1]))
+        if Player then
+            local CID = Player.PlayerData.citizenid
+            if LookingForContracts[CID] then
+                if args[4] and not (args[4] == 'boosting' or args[4] == 'vinscratch') then
+                    TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.incorrect_type'), 'error', 7500)
+                elseif args[3] and not type(args[3]) == "string" then
+                    TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.incorrect_vehicle'), 'error', 7500)
+                elseif args[2] and not (args[2] == "D" or args[2] == "C" or args[2] == "B" or args[2] == "A" or args[2] == "A+" or args[2] == "S" or args[2] == "S+") then
+                    TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.incorrect_tier'), 'error', 7500)
+                else
+                    generateContract(tonumber(args[1]), args[2], args[3], args[4])
+                    TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.created'), 'success', 7500)
+                end
+            else
+                TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.not_inqueue'), 'error', 5000)
+            end
+        else
+            TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.player_offline'), 'error', 5000)
+        end
+    else
+        TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.incorrect_format'), "error", 5000)
+    end
+end, "god")
+
+QBCore.Commands.Add('settier', Lang:t('boosting.command.command_tier_desc'), {{ name = Lang:t('boosting.command.command_name_ID'), help = Lang:t('boosting.command.command_help_ID')}, { name = Lang:t('boosting.command.command_name_tier'), help = Lang:t('boosting.command.command_help_tier')} }, false, function(source, args)
+    if args and type(tonumber(args[1])) == "number" then
+         if args[2] and type(tonumber(args[2])) == "string" then
+            local Player = QBCore.Functions.GetPlayer(tonumber(args[1]))
+            if Player then
+                local rep = Player.PlayerData.metadata["carboostrep"] or 0
+                rep = Config.Boosting.TiersPerRep[args[2]]
+                Player.Functions.SetMetaData('carboostrep', rep)
+            else
+                TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.player_offline'), 'error', 5000)
+            end
+        else
+            TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.missingarg'), "error", 5000)
+        end
+    else
+        TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.incorrect_format'), "error", 5000)
+    end
+end, "god")

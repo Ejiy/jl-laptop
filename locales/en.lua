@@ -22,6 +22,24 @@ local Translations = {
             bought_boost = "Bought boost",
             rewardboost = "Finished boost",
         },
+        command = {
+            command_desc = "Give a boost to a player",
+            command_name_ID = "ID",
+            command_help_ID = "Player ID",
+            command_name_tier = "Tier",
+            command_help_tier = "D/C/B/A/A+/S/S+",
+            command_name_vehicle = "Vehicle",
+            command_help_vehicle = "vehicles's name",
+            incorrect_type = "Incorrect type",
+            incorrect_vehicle = "Incorrect Vehicle",
+            incorrect_tier = "Incorrect Tier",
+            created = "Boost created",
+            player_offline = "Player not online.",
+            not_inqueue = "Player not in boost queue!",
+            incorrect_format = "ID Format Incorrect (must be a number)",
+            missingarg = "You forgot an argument!",
+            command_tier_desc = "Sets the player's boosting Tier"
+        },
 
         laptop = {
             boosting = {

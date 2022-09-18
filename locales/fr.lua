@@ -22,6 +22,24 @@ local Translations = {
             bought_boost = "Acheté un boost",
             rewardboost = "Finis un boost",
         },
+        command = {
+            command_desc = "Donne un contrat à un joueur",
+            command_name_ID = 'ID',
+            command_help_ID = 'ID Joueur',
+            command_name_tier = 'Tier',
+            command_help_tier = 'D/C/B/A/A+/S/S+',
+            command_name_vehicle = "Véhicule",
+            command_help_vehicle = 'Nom du véhicule',
+            incorrect_type = "Type incorrect",
+            incorrect_vehicle = "Véhicule incorrect",
+            incorrect_tier = "Tier incorrect",
+            created = "Boost créé",
+            player_offline = "Joueur introuvable",
+            not_inqueue = "Le joueur n'est pas dans la queue!",
+            incorrect_format = "Format d'ID Incorrect (doit être un nombre)",
+            missingarg = "Vous avez oublié un argument!",
+            command_tier_desc = "Défini le Tier du joueur"
+        },
 
         laptop = {
             boosting = {
