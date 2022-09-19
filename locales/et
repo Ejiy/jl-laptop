@@ -18,12 +18,12 @@ local Translations = {
         },
         info = {
             tracker_backon = "Jälgija uuesti võrgus!",
-            phonenotify = "Boosting..",
-            bought_boost = "Ostsid boosti",
-            rewardboost = "Lõpetasid boosti",
+            phonenotify = "Boostimine..",
+            bought_boost = "Ostsid boosti lepingut",
+            rewardboost = "Lõpetasid boosti lepingu",
         },
         command = {
-            command_desc = "Give a boost to a player",
+            command_desc = "Anna kodanikule boosti leping",
             command_name_ID = "ID",
             command_help_ID = "Kodaniku ID",
             command_name_tier = "Tase",
@@ -61,7 +61,7 @@ local Translations = {
             transfer = {
                 success = "Kodanikule on leping üle antud: %{id}",
                 self = "Te ei saa lepingut endale üle anda!",
-                notfound = "Kodanikku ei leitud!",
+                notfound = "Kodaniku ei leitud!",
                 full = "Liiga palju aktiivseid lepinguid!",
                 error = "Viga 404 Proovige uuesti!",
             },
