@@ -362,7 +362,7 @@ Config.Boosting.Locations = {
             peds = {
                 [1] = { coords = vector4(-917.34, 200.56, 69.43, 178.0), health = 100, armor = 25,
                     model = 'a_m_m_hasjew_01', weapon = Config.Boosting.PedSettings["S+"].weapons[math.random(#Config.Boosting.PedSettings["S+"].weapons)] },
-                [2] = { coords = vector4(-902.09, 191.7, 69.6, 85.47), health = 100, armor = 0, 
+                [2] = { coords = vector4(-902.09, 191.7, 69.6, 85.47), health = 100, armor = 0,
                     model = 'a_m_m_hasjew_01', weapon = Config.Boosting.PedSettings["S+"].weapons[math.random(#Config.Boosting.PedSettings["S+"].weapons)] },
                 [3] = { coords = vector4(-898.84, 177.01, 69.45, 155.49), health = 100, armor = 50,
                     model = 'a_m_m_hasjew_01', weapon = Config.Boosting.PedSettings["S+"].weapons[math.random(#Config.Boosting.PedSettings["S+"].weapons)] },
