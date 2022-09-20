@@ -518,6 +518,13 @@ RegisterNUICallback('boosting/transfer', function(data, cb)
     end, id, contract)
 end)
 
+-- Cancel Contract --
+-- Todo: add the logic, Zoo's work 🙂 --
+RegisterNUICallback("boosting/cancel", function (data, cb)
+    print(data.id)
+    cb(true)
+end)
+
 
 -- Queue Functions --
 RegisterNUICallback('boosting/queue', function(data, cb)

@@ -1,4 +1,4 @@
-import { handleContracts } from "@store/boosting";
+import { handleContracts, startedContracts } from "@store/boosting";
 import { setApp } from "@store/desktop";
 import type { IApp } from "src/@types/apps";
 import type { IContracts } from "src/@types/boosting";
@@ -102,4 +102,14 @@ export function DumyBoostingData() {
     },
   ];
   handleContracts(data);
+  startedContracts.set({
+    id: 9,
+    contract: "D",
+    carName: "Banshee",
+    expire: 1660578622000,
+    cost: 1000,
+    owner: "Lazzy",
+    type: "boosting",
+    vinscratch: false,
+  });
 }

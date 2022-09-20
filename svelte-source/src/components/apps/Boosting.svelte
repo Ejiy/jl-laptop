@@ -2,7 +2,7 @@
   import moment from "moment";
   import { modals } from "@store/modals";
   import { flip } from "svelte/animate";
-  import { contracts, queue, startedContracts } from "@store/boosting";
+  import { contracts, queue, started, startedContracts } from "@store/boosting";
   import { notifications } from "@store/notifications";
   import { fetchNui } from "@utils/eventHandler";
 
@@ -168,6 +168,26 @@
       inputValue: "",
     });
   }
+
+  function CancelContract(id: number) {
+    modals.show({
+      show: true,
+      onOk: () => {
+        fetchNui("boosting/cancel", {
+          id,
+        }).then(() => {
+          notifications.send("You just cancel your contract", "boosting", 1000);
+        });
+        startedContracts.set(null);
+      },
+      onCancel: () => {},
+      title: "Cancel Contract",
+      okText: "Confirm",
+      cancelText: "Cancel",
+      description:
+        "Are you sure you want to cancel this contract?, you will loose it...",
+    });
+  }
   onMount(() => {
     DumyBoostingData();
   });
@@ -235,6 +255,11 @@
             <div class="expires">
               Expires: <b
                 >{moment($startedContracts.expire).endOf("hour").fromNow()}</b
+              >
+            </div>
+            <div class="button started">
+              <button on:click={() => CancelContract($startedContracts.id)}
+                >Cancel Contract</button
               >
             </div>
           </div>
@@ -371,6 +396,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+  .button.started {
+    margin-top: 30px;
+    height: 170px;
+    justify-content: flex-end;
   }
   .button {
     margin-top: 5px;
