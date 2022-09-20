@@ -22,7 +22,7 @@ local Translations = {
             bought_boost = "Boost Comprado",
             rewardboost = "Boost Finalizado",
         },
-        
+
         command = {
             command_desc = "Dar contrato a un jugador",
             command_name_ID = "ID",
@@ -41,7 +41,7 @@ local Translations = {
             missingarg = "Has olvidado un argumento!",
             command_tier_desc = "Elige boosting Tier de los jugadores",
         },
-        
+
         laptop = {
             boosting = {
                 success = "Has iniciado un boost!",
