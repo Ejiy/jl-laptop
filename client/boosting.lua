@@ -293,27 +293,53 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
                 local vehicle = GetVehiclePedIsIn(ped, false)
                 local plate = GetVehicleNumberPlateText(vehicle)
                 if ActivePlates[plate] and ActivePlates[plate] > 0 then
-                    local pushingP = promise.new()
-                    exports['ps-ui']:Scrambler(function(cb)
-                        pushingP:resolve(cb)
-                    end, psUI[math.random(1, #psUI)], 30, 0)
-                    local success = Citizen.Await(pushingP)
-                    if success then
-                        TriggerServerEvent('jl-laptop:server:SyncPlates', true, randomSeconds)
-                        ActivePlates[plate] -= 1
-                        local newThing = ActivePlates[plate] - 1
-                        if newThing >= 1 then
-                            Notify(Lang:t('boosting.success.tracker_off', {tracker_left = newThing, time = randomSeconds}), 'success', 7500)
-                        end
+                    if exports['ps-buffs']:HasBuff("hacking") then
+                        local pushingP = promise.new()
+                        exports['ps-ui']:Scrambler(function(cb)
+                            pushingP:resolve(cb)
+                        end, psUI[math.random(1, #psUI)], 30, 0)
+                        local success = Citizen.Await(pushingP)
+                        if success then
+                            TriggerServerEvent('jl-laptop:server:SyncPlates', true, randomSeconds)
+                            ActivePlates[plate] -= 1
+                            local newThing = ActivePlates[plate] - 1
+                            if newThing >= 1 then
+                                Notify(Lang:t('boosting.success.tracker_off', {tracker_left = newThing, time = randomSeconds}), 'success', 7500)
+                            end
 
-                        if not Config.Boosting.Debug then
-                            clientHack = false
-                            ClientDelay(randomSeconds)
+                            if not Config.Boosting.Debug then
+                                clientHack = false
+                                ClientDelay(randomSeconds)
+                            end
+                        else
+                            QBCore.Functions.Notify(Lang:t('boosting.error.disable_fail'), "error")
+                            if math.random(0, 1) <= 0.5 then
+                                TriggerServerEvent("jl-laptop:server:RemoveItem", Config.Boosting.HackingDevice)
+                            end
                         end
                     else
-                        QBCore.Functions.Notify(Lang:t('boosting.error.disable_fail'), "error")
-                        if math.random(0, 1) <= 0.5 then
-                            TriggerServerEvent("jl-laptop:server:RemoveItem", Config.Boosting.HackingDevice)
+                        local pushingP = promise.new()
+                        exports['ps-ui']:Scrambler(function(cb)
+                            pushingP:resolve(cb)
+                        end, psUI[math.random(1, #psUI)], 20, 0)
+                        local success = Citizen.Await(pushingP)
+                        if success then
+                            TriggerServerEvent('jl-laptop:server:SyncPlates', true, randomSeconds)
+                            ActivePlates[plate] -= 1
+                            local newThing = ActivePlates[plate] - 1
+                            if newThing >= 1 then
+                                Notify(Lang:t('boosting.success.tracker_off', {tracker_left = newThing, time = randomSeconds}), 'success', 7500)
+                            end
+
+                            if not Config.Boosting.Debug then
+                                clientHack = false
+                                ClientDelay(randomSeconds)
+                            end
+                        else
+                            QBCore.Functions.Notify(Lang:t('boosting.error.disable_fail'), "error")
+                            if math.random(0, 1) <= 0.5 then
+                                TriggerServerEvent("jl-laptop:server:RemoveItem", Config.Boosting.HackingDevice)
+                            end
                         end
                     end
                     currentHacking = false
