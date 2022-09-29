@@ -84,7 +84,7 @@ RegisterNetEvent('jl-laptop:server:FinalDestination', function()
         TriggerClientEvent('jl-laptop:client:ReturnCar', src, place)
         ResetAnotherShit(id)
     elseif currentRuns[CID] and not currentRuns[CID].dropOff and currentRuns[CID].type == "vinscratch" then
-
+        --NOT YET DONE
     end
 end)
 
@@ -138,7 +138,7 @@ local function SpawnCar(src)
 
 
         TriggerClientEvent('jl-laptop:client:SyncPlates', -1, ActivePlates)
-        TriggerClientEvent('jl-laptop:client:MissionStarted', src, currentRuns[CID].NetID, coords)
+        TriggerClientEvent('jl-laptop:client:MissionStarted', src, currentRuns[CID].NetID, coords, plate)
 
         return true
     else

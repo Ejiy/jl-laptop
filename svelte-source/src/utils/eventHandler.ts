@@ -47,6 +47,12 @@ export function handlerMessage() {
         startedContracts.set(null);
         notifications.send("You have completed the contact", "boosting", 5000);
         break;
+      case "boosting/horseboosting":
+        startedContracts.update((segs) => {
+          segs.plate = event.data?.data.plate;
+          return segs;
+        });
+        break;
     }
   }
   onMount(() => window.addEventListener("message", Event));

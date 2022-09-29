@@ -65,13 +65,13 @@ local function UpdateBlips()
             DelayDelivery()
         end)
     end
-end
+end 
 
 local AntiSpam = false -- Just a true / false boolean to not spam the shit out of the server.
 local carCoords = nil
 -- sends information from server to client that we found the car and we started lockpicking
 RegisterNetEvent('lockpicks:UseLockpick', function()
-    if AntiSpam then return end
+    if AntiSpam then return end 
     if NetID and DoesEntityExist(NetworkGetEntityFromNetworkId(NetID)) then
         local carSpawned = NetworkGetEntityFromNetworkId(NetID)
         local dist = #(GetEntityCoords(carSpawned) - GetEntityCoords(PlayerPedId()))
@@ -95,12 +95,20 @@ end)
 -- MISSION STARTER --
 
 -- Sends information from server to client that it will start now
-RegisterNetEvent('jl-laptop:client:MissionStarted', function(netID, coords) -- Pretty much just resets every boolean to make sure no issues will occour.
+
+RegisterNetEvent('jl-laptop:client:MissionStarted', function(netID, coords, plate) -- Pretty much just resets every boolean to make sure no issues will occour.
     NetID = netID
     carCoords = coords
     AntiSpam = false
     inZone = false
 
+    -- send plate number
+    SendNUIMessage({
+        action = "boosting/horseboosting",
+        data = {
+            plate = plate or "Unknown?"
+        }
+    })
     --print(coords)
 
     if PZone then PZone:destroy() PZone = nil end
@@ -239,6 +247,10 @@ RegisterNetEvent('jl-laptop:client:ReturnCar', function(coords)
     AddTextComponentString(info['blip'].Text)
     EndTextCommandSetBlipName(dropoffBlip)
     SetBlipFlashTimer(dropoffBlip, 5000)
+end)
+
+RegisterNetEvent("jl-laptop:client:ToVinScratch", function (coords)
+
 end)
 
 -- Just a netevent that retracts all the booleans and properly resets the client --

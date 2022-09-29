@@ -11,6 +11,7 @@
   import { quadInOut } from "svelte/easing";
   import { DumyBoostingData } from "@utils/initDumyData";
   import { onMount } from "svelte";
+  import { debugData } from "@utils/debugData";
 
   let tierRing = {
     D: "rgb(77, 141, 77)",
@@ -169,6 +170,10 @@
     });
   }
 
+  function Truncate(text: string) {
+    return text.length > 20 ? text.slice(0, 19) + "..." : text;
+  }
+
   function CancelContract(id: number) {
     modals.show({
       show: true,
@@ -188,6 +193,7 @@
         "Are you sure you want to cancel this contract?, you will loose it...",
     });
   }
+
   onMount(() => {
     DumyBoostingData();
   });
@@ -250,13 +256,20 @@
               {$startedContracts.contract}
             </div>
             <div class="boost-name">{$startedContracts.owner}</div>
-            <div class="boost-car">{$startedContracts.carName}</div>
-
+            <div class="boost-car">
+              {Truncate($startedContracts.carName)}
+            </div>
+            <div class="plate">
+              Plate: <b style="color: gold;"
+                >{$startedContracts.plate ?? "Ask JL"}</b
+              >
+            </div>
             <div class="expires">
               Expires: <b
                 >{moment($startedContracts.expire).endOf("hour").fromNow()}</b
               >
             </div>
+
             <div class="button started">
               <button on:click={() => CancelContract($startedContracts.id)}
                 >Cancel Contract</button
@@ -283,7 +296,7 @@
               {contract.contract}
             </div>
             <div class="boost-name">{contract.owner}</div>
-            <div class="boost-car">{contract.carName}</div>
+            <div class="boost-car">{Truncate(contract.carName)}</div>
             <div class="boost-reward">Buy In: <b>{contract.cost} GNE</b></div>
             <div class="expires">
               Expires: <b>{moment(contract.expire).endOf("hour").fromNow()}</b>

@@ -11,6 +11,10 @@ export interface IContracts {
   cost: number;
 }
 
+export interface IStartedContract extends IContracts {
+  plate?: string;
+}
+
 export interface ISaledContract extends IContracts {
   price: number;
 }
