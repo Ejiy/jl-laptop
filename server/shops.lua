@@ -10,7 +10,7 @@ local function AddItems(stash, Items)
         items[#items + 1] = {
             name = itemInfo["name"],
             amount = tonumber(v),
-            info = "",
+            info = {}, --Fixed The Weapons Issue
             label = itemInfo["label"],
             description = itemInfo["description"] ~= nil and itemInfo["description"] or "",
             weight = itemInfo["weight"],
