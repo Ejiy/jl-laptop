@@ -95,4 +95,4 @@ RegisterNetEvent('jl-laptop:server:RemoveItem', function(item)
         TriggerClientEvent("inventory:client:ItemBox", src, QBCore.Shared.Items[item], "remove")
         Player.Functions.RemoveItem(item, 1)
     end
- end)
+end)
