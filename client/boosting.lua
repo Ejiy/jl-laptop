@@ -423,14 +423,15 @@ end)
 -- ** CONTRACT HANDLER ** --
 
 -- Sends the information to client when their contracts update
-RegisterNetEvent('jl-laptop:client:ContractHandler', function(table)
+RegisterNetEvent('jl-laptop:client:ContractHandler', function(table, currentdate)
     if not table then return end
     Contracts = table
-
     if not display then return end
+    
     SendNUIMessage({
         action = 'receivecontracts',
-        contracts = table
+        contracts = table,
+        serverdate = currentdate
     })
 end)
 

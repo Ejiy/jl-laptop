@@ -8,10 +8,12 @@
 
   import Apps from "@shared/Apps.svelte";
   import Progressbar from "@shared/Progressbar.svelte";
-  import { quadInOut } from "svelte/easing";
+  import { quadInOut, quadOut } from "svelte/easing";
   import { DumyBoostingData } from "@utils/initDumyData";
   import { onMount } from "svelte";
   import { debugData } from "@utils/debugData";
+  import { currentDate } from "@utils/misc";
+  import { fade, fly, scale } from "svelte/transition";
 
   let tierRing = {
     D: "rgb(77, 141, 77)",
@@ -130,7 +132,10 @@
     })
       .then((res) => {
         if (res.status === "success") {
-          startedContracts.set(contract);
+          startedContracts.set({
+            ...contract,
+            plate: "",
+          });
         }
         notifications.send(res.message, "boosting", 5000);
       })
@@ -266,7 +271,9 @@
             </div>
             <div class="expires">
               Expires: <b
-                >{moment($startedContracts.expire).endOf("hour").fromNow()}</b
+                >{moment($startedContracts.expire)
+                  .endOf("hour")
+                  .from(currentDate)}</b
               >
             </div>
 
@@ -281,6 +288,8 @@
           <div
             class="boosting-card"
             animate:flip={{ easing: quadInOut, duration: 300 }}
+            in:scale={{ duration: 300, easing: quadOut }}
+            out:fade={{ duration: 200 }}
           >
             <div class="typeshit" class:vin={contract.type === "vinscratch"}>
               {contract.type === "boosting"
@@ -299,7 +308,9 @@
             <div class="boost-car">{Truncate(contract.carName)}</div>
             <div class="boost-reward">Buy In: <b>{contract.cost} GNE</b></div>
             <div class="expires">
-              Expires: <b>{moment(contract.expire).endOf("hour").fromNow()}</b>
+              Expires: <b
+                >{moment(contract.expire).endOf("hour").from(currentDate)}</b
+              >
             </div>
             <div class="button">
               <button

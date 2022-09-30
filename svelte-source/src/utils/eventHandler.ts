@@ -2,6 +2,7 @@ import { onMount, onDestroy } from "svelte";
 import { handleContracts, started, startedContracts } from "@store/boosting";
 import { toggleVisible } from "@store/desktop";
 import { notifications } from "@store/notifications";
+import { setCurrentDate } from "./misc";
 
 interface nuiMessage {
   data: {
@@ -42,16 +43,21 @@ export function handlerMessage() {
         break;
       case "receivecontracts":
         handleContracts(event.data?.contracts);
+        setCurrentDate(event.data?.serverdate);
         break;
       case "booting/delivered":
         startedContracts.set(null);
         notifications.send("You have completed the contact", "boosting", 5000);
         break;
       case "boosting/horseboosting":
-        startedContracts.update((segs) => {
-          segs.plate = event.data?.data.plate;
-          return segs;
-        });
+        console.log(event.data?.data.plate);
+        setTimeout(() => {
+          startedContracts.update((segs) => {
+            console.log(segs);
+            segs.plate = event.data?.data.plate;
+            return segs;
+          });
+        }, 500);
         break;
     }
   }

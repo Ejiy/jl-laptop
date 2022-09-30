@@ -651,13 +651,13 @@ local function missionType(Player, tier)
 end
 
 function GetHoursFromNow(hours)
-    local time = os.date("%c", os.time() + hours * 60 * 60)
+    local time = os.date("!%Y-%m-%dT%TZ", os.time() + hours * 60 * 60)
     return time
 end
 
 -- Get the fucking server time
 function GetCurrentTime()
-    local time = os.date("%c", os.time())
+    local time = os.date("!%Y-%m-%dT%TZ", os.time())
     return time
 end
 
@@ -700,7 +700,7 @@ local function generateContract(src, contract, vehicle, mission)
             cost = calcPrice(contract, mission),
         }
         LookingForContracts[CID].skipped = 0
-        TriggerClientEvent('jl-laptop:client:ContractHandler', src, currentContracts[CID])
+        TriggerClientEvent('jl-laptop:client:ContractHandler', src, currentContracts[CID], GetCurrentTime())
     else
         LookingForContracts[CID].skipped += 1
     end
