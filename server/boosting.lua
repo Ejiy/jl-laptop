@@ -651,13 +651,13 @@ local function missionType(Player, tier)
 end
 
 function GetHoursFromNow(hours)
-    local time = os.date("!%Y-%m-%dT%TZ", os.time() + hours * 60 * 60)
+    local time = os.date("!%Y-%m-%dT%SZ", os.time() + hours * 60 * 60)
     return time
 end
 
 -- Get the fucking server time
 function GetCurrentTime()
-    local time = os.date("!%Y-%m-%dT%TZ", os.time())
+    local time = os.date("!%Y-%m-%dT%SZ", os.time())
     return time
 end
 
