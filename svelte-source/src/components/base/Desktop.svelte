@@ -94,12 +94,11 @@
 >
   <Modal />
   <Icons on:openApp={handleOpenApp} />
-
-  {#each $openedApps as app (app.name)}
-    <div animate:flip={{ duration: 300, easing: quadOut }}>
+  <div class="app-wrapper">
+    {#each $openedApps as app (app.name)}
       <svelte:component this={app.component} />
-    </div>
-  {/each}
+    {/each}
+  </div>
   <Notification />
   <ShittyRightSide {showRightside} />
   <Winmanager
