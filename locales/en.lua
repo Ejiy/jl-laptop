@@ -53,7 +53,7 @@ local Translations = {
             },
             queue = {
                 success = "You joined the Queue!",
-                successquit = "You Left the Queue!<",
+                successquit = "You Left the Queue!",
                 running = "You cannot join queue while doing a contract!",
                 inqueue = "You are already in the queue!",
                 error = "Error 404 Try again!",
