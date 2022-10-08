@@ -2,18 +2,16 @@
   import moment from "moment";
   import { modals } from "@store/modals";
   import { flip } from "svelte/animate";
-  import { contracts, queue, started, startedContracts } from "@store/boosting";
+  import { contracts, queue, startedContracts } from "@store/boosting";
   import { notifications } from "@store/notifications";
   import { fetchNui } from "@utils/eventHandler";
 
   import Apps from "@shared/Apps.svelte";
   import Progressbar from "@shared/Progressbar.svelte";
   import { quadInOut, quadOut } from "svelte/easing";
-  import { DumyBoostingData } from "@utils/initDumyData";
   import { onMount } from "svelte";
-  import { debugData } from "@utils/debugData";
   import { currentDate } from "@utils/misc";
-  import { fade, fly, scale } from "svelte/transition";
+  import { fade, scale } from "svelte/transition";
 
   let tierRing = {
     D: "rgb(77, 141, 77)",
@@ -25,7 +23,7 @@
     "S+": "rgb(255, 208, 0)",
   };
 
-  let iswaiting;
+  let iswaiting: boolean;
 
   let currentPage = "My Contracts";
   let topdata = {
@@ -54,8 +52,11 @@
     for (let i = 0; i < sorted.length; i++) {
       if (repPoint >= sorted[i][1]) {
         currentRep = sorted[i][0];
-        nextRep = sorted[i - 1][0];
-        progressPercentage = getGapPercentage(sorted[i - 1][1], sorted[i][1]);
+        nextRep = sorted[i - 1] ? sorted[i - 1][0] : "MAX";
+        progressPercentage = getGapPercentage(
+          sorted[i - 1] ? sorted[i - 1][1] : sorted[i][1] + 100,
+          sorted[i][1]
+        );
         break;
       }
     }
@@ -88,41 +89,6 @@
       });
     }, 2000);
   }
-
-  fetchNui("boosting/getcontract")
-    .then((r) => {
-      contracts.set(r.contracts);
-    })
-    .catch((e) => {});
-
-  fetchNui("boosting/getqueue").then((data) => {
-    queue.set(data);
-  });
-
-  fetchNui("boosting/getrep")
-    .then((r) => {
-      let toarray: any = [];
-      for (let i in r.repconfig) {
-        toarray.push([i, r.repconfig[i]]);
-      }
-      repConfig = toarray;
-      repPoint = r.rep;
-      getRep();
-    })
-    .catch(() => {
-      repConfig = {
-        rep: 30,
-        repConfig: [
-          ["D", 0],
-          ["C", 50],
-          ["B", 100],
-          ["A", 150],
-          ["A+", 200],
-          ["S", 250],
-          ["S+", 300],
-        ],
-      };
-    });
 
   function startContract(id: number) {
     if ($startedContracts) return;
@@ -200,7 +166,22 @@
   }
 
   onMount(() => {
-    DumyBoostingData();
+    fetchNui("boosting/getcontract").then((r) => {
+      contracts.set(r.contracts);
+    });
+    fetchNui("boosting/getqueue").then((data) => {
+      queue.set(data);
+    });
+
+    fetchNui("boosting/getrep").then((r) => {
+      let toarray: any = [];
+      for (let i in r.repconfig) {
+        toarray.push([i, r.repconfig[i]]);
+      }
+      repConfig = toarray;
+      repPoint = r.rep;
+      getRep();
+    });
   });
 </script>
 
@@ -287,9 +268,9 @@
         {#each $contracts as contract (contract.id)}
           <div
             class="boosting-card"
-            animate:flip={{ easing: quadInOut, duration: 300 }}
-            in:scale={{ duration: 300, easing: quadOut }}
-            out:fade={{ duration: 200 }}
+            animate:flip={{ easing: quadInOut, duration: 240 }}
+            in:scale|local={{ duration: 300, easing: quadOut }}
+            out:fade|local={{ duration: 200 }}
           >
             <div class="typeshit" class:vin={contract.type === "vinscratch"}>
               {contract.type === "boosting"
