@@ -1,4 +1,6 @@
-# jl-laptop
+# [Documentation](https://justlazzy.github.io/docs/free-scripts/jl-laptop/)
+
+<tr/>
 
 A laptop script for qbcore.
 
@@ -17,7 +19,7 @@ You can create app for specific job, gang, or even only when player have an item
 | Join my discord server [here](https://discord.gg/fqUjRyhW2z) |
 | ------------------------------------------------------------ |
 
-## Read the documentation [here](https://justlazzy.gitbook.io/home/free-resources/jl-laptop)
+
 
 [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
 
