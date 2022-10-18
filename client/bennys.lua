@@ -38,7 +38,7 @@ CreateThread(function()
         Wait(0)
     end
 
-    ped = CreatePed(0, v.ped, v["coords"].x, v["coords"].y, v["coords"].z - 1, v["coords"].w, false, false)
+    ped = CreatePed(0, joaat(v.ped), v.coords.x, v.coords.y, v.coords.z - 1, v.coords.w, false, false)
     PlaceObjectOnGroundProperly(ped)
     FreezeEntityPosition(ped, true)
     SetEntityInvincible(ped, true)
@@ -58,7 +58,7 @@ CreateThread(function()
     })
 
 
-    blip = AddBlipForCoord(v["coords"].x, v["coords"].y, v["coords"].z)
+    blip = AddBlipForCoord(v.coords.x, v.coords.y, v.coords.z)
     SetBlipSprite(blip, v.sprite)
     SetBlipDisplay(blip, 4)
     SetBlipScale(blip, 0.6)
