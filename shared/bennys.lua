@@ -8,6 +8,7 @@ Config.Bennys.Location = {
     sprite = 473,
     colour = 28,
     text = "Bennys Warehouse"
+    scenario = "WORLD_HUMAN_CLIPBOARD",
 }
 
 
