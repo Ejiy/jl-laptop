@@ -39,6 +39,7 @@ CreateThread(function()
     end
 
     ped = CreatePed(0, joaat(v.ped), v.coords.x, v.coords.y, v.coords.z - 1, v.coords.w, false, false)
+    TaskStartScenarioInPlace(ped, v.scenario, 0, true)
     PlaceObjectOnGroundProperly(ped)
     FreezeEntityPosition(ped, true)
     SetEntityInvincible(ped, true)
