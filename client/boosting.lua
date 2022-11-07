@@ -29,8 +29,6 @@ local function Notify(text, type, time)
     end
 end
 
-
-
 -- ALL THE BLIP FUNCTIONS --
 local function DelayDelivery()
     SetTimeout(math.random(10, 30 * 1000), function()
@@ -65,13 +63,13 @@ local function UpdateBlips()
             DelayDelivery()
         end)
     end
-end 
+end
 
 local AntiSpam = false -- Just a true / false boolean to not spam the shit out of the server.
 local carCoords = nil
 -- sends information from server to client that we found the car and we started lockpicking
 RegisterNetEvent('lockpicks:UseLockpick', function()
-    if AntiSpam then return end 
+    if AntiSpam then return end
     if NetID and DoesEntityExist(NetworkGetEntityFromNetworkId(NetID)) then
         local carSpawned = NetworkGetEntityFromNetworkId(NetID)
         local dist = #(GetEntityCoords(carSpawned) - GetEntityCoords(PlayerPedId()))
@@ -91,38 +89,43 @@ RegisterNetEvent('lockpicks:UseLockpick', function()
 end)
 
 
+local function CheckVin(entity)
+    print("ETITID", entity)
+end
 
 -- MISSION STARTER --
 
 -- Sends information from server to client that it will start now
 
-RegisterNetEvent('jl-laptop:client:MissionStarted', function(netID, coords, plate) -- Pretty much just resets every boolean to make sure no issues will occour.
-    NetID = netID
-    carCoords = coords
-    AntiSpam = false
-    inZone = false
+RegisterNetEvent('jl-laptop:client:MissionStarted',
+    function(netID, coords, plate) -- Pretty much just resets every boolean to make sure no issues will occour.
+        NetID = netID
+        carCoords = coords
+        AntiSpam = false
+        inZone = false
 
-    -- send plate number
-    SendNUIMessage({
-        action = "boosting/horseboosting",
-        data = {
-            plate = plate or "Unknown?"
-        }
-    })
-    --print(coords)
+        -- send plate number
+        SendNUIMessage({
+            action = "boosting/horseboosting",
+            data = {
+                plate = plate or "Unknown?"
+            }
+        })
+        --print(coords)
 
-    if PZone then PZone:destroy() PZone = nil end
+        if PZone then PZone:destroy() PZone = nil end
 
-    if missionBlip then RemoveBlip(missionBlip) end
+        if missionBlip then RemoveBlip(missionBlip) end
 
-    if coords then
-        missionBlip = AddBlipForRadius(coords.x + math.random(20, 100), coords.y + math.random(20, 100), coords.z, 250.0)
-        SetBlipAlpha(missionBlip, 150)
-        SetBlipHighDetail(missionBlip, true)
-        SetBlipColour(missionBlip, 1)
-        SetBlipAsShortRange(missionBlip, true)
-    end
-end)
+        if coords then
+            missionBlip = AddBlipForRadius(coords.x + math.random(20, 100), coords.y + math.random(20, 100), coords.z,
+                250.0)
+            SetBlipAlpha(missionBlip, 150)
+            SetBlipHighDetail(missionBlip, true)
+            SetBlipColour(missionBlip, 1)
+            SetBlipAsShortRange(missionBlip, true)
+        end
+    end)
 
 RegisterNUICallback('boosting/start', function(data, cb)
     QBCore.Functions.TriggerCallback('jl-laptop:server:CanStartBoosting', function(result)
@@ -192,7 +195,49 @@ local function DeliverCar()
     RemoveBlip(dropoffBlip)
 end
 
-local function VehicleCheck()
+local function StartVin()
+    QBCore.Functions.Progressbar('vin_scratching', 'Scratching VIN', 7000, false, true,
+        { -- Name | Label | Time | useWhileDead | canCancel
+            disableMovement = true,
+            disableCarMovement = true,
+            disableMouse = false,
+            disableCombat = true,
+        }, {
+            animDict = '"anim@amb@clubhouse@tutorial@bkr_tut_ig3@"@',
+            anim = 'machinic_loop_mechandplayer',
+            flags = 1,
+        }, {}, {}, function() -- Play When Done
+            local car = NetworkGetEntityFromNetworkId(NetID)
+            local model = GetDisplayNameFromVehicleModel(GetEntityModel(car)):lower()
+            local mods = QBCore.Functions.GetVehicleProperties(car)
+            TriggerServerEvent("jl-laptop:server:fuckvin", NetID, model, mods)
+            TriggerServerEvent('jl-laptop:server:finishBoost', NetID, true)
+            ClearPedTasks(PlayerPedId())
+        end, function() -- Play When Cancel
+        ClearPedTasks(PlayerPedId())
+    end)
+end
+
+local function MeVinYeah()
+    local car = NetworkGetEntityFromNetworkId(NetID)
+    print("CAR", car)
+    exports['qb-target']:AddTargetEntity(car, {
+        options = {
+            {
+                action = function()
+                    StartVin()
+                end,
+                canInteract = function()
+                    return inZone
+                end,
+                label = "Scratch Vin"
+            },
+        },
+        distance = 2.0
+    })
+end
+
+local function VehicleCheck(isvin)
     CreateThread(function()
         local inCar = false
         while inZone do
@@ -205,8 +250,12 @@ local function VehicleCheck()
                 local veh = GetVehiclePedIsIn(ped, true)
                 if veh == NetworkGetEntityFromNetworkId(NetID) then
                     if not GetIsVehicleEngineRunning(veh) then
-                        inZone = false
-                        DeliverCar()
+                        if isvin then
+                            MeVinYeah()
+                        else
+                            inZone = false
+                            DeliverCar()
+                        end
                     end
                 end
             end
@@ -249,8 +298,34 @@ RegisterNetEvent('jl-laptop:client:ReturnCar', function(coords)
     SetBlipFlashTimer(dropoffBlip, 5000)
 end)
 
-RegisterNetEvent("jl-laptop:client:ToVinScratch", function (coords)
-
+RegisterNetEvent("jl-laptop:client:ToVinScratch", function(coords)
+    PZone = CircleZone:Create(coords, 15, {
+        name = "VinGoesBrum",
+        debugPoly = Config.Boosting.Debug
+    })
+    local info = {
+        blip = {
+            text = Lang:t('boosting.blip.vinscratch'),
+            coords = coords
+        }
+    }
+    PZone:onPlayerInOut(function(isPointInside)
+        if isPointInside then
+            VehicleCheck(true)
+            inZone = true
+        else
+            inZone = false
+        end
+    end)
+    Notify(Lang:t('boosting.success.vin_dropoff'), "success", 7000)
+    dropoffBlip = AddBlipForCoord(info.blip.coords.x, info.blip.coords.y, info.blip.coords.z)
+    SetBlipSprite(dropoffBlip, 326)
+    SetBlipScale(dropoffBlip, 1.0)
+    SetBlipColour(dropoffBlip, 40)
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString(info.blip.text)
+    EndTextCommandSetBlipName(dropoffBlip)
+    SetBlipFlashTimer(dropoffBlip, 5000)
 end)
 
 -- Just a netevent that retracts all the booleans and properly resets the client --
@@ -267,9 +342,12 @@ RegisterNetEvent('jl-laptop:client:finishContract', function(table)
     SendNUIMessage({ action = 'booting/delivered' })
 end)
 
-
-
-
+RegisterCommand('testshit', function()
+    if IsPedInAnyVehicle(PlayerPedId(), false) then
+        local netID = NetworkGetNetworkIdFromEntity(QBCore.Functions.GetClosestVehicle())
+        print(GetDisplayNameFromVehicleModel(GetEntityModel(QBCore.Functions.GetClosestVehicle())):lower())
+    end
+end, false)
 
 -- ** HACKING THE VEHICLE ** --
 local psUI = {
@@ -315,7 +393,9 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
                         ActivePlates[plate] -= 1
                         local newThing = ActivePlates[plate] - 1
                         if newThing >= 1 then
-                            Notify(Lang:t('boosting.success.tracker_off', {tracker_left = newThing, time = randomSeconds}), 'success', 7500)
+                            Notify(Lang:t('boosting.success.tracker_off',
+                                { tracker_left = newThing, time = randomSeconds })
+                                , 'success', 7500)
                         end
 
                         if not Config.Boosting.Debug then
@@ -411,6 +491,9 @@ RegisterNetEvent('jl-laptop:client:SyncBlips', function(coords, plate)
         SetBlipHighDetail(blips[plate], true)
         SetBlipColour(blips[plate], 1)
         SetBlipAsShortRange(blips[plate], true)
+        if Config.Boosting.Debug then
+            SetEntityCoords(PlayerPedId(), coords.x, coords.y, coords.z)
+        end
     end
 end)
 
@@ -427,7 +510,7 @@ RegisterNetEvent('jl-laptop:client:ContractHandler', function(table, currentdate
     if not table then return end
     Contracts = table
     if not display then return end
-    
+
     SendNUIMessage({
         action = 'receivecontracts',
         contracts = table,
@@ -505,7 +588,7 @@ RegisterNUICallback('boosting/transfer', function(data, cb)
         if result == "success" then
             cb({
                 status = 'success',
-                message = Lang:t('boosting.laptop.transfer.success', {id = id})
+                message = Lang:t('boosting.laptop.transfer.success', { id = id })
             })
         elseif result == "self" then
             cb({
@@ -533,7 +616,7 @@ end)
 
 -- Cancel Contract --
 -- Todo: add the logic, Zoo's work 🙂 --
-RegisterNUICallback("boosting/cancel", function (data, cb)
+RegisterNUICallback("boosting/cancel", function(data, cb)
     print(data.id)
     cb(true)
 end)
@@ -577,6 +660,10 @@ RegisterNetEvent('jl-laptop:client:QueueHandler', function(value)
     inQueue = value
 end)
 
+RegisterNetEvent("jl-laptop:client:VinGoesBrr", function(place)
+
+end)
+
 RegisterNUICallback("boosting/getqueue", function(_, cb)
     cb(inQueue)
 end)
@@ -598,4 +685,23 @@ end)
 RegisterNUICallback("boosting/expire", function(data, cb)
     print(data["id"])
     cb("ok")
+end)
+
+
+AddEventHandler('onResourceStart', function(resource)
+    if resource == GetCurrentResourceName() then
+        Wait(100)
+        exports['qb-target']:AddGlobalVehicle({
+            options = {
+                {
+                    label = "Check Vin",
+                    icon = "fas fa-car-rear",
+                    action = function(entity)
+                        CheckVin(entity)
+                    end
+                }
+            },
+            distance = 1.5
+        })
+    end
 end)
