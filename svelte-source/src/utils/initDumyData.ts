@@ -53,6 +53,15 @@ export function InitDumyAppData() {
       isopen: false,
       useimage: false,
     },
+    {
+      name: "employment",
+      icon: "fas fa-users",
+      text: "Employment",
+      color: "#fff",
+      background: "#c26262",
+      isopen: false,
+      useimage: false
+    }
   ];
   setApp(data);
 }
