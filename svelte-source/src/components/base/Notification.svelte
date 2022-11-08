@@ -40,7 +40,7 @@
             src={`./images/apps/${notification.app.name}.png`}
             alt={notification.app.name}
           />
-        {:else if notification.app.icon.startsWith("fa-")}
+        {:else if notification.app.icon.startsWith("fa-") | notification.app.icon.startsWith("fas")}
           <i class={notification.app.icon} />
         {:else}
           <ion-icon
