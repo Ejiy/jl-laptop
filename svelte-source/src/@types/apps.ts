@@ -4,7 +4,7 @@ export interface IApp {
   hide?: boolean;
   text: string;
   color: string;
-  background: string;
+  background: string | object;
   isopen: boolean;
   useimage: boolean;
 }
@@ -14,6 +14,6 @@ export interface IOpenedApp {
   component: any;
   icon: string;
   color: string;
-  background: string;
+  background: string | object;
   useimage: boolean;
 }

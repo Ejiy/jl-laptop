@@ -17,6 +17,7 @@
   import BennyShop from "@apps/BennyShop.svelte";
   import Management from "@apps/Management.svelte";
   import DarkWeb from "@apps/DarkWeb.svelte";
+  import Employment from "@components/apps/Employment.svelte";
 
   // Register your app component here
   let registeredApp: any = {
@@ -25,6 +26,7 @@
     bennys: BennyShop,
     boss: Management,
     darkweb: DarkWeb,
+    employment: Employment,
   };
 
   let getComponent = (app: string) => {
@@ -95,6 +97,7 @@
   <Modal />
   <Icons on:openApp={handleOpenApp} />
   <div class="app-wrapper">
+    <Employment />
     {#each $openedApps as app (app.name)}
       <svelte:component this={app.component} />
     {/each}
