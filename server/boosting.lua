@@ -132,12 +132,19 @@ local function SpawnCar(src)
         SetVehicleDoorsLocked(car, 2)
 
         local plate = GeneratePlate()
-        ActivePlates[plate] = math.random(3, 10)
+        ActivePlates[plate] = true
+
+        Entity(car).state.Boosting = {
+            boostHacks = math.random(3, 10),
+            boostCooldown = false
+        }
+
+        exports['Renewed-Fuel']:SetFuel(car, 100.0)
+
         SetVehicleNumberPlateText(car, plate)
         currentRuns[CID].NetID = NetworkGetNetworkIdFromEntity(car)
 
 
-        TriggerClientEvent('jl-laptop:client:SyncPlates', -1, ActivePlates)
         TriggerClientEvent('jl-laptop:client:MissionStarted', src, currentRuns[CID].NetID, coords, plate)
 
         return true
@@ -281,50 +288,78 @@ end)
 
 
 -- EVERYTHING TO DO WITH BLIPS SYNCING AND CAR HACKING --
-RegisterNetEvent('jl-laptop:server:SyncBlips', function(coords, plate)
-    if ActivePlates[plate] > 0 then
-        TriggerClientEvent('jl-laptop:client:SyncBlips', -1, coords, plate)
-    end
+RegisterNetEvent('jl-laptop:server:SyncBlips', function(coords, NetID)
+    local car = NetworkGetEntityFromNetworkId(NetID)
+    local state = Entity(car).state.Boosting
+
+    if not state then return end
+
+    TriggerClientEvent('jl-laptop:client:SyncBlips', -1, coords, NetID)
 end)
 
 -- ** Hacking Cars ** --
-local Cooldowns = {}
-
-local function removeCooldown(plate, time)
+local function removeCooldown(car, time)
     SetTimeout(time * 1000, function()
-        Cooldowns[plate] = false
+        local state = Entity(car).state.Boosting
+        local newState = {
+            boostHacks = state.Boosthacks,
+            boostCooldown = false,
+        }
+
+        Entity(car).state:set('Boosting', newState, true)
     end)
 end
 
-RegisterNetEvent('jl-laptop:server:SyncPlates', function(success, time)
+function log(text)
+    print(json.encode(text, { pretty = true, indent = "  ", align_keys = true }))
+end
+
+RegisterNetEvent('jl-laptop:server:SyncPlates', function(success)
     local src = source
 
     local Player = QBCore.Functions.GetPlayer(src)
 
-    if not Player then return end
-    if not Player.Functions.GetItemByName(Config.Boosting.HackingDevice) then return end
+    local randomSeconds = math.random(Config.Boosting.HackDelayMin, Config.Boosting.HackDelayMax)
 
+    if not Player then log("Player not found") return end
+    if not Player.Functions.GetItemByName(Config.Boosting.HackingDevice) then log("Hacking item not found") return end
 
     local ped = GetPlayerPed(src)
-    local plate = GetVehicleNumberPlateText(GetVehiclePedIsIn(ped, false))
+    local car = GetVehiclePedIsIn(ped, false)
+    local state = Entity(car).state.Boosting
 
-    if Cooldowns and Cooldowns[plate] then return end
+    if not state then log("Hacking State is nil") return end
+    if state.boostCooldown then log("state is on Cooldown") return end
+    if state.boostHacks <= 0 then log("Boosthacks is 0 or less") return end
 
-    Cooldowns[plate] = true
-
-    if ActivePlates[plate] and ActivePlates[plate] >= 1 and success then
-        if Config.Boosting.Debug then
-            ActivePlates[plate] = 0
-        else
-            ActivePlates[plate] -= 1
+    if success then
+        if state.boostHacks - 1 >= 1 then
+            Notify(src, Lang:t('boosting.success.tracker_off', {tracker_left = newThing, time = randomSeconds}), 'success', 7500)
         end
-        TriggerClientEvent('jl-laptop:client:SyncPlates', -1, ActivePlates)
-    end
 
-    if not Config.Boosting.Debug then removeCooldown(plate, time) else Cooldowns[plate] = false end
+        local newAmount = Config.Boosting.Debug and 0 or state.boostHacks - 1
+        local doCD = Config.Boosting.Debug and false or true
+
+        local NewTable = {
+            boostHacks = newAmount,
+            boostCooldown = doCD,
+        }
+
+        Entity(car).state:set('Boosting', NewTable, true)
+
+        if not Config.Boosting.Debug then removeCooldown(car, randomSeconds) end
+
+        log(("Hacking was successfull %s hacks left"):format(Entity(car).state.Boosting.boostHacks))
+    else
+        log("Failed the hacking")
+        Notify(src, Lang:t('boosting.error.disable_fail'), 'success', 7500)
+        if Player and Player.Functions.RemoveItem(Config.Boosting.HackingDevice, 1) then
+            TriggerClientEvent("inventory:client:ItemBox", src, QBCore.Shared.Items[Config.Boosting.HackingDevice], "remove")
+        end
+    end
 end)
 
-QBCore.Functions.CreateUseableItem(Config.Boosting.HackingDevice, function(source, item)
+QBCore.Functions.CreateUseableItem(Config.Boosting.HackingDevice, function(source, _)
     local Player = QBCore.Functions.GetPlayer(source)
     if Player.Functions.GetItemByName(Config.Boosting.HackingDevice) then
         TriggerClientEvent('jl-laptop:client:HackCar', source)
@@ -455,9 +490,8 @@ RegisterNetEvent('jl-laptop:server:CancelBoost', function(netId, Plate)
 
     if DoesEntityExist(NetworkGetEntityFromNetworkId(currentRuns[CID].NetID)) then return end
 
-    ActivePlates[Plate] = 0
+    ActivePlates[Plate] = nil
     currentRuns[CID] = nil
-    TriggerClientEvent('jl-laptop:client:SyncPlates', -1, ActivePlates)
     TriggerClientEvent('jl-laptop:client:finishContract', src, currentContracts[CID])
 
     Notify(src, Lang:t('boosting.error.cancelboost'), "error", 7500)
@@ -553,7 +587,7 @@ QBCore.Functions.CreateCallback('jl-laptop:server:GetContracts', function(source
     local CID = Player.PlayerData.citizenid
     if not currentContracts[CID] then currentContracts[CID] = {} end
 
-    cb(currentContracts[CID], ActivePlates)
+    cb(currentContracts[CID])
 end)
 
 
@@ -567,11 +601,11 @@ end)
 
 -- ** EVERYTHING TO DO WITH GENERATING CONTRACTS ** --
 
-local function generateTier(src)
+local function generateTier(boostData)
     local chance = math.random(1,100)
-    local Player = QBCore.Functions.GetPlayer(src)
-    local boostData = Player.PlayerData.metadata["carboostrep"] or 0
     local tier
+
+    if not boostData then return end
 
     -- We should also get their current metadata and based on their metadata increase this luck or even cap it so they cant get s+ if they just startedt/
     if chance >= 99 then -- 2%
@@ -634,12 +668,15 @@ local function generateCar(tier)
     return cars[tier][math.random(1, #cars[tier])]
 end
 
-local function missionType(Player, tier)
-    local boostData = Player.PlayerData.metadata["carboostrep"] or 0
+local function missionType(boostData, tier)
 
     if not boostData then return end
 
+    if not tier then return end
+
     if tier == "D" or tier == "C" or tier == "B" or tier == "A" then return "boosting" end -- Only A+, S and S+ Can be vinscratched
+
+    print(tier)
 
     if boostData >= Config.Boosting.TiersPerRep[tier] then
         if math.random() <= 0.05 then
@@ -688,11 +725,12 @@ local function generateContract(src, contract, vehicle, mission)
     local Player = QBCore.Functions.GetPlayer(src)
     if not Player then return end
     local CID = Player.PlayerData.citizenid
+    local boostData = Player.PlayerData.metadata["carboostrep"] or 0
     if not currentContracts[CID] then currentContracts[CID] = {} end
 
-    contract = contract or generateTier(src)
+    contract = contract or generateTier(boostData)
     vehicle = vehicle or generateCar(contract)
-    mission = mission or missionType(Player, contract)
+    mission = mission or missionType(boostData, contract)
 
     if contract and vehicle and mission then
         currentContracts[CID][#currentContracts[CID]+1] = {

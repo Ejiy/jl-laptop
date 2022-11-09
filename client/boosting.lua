@@ -1,6 +1,5 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local Contracts = {}
-local ActivePlates = {} -- Just using this for a quick check to see if a plate is already active on the client side to prevent server spam.
 local PZone = nil
 local PZone2 = nil
 local NetID = nil
@@ -40,15 +39,17 @@ end
 
 local function UpdateBlips()
     local car = NetworkGetEntityFromNetworkId(NetID)
-    local Plate = GetVehicleNumberPlateText(car)
-
-    if ActivePlates[Plate] then
+    local State = Entity(car).state.Boosting
+    if State and State.boostHacks then
         CreateThread(function()
-            while ActivePlates[Plate] > 0 do
+            while State and State.boostHacks > 0 do
+
+                print(State.boostHacks)
+
                 local checks = 0
                 if DoesEntityExist(car) then
                     local pos = GetEntityCoords(car)
-                    TriggerServerEvent('jl-laptop:server:SyncBlips', pos, Plate)
+                    TriggerServerEvent('jl-laptop:server:SyncBlips', pos, NetID)
                 else
                     checks = checks + 1
                     if checks >= 3 and not DoesEntityExist(car) then
@@ -57,32 +58,36 @@ local function UpdateBlips()
                 end
 
 
-                Wait(10000 / ActivePlates[Plate]) -- Max 10 seconds, the more times hacked the less time it updates
+                Wait((Config.Boosting.Frequency * 1000) / State.boostHacks) -- Max 10 seconds, the more times hacked the less time it updates
+                State = Entity(car).state.Boosting -- Makes it so that it dosnt get the state from the car twice on first run
             end
 
-            TriggerServerEvent('jl-laptop:server:SyncBlips', nil, Plate)
-            Notify(Lang:t("boosting.success.disable_tracker"), 'success', 7500)
-            DelayDelivery()
+            if DoesEntityExist(car) then
+                TriggerServerEvent('jl-laptop:server:SyncBlips', nil, NetID)
+                Notify(Lang:t("boosting.success.disable_tracker"), 'success', 7500)
+                DelayDelivery()
+            end
         end)
     end
-end 
+end
 
 local AntiSpam = false -- Just a true / false boolean to not spam the shit out of the server.
 local carCoords = nil
 -- sends information from server to client that we found the car and we started lockpicking
 RegisterNetEvent('lockpicks:UseLockpick', function()
-    if AntiSpam then return end 
-    if NetID and DoesEntityExist(NetworkGetEntityFromNetworkId(NetID)) then
-        local carSpawned = NetworkGetEntityFromNetworkId(NetID)
-        local dist = #(GetEntityCoords(carSpawned) - GetEntityCoords(PlayerPedId()))
+    if AntiSpam then return end
+    if not NetID then return end
+    local car = NetworkGetEntityFromNetworkId(NetID)
+    if DoesEntityExist(car) then
+        local dist = #(GetEntityCoords(car) - GetEntityCoords(PlayerPedId()))
         if dist <= 3.5 then -- 2.5 is the distance in qbcore vehiclekeys if you use more or less then please edit this.
-            if #(vector3(carCoords.x, carCoords.y, carCoords.z) - GetEntityCoords(carSpawned)) <= 6.9 then
+            if #(vector3(carCoords.x, carCoords.y, carCoords.z) - GetEntityCoords(car)) <= 6.9 then
                 AntiSpam = true
                 TriggerServerEvent('jl-laptop:server:SpawnPed')
                 RemoveBlip(missionBlip)
                 UpdateBlips()
 
-                exports['qb-dispatch']:VehicleBoost()
+                exports['ps-dispatch']:CarBoosting(vehicle)
             else
                 TriggerServerEvent('jl-laptop:server:CancelBoost', NetID, Plate)
             end
@@ -116,7 +121,8 @@ RegisterNetEvent('jl-laptop:client:MissionStarted', function(netID, coords, plat
     if missionBlip then RemoveBlip(missionBlip) end
 
     if coords then
-        missionBlip = AddBlipForRadius(coords.x + math.random(20, 100), coords.y + math.random(20, 100), coords.z, 250.0)
+        if Config.Boosting.Debug then SetNewWaypoint(coords.x, coords.y) end
+        missionBlip = AddBlipForRadius(coords.x + math.random(-100, 100), coords.y + math.random(-100, 100), coords.z, 250.0)
         SetBlipAlpha(missionBlip, 150)
         SetBlipHighDetail(missionBlip, true)
         SetBlipColour(missionBlip, 1)
@@ -281,59 +287,28 @@ local psUI = {
     "runes"
 }
 
-local clientHack = true
-
-local function ClientDelay(time)
-    SetTimeout(time * 1000, function()
-        clientHack = true
-        Notify(Lang:t("boosting.info.tracker_backon"), 'primary', 7500)
-    end)
-end
-
 local currentHacking = false
 
 RegisterNetEvent('jl-laptop:client:HackCar', function()
     -- Makes it so if they are doing hacking or whatever it will not let them do it again, as people could hard spam before the delay was added --
     if currentHacking then return end
     currentHacking = true
-    local randomSeconds = math.random(Config.Boosting.HackDelayMin, Config.Boosting.HackDelayMax)
-
     local ped = PlayerPedId()
-    if clientHack then
-        if haveItem(Config.Boosting.HackingDevice) then
-            if IsPedInAnyVehicle(ped, false) then
-                local vehicle = GetVehiclePedIsIn(ped, false)
-                local plate = GetVehicleNumberPlateText(vehicle)
-                if ActivePlates[plate] and ActivePlates[plate] > 0 then
-                    local pushingP = promise.new()
-                    exports['ps-ui']:Scrambler(function(cb)
-                        pushingP:resolve(cb)
-                    end, psUI[math.random(1, #psUI)], 30, 0)
-                    local success = Citizen.Await(pushingP)
-                    if success then
-                        TriggerServerEvent('jl-laptop:server:SyncPlates', true, randomSeconds)
-                        ActivePlates[plate] -= 1
-                        local newThing = ActivePlates[plate] - 1
-                        if newThing >= 1 then
-                            Notify(Lang:t('boosting.success.tracker_off', {tracker_left = newThing, time = randomSeconds}), 'success', 7500)
-                        end
+    if haveItem(Config.Boosting.HackingDevice) then
+        if IsPedInAnyVehicle(ped, false) then
+            local car = GetVehiclePedIsIn(ped, false)
+            local State = Entity(car).state.Boosting
+            if State and State.boostHacks > 0 and not State.boostCooldown then
+                local pushingP = promise.new()
+                exports['ps-ui']:Scrambler(function(cb)
+                    pushingP:resolve(cb)
+                end, psUI[math.random(1, #psUI)], 30, 0)
+                local success = Citizen.Await(pushingP)
 
-                        if not Config.Boosting.Debug then
-                            clientHack = false
-                            ClientDelay(randomSeconds)
-                        end
-                    else
-                        QBCore.Functions.Notify(Lang:t('boosting.error.disable_fail'), "error")
-                        if math.random(0, 1) <= 0.5 then
-                            TriggerServerEvent("jl-laptop:server:RemoveItem", Config.Boosting.HackingDevice)
-                        end
-                    end
-                    currentHacking = false
-                else
-                    Notify(Lang:t("boosting.error.no_tracker"), 'error', 7500)
-                    currentHacking = false
-                end
+                TriggerServerEvent('jl-laptop:server:SyncPlates', success)
+                currentHacking = false
             else
+                Notify(Lang:t("boosting.error.no_tracker"), 'error', 7500)
                 currentHacking = false
             end
         else
@@ -345,7 +320,13 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
 end)
 
 
+if Config.Boosting.Debug then
+    RegisterCommand('hackcar', function()
+        if not Config.Boosting.Debug then return end
 
+        TriggerEvent('jl-laptop:client:HackCar')
+    end, false)
+end
 
 
 
@@ -395,22 +376,22 @@ end)
 
 
 ---- ALL THE BLIP SYNCS ----
--- This sync just makes it so anyone can hack a vehicle, that is hackable from boosting
-RegisterNetEvent('jl-laptop:client:SyncPlates', function(data)
-    ActivePlates = data
-end)
-
 local blips = {} -- Stores all the blips in a table so that PD can see multiple blips at the same time
 
 -- The event that does everything for the blips, checks if the client is police then checks if the blip is active and if it is then remove it and spawn a new
-RegisterNetEvent('jl-laptop:client:SyncBlips', function(coords, plate)
-    if not isPolice() then return end
-    if blips[plate] then RemoveBlip(blips[plate]) end
+RegisterNetEvent('jl-laptop:client:SyncBlips', function(coords, newNet)
+    if not Config.Boosting.Debug and not isPolice() then print("Not police") return end
+
+
+    print(coords, newNet)
+
+    if blips[newNet] then RemoveBlip(blips[newNet]) end
+
     if coords then
-        blips[plate] = AddBlipForRadius(coords.x + math.random(5, 15), coords.y + math.random(5, 15), coords.z, 35.0)
-        SetBlipHighDetail(blips[plate], true)
-        SetBlipColour(blips[plate], 1)
-        SetBlipAsShortRange(blips[plate], true)
+        blips[newNet] = AddBlipForRadius(coords.x + math.random(-5, 5), coords.y + math.random(-5, 5), coords.z, 35.0)
+        SetBlipHighDetail(blips[newNet], true)
+        SetBlipColour(blips[newNet], 1)
+        SetBlipAsShortRange(blips[newNet], true)
     end
 end)
 
@@ -427,7 +408,7 @@ RegisterNetEvent('jl-laptop:client:ContractHandler', function(table, currentdate
     if not table then return end
     Contracts = table
     if not display then return end
-    
+
     SendNUIMessage({
         action = 'receivecontracts',
         contracts = table,
@@ -437,9 +418,8 @@ end)
 
 -- Handles state right when the player selects their character and location.
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    QBCore.Functions.TriggerCallback('jl-laptop:server:GetContracts', function(result, plates)
+    QBCore.Functions.TriggerCallback('jl-laptop:server:GetContracts', function(result)
         Contracts = result
-        ActivePlates = plates
         if Contracts and #Contracts > 0 then
             SendNUIMessage({
                 action = 'receivecontracts',
