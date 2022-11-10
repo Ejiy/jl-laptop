@@ -28,8 +28,6 @@ local function Notify(text, type, time)
     end
 end
 
-
-
 -- ALL THE BLIP FUNCTIONS --
 local function DelayDelivery()
     SetTimeout(math.random(10, 30 * 1000), function()
@@ -101,34 +99,36 @@ end)
 
 -- Sends information from server to client that it will start now
 
-RegisterNetEvent('jl-laptop:client:MissionStarted', function(netID, coords, plate) -- Pretty much just resets every boolean to make sure no issues will occour.
-    NetID = netID
-    carCoords = coords
-    AntiSpam = false
-    inZone = false
+RegisterNetEvent('jl-laptop:client:MissionStarted',
+    function(netID, coords, plate) -- Pretty much just resets every boolean to make sure no issues will occour.
+        NetID = netID
+        carCoords = coords
+        AntiSpam = false
+        inZone = false
 
-    -- send plate number
-    SendNUIMessage({
-        action = "boosting/horseboosting",
-        data = {
-            plate = plate or "Unknown?"
-        }
-    })
-    --print(coords)
+        -- send plate number
+        SendNUIMessage({
+            action = "boosting/horseboosting",
+            data = {
+                plate = plate or "Unknown?"
+            }
+        })
+        --print(coords)
 
-    if PZone then PZone:destroy() PZone = nil end
+        if PZone then PZone:destroy() PZone = nil end
 
-    if missionBlip then RemoveBlip(missionBlip) end
+        if missionBlip then RemoveBlip(missionBlip) end
 
-    if coords then
-        if Config.Boosting.Debug then SetNewWaypoint(coords.x, coords.y) end
-        missionBlip = AddBlipForRadius(coords.x + math.random(-100, 100), coords.y + math.random(-100, 100), coords.z, 250.0)
-        SetBlipAlpha(missionBlip, 150)
-        SetBlipHighDetail(missionBlip, true)
-        SetBlipColour(missionBlip, 1)
-        SetBlipAsShortRange(missionBlip, true)
-    end
-end)
+        if coords then
+            if Config.Boosting.Debug then SetNewWaypoint(coords.x, coords.y) end
+            missionBlip = AddBlipForRadius(coords.x + math.random(-100, 100), coords.y + math.random(-100, 100), coords.z
+                , 250.0)
+            SetBlipAlpha(missionBlip, 150)
+            SetBlipHighDetail(missionBlip, true)
+            SetBlipColour(missionBlip, 1)
+            SetBlipAsShortRange(missionBlip, true)
+        end
+    end)
 
 RegisterNUICallback('boosting/start', function(data, cb)
     QBCore.Functions.TriggerCallback('jl-laptop:server:CanStartBoosting', function(result)
@@ -255,7 +255,7 @@ RegisterNetEvent('jl-laptop:client:ReturnCar', function(coords)
     SetBlipFlashTimer(dropoffBlip, 5000)
 end)
 
-RegisterNetEvent("jl-laptop:client:ToVinScratch", function (coords)
+RegisterNetEvent("jl-laptop:client:ToVinScratch", function(coords)
 
 end)
 
@@ -485,7 +485,7 @@ RegisterNUICallback('boosting/transfer', function(data, cb)
         if result == "success" then
             cb({
                 status = 'success',
-                message = Lang:t('boosting.laptop.transfer.success', {id = id})
+                message = Lang:t('boosting.laptop.transfer.success', { id = id })
             })
         elseif result == "self" then
             cb({
@@ -513,7 +513,7 @@ end)
 
 -- Cancel Contract --
 -- Todo: add the logic, Zoo's work 🙂 --
-RegisterNUICallback("boosting/cancel", function (data, cb)
+RegisterNUICallback("boosting/cancel", function(data, cb)
     print(data.id)
     cb(true)
 end)
@@ -555,6 +555,10 @@ end)
 
 RegisterNetEvent('jl-laptop:client:QueueHandler', function(value)
     inQueue = value
+end)
+
+RegisterNetEvent('jl-laptop:client:setvehicleFuel', function(veh)
+    exports['LegacyFuel']:SetFuel(car, 100.0)
 end)
 
 RegisterNUICallback("boosting/getqueue", function(_, cb)
