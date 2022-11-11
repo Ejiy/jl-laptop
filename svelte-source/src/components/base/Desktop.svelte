@@ -97,7 +97,6 @@
   <Modal />
   <Icons on:openApp={handleOpenApp} />
   <div class="app-wrapper">
-    <Employment />
     {#each $openedApps as app (app.name)}
       <svelte:component this={app.component} />
     {/each}
