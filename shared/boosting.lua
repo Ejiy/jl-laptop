@@ -6,10 +6,13 @@ Config.Boosting.Notifications = "phone" -- Use this for qb // renewed phone inte
 
 Config.Boosting.Debug = true -- Make this true to make boosting faster lmao
 
-Config.Boosting.HackingDevice = "trackerdisabler" -- Whatever item you use to hack a car with
+Config.Boosting.HackingDevice = "phone" -- Whatever item you use to hack a car with
 
 Config.Boosting.HackDelayMin = 30 -- Seconds
 Config.Boosting.HackDelayMax = 60 -- Seconds
+
+
+Config.Boosting.Frequency = 60 -- Whats the max time for a boost ping for cops? - Standard 30 seconds
 
 Config.Boosting.MaxBoosts = 5 -- The amount of boosts a player can hold in their laptop at any given time.
 
