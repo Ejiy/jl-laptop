@@ -86,7 +86,7 @@
                 src={`./images/apps/${openApp.name}.png`}
                 alt={openApp.name}
               />
-            {:else if openApp.icon.startsWith("fa-")}
+            {:else if openApp.icon.startsWith("fa-") || openApp.icon.startsWith("fas")}
               <i
                 class={openApp.icon}
                 style="font-size: 18px; color: {openApp.color};"
