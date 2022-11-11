@@ -153,6 +153,15 @@ CurrentCops = 0
 
 
 local function SetDisplay(bool)
+    local count = 1
+    while not fullyLoaded do
+        Wait(500)
+        count += 1
+        if count >= 10 then
+            error("The UI is not ready, or it's not build yet")
+            break
+        end
+    end
     display = bool
     SetNuiFocus(bool, bool)
     SendNUIMessage({
@@ -204,6 +213,12 @@ end)
 
 RegisterNUICallback('loadapps', function(data, cb)
 
+end)
+
+RegisterNUICallback("loaded", function(_, cb)
+    fullyLoaded = true
+    print("LOADED")
+    cb(true)
 end)
 
 -- NUI Callback

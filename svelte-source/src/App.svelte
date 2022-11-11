@@ -2,7 +2,8 @@
   import VisibilityProvider from "./providers/VisibilityProvider.svelte";
   import Desktop from "./components/base/Desktop.svelte";
   import { debugData } from "./utils/debugData";
-  import { handlerMessage } from "./utils/eventHandler";
+  import { fetchNui, handlerMessage } from "./utils/eventHandler";
+  import { onMount } from "svelte";
 
   handlerMessage();
   debugData([
@@ -11,6 +12,10 @@
       data: false,
     },
   ]);
+
+  onMount(() => {
+    fetchNui("loaded");
+  });
 </script>
 
 <VisibilityProvider>
