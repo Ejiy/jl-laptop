@@ -84,7 +84,6 @@
         if (res.status === "success") {
           $queue = !$queue;
         }
-
         notifications.send(res.message, "boosting", 5000);
       });
     }, 2000);
