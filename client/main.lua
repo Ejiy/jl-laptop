@@ -206,6 +206,21 @@ RegisterNetEvent('jl-laptop:client:openlaptop', function()
     end
 end)
 
+RegisterNetEvent('jl-laptop:client:CustomNotification', function(text, icon, color, iconbg, length)
+    if haveItem(Config.LaptopDevice) then
+        SendNUIMessage({
+            action = "custom-notif",
+            data = {
+                text = text,
+                icon = icon,
+                color = color,
+                background = iconbg,
+                length = length
+            }
+        })
+    end
+end)
+
 RegisterNUICallback('close', function(_, cb)
     SetDisplay(false)
     cb("ok")

@@ -59,6 +59,18 @@ export function handlerMessage() {
           });
         }, 500);
         break;
+      case "custom-notif":
+        notifications.send(
+          event.data.data.text,
+          undefined,
+          event.data.data.length ?? 3000,
+          {
+            background: event.data.data.background,
+            icon: event.data.data.icon,
+            color: event.data.data.color,
+          }
+        );
+        break;
     }
   }
   onMount(() => window.addEventListener("message", Event));

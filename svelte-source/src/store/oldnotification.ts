@@ -6,6 +6,7 @@ export interface oldNotificationsType {
   app: IApp;
   message: string;
   timeout?: number;
+  addon?: any;
 }
 
 function oldNotif() {
