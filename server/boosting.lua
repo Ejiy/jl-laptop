@@ -141,7 +141,6 @@ local function SpawnCar(src)
     local CID = Player.PlayerData.citizenid
     local carModel = currentRuns[CID].car:lower()
     local coords = currentRuns[CID].Location.carCoords
-
     local CreateAutomobile = joaat('CREATE_AUTOMOBILE')
     local car = Citizen.InvokeNative(CreateAutomobile, joaat(carModel), coords, true, false)
 
@@ -163,7 +162,14 @@ local function SpawnCar(src)
             boostHacks = math.random(3, 10),
             boostCooldown = false
         }
-        TriggerClientEvent('jl-laptop:client:setvehicleFuel', src, car)
+        if currentRuns[CID].type == "vinscratch" then
+            Entity(car).state.isvinCar = true
+        end
+        if GetResourceState('ox_fuel') == "started" then
+            Entity(car).state.fuel = 100.0
+        else
+            TriggerClientEvent('jl-laptop:client:setvehicleFuel', src, car)
+        end
         SetVehicleNumberPlateText(car, plate)
         currentRuns[CID].NetID = NetworkGetNetworkIdFromEntity(car)
         TriggerClientEvent('jl-laptop:client:MissionStarted', src, currentRuns[CID].NetID, coords, plate)
@@ -451,9 +457,6 @@ RegisterNetEvent('jl-laptop:server:QuitQueue', function(source)
     end
 end)
 
-RegisterNetEvent("yatno", function(netid)
-
-end)
 
 -- ** EVERYTHING TO DO WITH REWARDS ** --
 
@@ -573,6 +576,35 @@ QBCore.Functions.CreateCallback('jl-laptop:server:DeclineContract', function(sou
 
     TriggerClientEvent('jl-laptop:client:ContractHandler', src, currentContracts[CID])
     cb("success")
+end)
+
+QBCore.Functions.CreateCallback('jl-laptop:server:checkVin', function(source, cb, NetID)
+    local entity = NetworkGetEntityFromNetworkId(NetID)
+    local vinnumber
+    if DoesEntityExist(entity) then
+        local plate = GetVehicleNumberPlateText(entity)
+        local result = MySQL.query.await('SELECT vinnumber FROM player_vehicles WHERE plate = ? AND vinscratch = 1',
+            { plate })
+        if result[1] then
+            local chance = math.random(1, 100)
+            if chance >= 80 then
+                Entity(entity).state.vinchecked = {
+                    reply = "found",
+                }
+            else
+                Entity(entity).state.vinchecked = {
+                    reply = "failed",
+                    vinnumber = result[1].vinnumber
+                }
+            end
+        else
+            Entity(entity).state.vinchecked = {
+                reply = "failed",
+                vinnumber = RandomVIN()
+            }
+        end
+        return cb(Entity(entity).state.vinchecked.reply)
+    end
 end)
 
 
@@ -899,6 +931,7 @@ QBCore.Commands.Add('settier', Lang:t('boosting.command.command_tier_desc'),
             end
         else
             TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.incorrect_format'), "error", 5000)
+        end
     end, "god")
 
 
