@@ -33,20 +33,38 @@
     >
       <div
         class="images"
-        style="background-color: {notification.app.background};"
+        style="background-color: {notification?.app?.background ??
+          notification.addon.background};"
       >
-        {#if notification.app.useimage}
-          <img
-            src={`./images/apps/${notification.app.name}.png`}
-            alt={notification.app.name}
-          />
-        {:else if notification.app.icon.startsWith("fa-")}
-          <i class={notification.app.icon} />
-        {:else}
-          <ion-icon
-            name={notification.app.icon}
-            style="color: {notification.app.color}; font-size: 25px"
-          />
+        {#if notification.app}
+          {#if notification.app.useimage}
+            <img
+              src={`./images/apps/${notification.app.name}.png`}
+              alt={notification.app.name}
+            />
+          {:else if notification.app.icon.startsWith("fa-") | notification.app.icon.startsWith("fas")}
+            <i
+              class={notification.app.icon}
+              style="color: {notification.app.icon.color}"
+            />
+          {:else}
+            <ion-icon
+              name={notification.app.icon}
+              style="color: {notification.app.color}; font-size: 25px"
+            />
+          {/if}
+        {:else if notification.addon}
+          {#if notification.addon.icon.startsWith("fa-") | notification.addon.icon.startsWith("fas")}
+            <i
+              class={notification.addon.icon}
+              style="color: {notification.addon.color};"
+            />
+          {:else}
+            <ion-icon
+              name={notification.addon.icon}
+              style="color: {notification.addon.color}; font-size: 25px"
+            />
+          {/if}
         {/if}
       </div>
       <div class="messages">{notification.message}</div>

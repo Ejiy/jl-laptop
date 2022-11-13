@@ -31,7 +31,7 @@
             alt={icon.name}
             class="image"
           />
-        {:else if icon.icon.startsWith("fa-")}
+        {:else if icon.icon.startsWith("fa-") || icon.icon.startsWith("fas")}
           <i class={icon.icon} style="color: {icon.color};" />
         {:else}
           <ion-icon

@@ -12,13 +12,14 @@ const app = apps.subscribe((d) => {
 
 function newNotifStore() {
   const _notifications = writable([]);
-  function send(message: string, app: string, timeout?: number) {
+  function send(message: string, app: string, timeout?: number, addon?: any) {
     _notifications.update((v: string[]) => {
       const data: unknown = {
         id: randomID(),
         message,
         app: getAppData(app),
         timeout: timeout ? timeout : 3000,
+        addon,
       };
       const audio = new Audio(popsound);
       audio.play();
@@ -58,7 +59,6 @@ function newNotifStore() {
 
 function getAppData(app: string) {
   let filtered = appsdata.filter((d: IApp) => d.name === app);
-  console.log(filtered[0]);
   if (filtered.length > 0) return filtered[0];
 }
 

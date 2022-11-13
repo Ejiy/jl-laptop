@@ -12,9 +12,11 @@ local Translations = {
             gps_dropoff = "GPS updated with the drop-off location. Bring the car there.",
             received_reward = "You have received your reward of %{reward} crypto",
             disable_tracker = "Successfully removed tracker",
+            vin_dropoff = "GPS updated with vin location, go there to scratch the vin"
         },
         blip = {
             dropoff = "Boost Drop-off",
+            vinscratch = "Vin Location"
         },
         info = {
             tracker_backon = "Tracker back online!",
@@ -50,6 +52,8 @@ local Translations = {
                 notenough = "Not enough GNE to start the contract!",
                 busy = "Couldn't locate the car try again later!",
                 error = "Error 69420 Try Again!",
+                no_group = "You need to create a group job first",
+                group_leader = "You must be the group leader to start the job"
             },
             queue = {
                 success = "You joined the Queue!",

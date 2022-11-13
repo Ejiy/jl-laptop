@@ -5,6 +5,7 @@ local PZone2 = nil
 local NetID = nil
 local missionBlip = nil
 local inZone = false
+local inVin = false
 local dropoffBlip = nil
 
 local inQueue = false
@@ -94,6 +95,48 @@ RegisterNetEvent('lockpicks:UseLockpick', function()
 end)
 
 
+local function CheckVin(NetworkID)
+    if IsCheckingVin then return end
+    IsCheckingVin = true
+    local entity = NetworkGetEntityFromNetworkId(NetworkID)
+    if DoesEntityExist(entity) then
+        QBCore.Functions.Progressbar('checking_vin', 'Checking VIN', 10000, false, true,
+            { -- Name | Label | Time | useWhileDead | canCancel
+                disableMovement = true,
+                disableCarMovement = true,
+                disableMouse = false,
+                disableCombat = true,
+            }, {
+                animDict = '"anim@amb@clubhouse@tutorial@bkr_tut_ig3@"@',
+                anim = 'machinic_loop_mechandplayer',
+                flags = 1,
+            }, {}, {}, function() -- Play When Done
+                local reply
+
+                if not Entity(entity).state.vinchecked then
+                    local res = promise:new()
+                    QBCore.Functions.TriggerCallback('jl-laptop:server:checkVin', function(cb)
+                        res:resolve(cb)
+                    end, NetworkID)
+                    reply = Citizen.Await(res)
+                else
+                    reply = Entity(entity).state.vinchecked.reply
+                end
+                Wait(100)
+                if reply == "failed" then
+                    QBCore.Functions.Notify("The vin number is " ..
+                        Entity(entity).state.vinchecked.vinnumber)
+                elseif reply == "found" then
+                    QBCore.Functions.Notify("The vin number is scratched!", "error")
+                end
+                IsCheckingVin = false
+                ClearPedTasks(PlayerPedId())
+            end, function() -- Play When Cancel
+            ClearPedTasks(PlayerPedId())
+            IsCheckingVin = false
+        end)
+    end
+end
 
 -- MISSION STARTER --
 
@@ -198,7 +241,55 @@ local function DeliverCar()
     RemoveBlip(dropoffBlip)
 end
 
-local function VehicleCheck()
+local function StartVin()
+    QBCore.Functions.Progressbar('vin_scratching', 'Scratching VIN', 7000, false, true,
+        { -- Name | Label | Time | useWhileDead | canCancel
+            disableMovement = true,
+            disableCarMovement = true,
+            disableMouse = false,
+            disableCombat = true,
+        }, {
+            animDict = '"anim@amb@clubhouse@tutorial@bkr_tut_ig3@"@',
+            anim = 'machinic_loop_mechandplayer',
+            flags = 1,
+        }, {}, {}, function() -- Play When Done
+            local car = NetworkGetEntityFromNetworkId(NetID)
+            local model = GetDisplayNameFromVehicleModel(GetEntityModel(car)):lower()
+            local mods = QBCore.Functions.GetVehicleProperties(car)
+            TriggerServerEvent("jl-laptop:server:fuckvin", NetID, model, mods)
+            TriggerServerEvent('jl-laptop:server:finishBoost', NetID, true)
+            Entity(car).state.isvinCar = false
+            exports['qb-target']:RemoveTargetEntity(car, "Scratch Vin")
+            ClearPedTasks(PlayerPedId())
+        end, function() -- Play When Cancel
+        ClearPedTasks(PlayerPedId())
+    end)
+end
+
+local function MeVinYeah()
+    local car = NetworkGetEntityFromNetworkId(NetID)
+    if Entity(car).state.isvinCar then
+        exports['qb-target']:AddTargetEntity(car, {
+            options = {
+                {
+                    action = function()
+                        StartVin()
+                    end,
+                    canInteract = function()
+                        return inVin and Entity(car).state.isvinCar
+                    end,
+                    label = "Scratch Vin",
+                    icon = "fas fa-mask"
+                },
+            },
+            distance = 2.0
+        })
+    else
+        TriggerServerEvent('jl-laptop:server:finishBoost', NetID, true)
+    end
+end
+
+local function VehicleCheck(isvin)
     CreateThread(function()
         local inCar = false
         while inZone do
@@ -211,8 +302,13 @@ local function VehicleCheck()
                 local veh = GetVehiclePedIsIn(ped, true)
                 if veh == NetworkGetEntityFromNetworkId(NetID) then
                     if not GetIsVehicleEngineRunning(veh) then
-                        inZone = false
-                        DeliverCar()
+                        if isvin then
+                            inZone = false
+                            MeVinYeah()
+                        else
+                            inZone = false
+                            DeliverCar()
+                        end
                     end
                 end
             end
@@ -256,7 +352,35 @@ RegisterNetEvent('jl-laptop:client:ReturnCar', function(coords)
 end)
 
 RegisterNetEvent("jl-laptop:client:ToVinScratch", function(coords)
-
+    PZone = CircleZone:Create(coords, 15, {
+        name = "VinGoesBrum",
+        debugPoly = Config.Boosting.Debug
+    })
+    local info = {
+        blip = {
+            text = Lang:t('boosting.blip.vinscratch'),
+            coords = coords
+        }
+    }
+    PZone:onPlayerInOut(function(isPointInside)
+        if isPointInside then
+            inZone = true
+            inVin = true
+            VehicleCheck(true)
+        else
+            inVin = false
+            inZone = false
+        end
+    end)
+    Notify(Lang:t('boosting.success.vin_dropoff'), "success", 7000)
+    dropoffBlip = AddBlipForCoord(info.blip.coords.x, info.blip.coords.y, info.blip.coords.z)
+    SetBlipSprite(dropoffBlip, 326)
+    SetBlipScale(dropoffBlip, 1.0)
+    SetBlipColour(dropoffBlip, 40)
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString(info.blip.text)
+    EndTextCommandSetBlipName(dropoffBlip)
+    SetBlipFlashTimer(dropoffBlip, 5000)
 end)
 
 -- Just a netevent that retracts all the booleans and properly resets the client --
@@ -273,9 +397,12 @@ RegisterNetEvent('jl-laptop:client:finishContract', function(table)
     SendNUIMessage({ action = 'booting/delivered' })
 end)
 
-
-
-
+RegisterCommand('testshit', function()
+    if IsPedInAnyVehicle(PlayerPedId(), false) then
+        local netID = NetworkGetNetworkIdFromEntity(QBCore.Functions.GetClosestVehicle())
+        print(GetDisplayNameFromVehicleModel(GetEntityModel(QBCore.Functions.GetClosestVehicle())):lower())
+    end
+end, false)
 
 -- ** HACKING THE VEHICLE ** --
 local psUI = {
@@ -381,10 +508,7 @@ local blips = {} -- Stores all the blips in a table so that PD can see multiple 
 -- The event that does everything for the blips, checks if the client is police then checks if the blip is active and if it is then remove it and spawn a new
 RegisterNetEvent('jl-laptop:client:SyncBlips', function(coords, newNet)
     if not Config.Boosting.Debug and not isPolice() then print("Not police") return end
-
-
     print(coords, newNet)
-
     if blips[newNet] then RemoveBlip(blips[newNet]) end
 
     if coords then
@@ -557,6 +681,7 @@ RegisterNetEvent('jl-laptop:client:QueueHandler', function(value)
     inQueue = value
 end)
 
+
 RegisterNetEvent('jl-laptop:client:setvehicleFuel', function(veh)
     exports['LegacyFuel']:SetFuel(car, 100.0)
 end)
@@ -564,8 +689,6 @@ end)
 RegisterNUICallback("boosting/getqueue", function(_, cb)
     cb(inQueue)
 end)
-
-
 
 -- Gets all the reps --
 -- Getters for when you open the boost app --
@@ -582,4 +705,22 @@ end)
 RegisterNUICallback("boosting/expire", function(data, cb)
     print(data["id"])
     cb("ok")
+end)
+
+CreateThread(function()
+    exports['qb-target']:AddGlobalVehicle({
+        options = {
+            {
+                label = "Check Vin",
+                icon = "fas fa-car-rear",
+                action = function(entity)
+                    CheckVin(NetworkGetNetworkIdFromEntity(entity))
+                end,
+                canInteract = function(entity)
+                    return isPolice() and IsThisModelACar(GetEntityModel(entity))
+                end
+            }
+        },
+        distance = 1.5
+    })
 end)

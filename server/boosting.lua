@@ -19,6 +19,10 @@ local cars = {
     ["S+"] = {},
 }
 
+local CheckedVin = {
+
+}
+
 
 CreateThread(function()
     while not QBCore do Wait(250) end
@@ -53,21 +57,39 @@ local function Notify(src, text, type, time)
 end
 
 -- ** EVERYTHING TO DO WITH DROP OFFS AND VINSCRATCH ** --
-local function ResetAnotherShit(Tier)
+---@param Tier any
+---@param Type "boosting" | "vinscratch"
+local function ResetAnotherShit(Tier, Type)
     SetTimeout(5 * 60000, function()
-        Config.Boosting.ReturnLocation[Tier].isBusy = false
+        if Type == "boosting" then
+            Config.Boosting.ReturnLocation[Tier].isBusy = false
+        elseif Type == "vinscratch" then
+            Config.Boosting.VinScratch[Tier].isBusy = false
+        end
     end)
 end
 
-local function GetRandomDropOff()
+---@param type "boosting" | "vinscratch"
+local function GetRandomDropOff(type)
+    if not type then type = "boosting" end
     local Locations = {}
-    for i = 1, #Config.Boosting.ReturnLocation do
-        if not Config.Boosting.ReturnLocation[i].isBusy then
-            Locations[#Locations + 1] = i
+    if type == "boosting" then
+        for i = 1, #Config.Boosting.ReturnLocation do
+            if not Config.Boosting.ReturnLocation[i].isBusy then
+                Locations[#Locations + 1] = i
+            end
         end
+        local location = Locations[math.random(1, #Locations)]
+        return Config.Boosting.ReturnLocation[Locations[location]].coords, location
+    elseif type == "vinscratch" then
+        for i = 1, #Config.Boosting.VinScratch do
+            if not Config.Boosting.VinScratch[i].isBusy then
+                Locations[#Locations + 1] = i
+            end
+        end
+        local location = Locations[math.random(1, #Locations)]
+        return Config.Boosting.VinScratch[Locations[location]].coords, location
     end
-    local location = Locations[math.random(1, #Locations)]
-    return Config.Boosting.ReturnLocation[Locations[location]].coords, location
 end
 
 RegisterNetEvent('jl-laptop:server:FinalDestination', function()
@@ -75,25 +97,31 @@ RegisterNetEvent('jl-laptop:server:FinalDestination', function()
     local Player = QBCore.Functions.GetPlayer(src)
     local CID = Player.PlayerData.citizenid
     if currentRuns[CID] and not currentRuns[CID].dropOff and currentRuns[CID].type == "boosting" then
-        local place, id = GetRandomDropOff()
+        local place, id = GetRandomDropOff("boosting")
 
         TriggerClientEvent('jl-laptop:client:ReturnCar', src, place)
-        ResetAnotherShit(id)
+        ResetAnotherShit(id, "boosting")
     elseif currentRuns[CID] and not currentRuns[CID].dropOff and currentRuns[CID].type == "vinscratch" then
-        --NOT YET DONE
+        local place, id = GetRandomDropOff("vinscratch")
+        TriggerClientEvent("jl-laptop:client:ToVinScratch", src, place)
+        ResetAnotherShit(id, "vinscratch")
     end
 end)
 
+function RandomVIN()
+    local random = tostring(QBCore.Shared.RandomInt(3) .. QBCore.Shared.RandomStr(3) .. QBCore.Shared.RandomInt(2)):
+        upper()
+    return random
+end
 
+function AddVin(plate)
+    MySQL.query("UPDATE player_vehicles SET vinnumber = @vin WHERE plate = @plate", {
+        ["@vin"] = RandomVIN(),
+        ["@plate"] = plate
+    })
+end
 
-
-
-
-
-
-
-
-
+exports("AddVin", AddVin)
 
 -- EVERYTHING TO DO WITH STARTING THE BOOST --
 
@@ -113,7 +141,6 @@ local function SpawnCar(src)
     local CID = Player.PlayerData.citizenid
     local carModel = currentRuns[CID].car:lower()
     local coords = currentRuns[CID].Location.carCoords
-
     local CreateAutomobile = joaat('CREATE_AUTOMOBILE')
     local car = Citizen.InvokeNative(CreateAutomobile, joaat(carModel), coords, true, false)
 
@@ -135,7 +162,14 @@ local function SpawnCar(src)
             boostHacks = math.random(3, 10),
             boostCooldown = false
         }
-        TriggerClientEvent('jl-laptop:client:setvehicleFuel', src, car)
+        if currentRuns[CID].type == "vinscratch" then
+            Entity(car).state.isvinCar = true
+        end
+        if GetResourceState('ox_fuel') == "started" then
+            Entity(car).state.fuel = 100.0
+        else
+            TriggerClientEvent('jl-laptop:client:setvehicleFuel', src, car)
+        end
         SetVehicleNumberPlateText(car, plate)
         currentRuns[CID].NetID = NetworkGetNetworkIdFromEntity(car)
         TriggerClientEvent('jl-laptop:client:MissionStarted', src, currentRuns[CID].NetID, coords, plate)
@@ -424,22 +458,29 @@ RegisterNetEvent('jl-laptop:server:QuitQueue', function(source)
 end)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 -- ** EVERYTHING TO DO WITH REWARDS ** --
 
-RegisterNetEvent('jl-laptop:server:finishBoost', function(netId)
+RegisterNetEvent('jl-laptop:server:fuckvin', function(netid, model, mods)
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    local entity = NetworkGetEntityFromNetworkId(netid)
+    local plate = GetVehicleNumberPlateText(entity)
+    MySQL.insert.await("INSERT INTO player_vehicles (license, citizenid, vehicle, hash, mods, plate, state, vinscratch, vinnumber) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        , {
+        Player.PlayerData.license,
+        Player.PlayerData.citizenid,
+        model,
+        entity,
+        json.encode(mods),
+        plate,
+        0,
+        1,
+        RandomVIN()
+    })
+    TriggerClientEvent('vehiclekeys:client:SetOwner', src, plate)
+end)
+
+RegisterNetEvent('jl-laptop:server:finishBoost', function(netId, isvin)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local CID = Player.PlayerData.citizenid
@@ -451,22 +492,20 @@ RegisterNetEvent('jl-laptop:server:finishBoost', function(netId)
     boostData += math.random(Config.Boosting.MetaReward[currentRuns[CID].contract].min,
         Config.Boosting.MetaReward[currentRuns[CID].contract].max)
     Player.Functions.SetMetaData('carboostrep', boostData)
-
-    if currentRuns[CID].cost == 0 then
-        currentRuns[CID].cost = math.random(1, 2) -- makes it so they can actually get GNE when the boost is Free
-    end
-
-    local reward = math.ceil(currentRuns[CID].cost * math.random(2, 3))
-    if Config.RenewedPhone then
-        exports['qb-phone']:AddCrypto(src, "gne", reward)
-    else
-        Player.Functions.AddMoney("crypto", reward, Lang:t('boosting.info.rewardboost'))
-    end
-    Notify(src, Lang:t('boosting.success.received_reward', { reward = reward }), "success", 7500)
-
-
-    if DoesEntityExist(NetworkGetEntityFromNetworkId(currentRuns[CID].NetID)) then
-        DeleteEntity(NetworkGetEntityFromNetworkId(currentRuns[CID].NetID))
+    if not isvin then
+        if currentRuns[CID].cost == 0 then
+            currentRuns[CID].cost = math.random(1, 2) -- makes it so they can actually get GNE when the boost is Free
+        end
+        local reward = math.ceil(currentRuns[CID].cost * math.random(2, 3))
+        if Config.RenewedPhone then
+            exports['qb-phone']:AddCrypto(src, "gne", reward)
+        else
+            Player.Functions.AddMoney("crypto", reward, Lang:t('boosting.info.rewardboost'))
+        end
+        Notify(src, Lang:t('boosting.success.received_reward', { reward = reward }), "success", 7500)
+        if DoesEntityExist(NetworkGetEntityFromNetworkId(currentRuns[CID].NetID)) then
+            DeleteEntity(NetworkGetEntityFromNetworkId(currentRuns[CID].NetID))
+        end
     end
     currentRuns[CID] = nil
     TriggerClientEvent('jl-laptop:client:finishContract', src, currentContracts[CID])
@@ -499,7 +538,12 @@ end)
 
 
 
+RegisterCommand("git", function(source, args)
+    local src = source
+    local group = exports['qb-phone']:GetGroupByMembers(src)
+    exports['qb-phone']:DestroyGroup(group)
 
+end, false)
 
 
 
@@ -532,6 +576,35 @@ QBCore.Functions.CreateCallback('jl-laptop:server:DeclineContract', function(sou
 
     TriggerClientEvent('jl-laptop:client:ContractHandler', src, currentContracts[CID])
     cb("success")
+end)
+
+QBCore.Functions.CreateCallback('jl-laptop:server:checkVin', function(source, cb, NetID)
+    local entity = NetworkGetEntityFromNetworkId(NetID)
+    local vinnumber
+    if DoesEntityExist(entity) then
+        local plate = GetVehicleNumberPlateText(entity)
+        local result = MySQL.query.await('SELECT vinnumber FROM player_vehicles WHERE plate = ? AND vinscratch = 1',
+            { plate })
+        if result[1] then
+            local chance = math.random(1, 100)
+            if chance >= 80 then
+                Entity(entity).state.vinchecked = {
+                    reply = "found",
+                }
+            else
+                Entity(entity).state.vinchecked = {
+                    reply = "failed",
+                    vinnumber = result[1].vinnumber
+                }
+            end
+        else
+            Entity(entity).state.vinchecked = {
+                reply = "failed",
+                vinnumber = RandomVIN()
+            }
+        end
+        return cb(Entity(entity).state.vinchecked.reply)
+    end
 end)
 
 
@@ -598,13 +671,10 @@ end)
 
 
 -- ** EVERYTHING TO DO WITH GENERATING CONTRACTS ** --
-
 local function generateTier(boostData)
     local chance = math.random(1, 100)
     local tier
-
     if not boostData then return end
-
     -- We should also get their current metadata and based on their metadata increase this luck or even cap it so they cant get s+ if they just startedt/
     if chance >= 99 then -- 2%
         if boostData >= Config.Boosting.TiersPerRep["S"] then -- You can jump 1 tier above the current tier you are at so someone at D can't get a S+ Contract
@@ -677,9 +747,9 @@ local function missionType(boostData, tier)
     print(tier)
 
     if boostData >= Config.Boosting.TiersPerRep[tier] then
-        if math.random() <= 0.05 then
-            return "vinscratch"
-        end
+        -- if math.random() <= 0.05 then
+        return "vinscratch"
+        -- end
     else
         return "boosting"
     end
@@ -863,3 +933,25 @@ QBCore.Commands.Add('settier', Lang:t('boosting.command.command_tier_desc'),
             TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.incorrect_format'), "error", 5000)
         end
     end, "god")
+
+
+AddEventHandler("onServerResourceStart", function(resname)
+    if resname == GetCurrentResourceName() then
+        local success, result = pcall(MySQL.query.await, "SELECT * FROM player_vehicles WHERE vinnumber IS NULL")
+        if success and result[1] then
+            local queries = {}
+            for i = 1, #result do
+                local row = result[i]
+                queries[#queries + 1] = {
+                    query = 'UPDATE player_vehicles SET vinnumber = @vin WHERE id = @id', parameters = {
+                        ["@id"] = row.id,
+                        ["@vin"] = RandomVIN()
+                    }
+                }
+            end
+            if queries[1] then
+                MySQL.transaction(queries)
+            end
+        end
+    end
+end)
