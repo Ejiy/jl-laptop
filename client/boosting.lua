@@ -41,9 +41,8 @@ local function UpdateBlips()
     local State = Entity(car).state.Boosting
     if State and State.boostHacks then
         CreateThread(function()
-            while State and State.boostHacks > 0 do
 
-                print(State.boostHacks)
+            while State and State.boostHacks > 0 do
 
                 local checks = 0
                 if DoesEntityExist(car) then
@@ -69,31 +68,6 @@ local function UpdateBlips()
         end)
     end
 end
-
-local AntiSpam = false -- Just a true / false boolean to not spam the shit out of the server.
-local carCoords = nil
--- sends information from server to client that we found the car and we started lockpicking
-RegisterNetEvent('lockpicks:UseLockpick', function()
-    if AntiSpam then return end
-    if not NetID then return end
-    local car = NetworkGetEntityFromNetworkId(NetID)
-    if DoesEntityExist(car) then
-        local dist = #(GetEntityCoords(car) - GetEntityCoords(PlayerPedId()))
-        if dist <= 3.5 then -- 2.5 is the distance in qbcore vehiclekeys if you use more or less then please edit this.
-            if #(vector3(carCoords.x, carCoords.y, carCoords.z) - GetEntityCoords(car)) <= 6.9 then
-                AntiSpam = true
-                TriggerServerEvent('jl-laptop:server:SpawnPed')
-                RemoveBlip(missionBlip)
-                UpdateBlips()
-
-                exports['ps-dispatch']:CarBoosting(vehicle)
-            else
-                TriggerServerEvent('jl-laptop:server:CancelBoost', NetID, Plate)
-            end
-        end
-    end
-end)
-
 
 local function CheckVin(NetworkID)
     if IsCheckingVin then return end
@@ -138,6 +112,35 @@ local function CheckVin(NetworkID)
     end
 end
 
+local AntiSpam = false -- Just a true / false boolean to not spam the shit out of the server.
+local carCoords = nil
+-- sends information from server to client that we found the car and we started lockpicking
+RegisterNetEvent('lockpicks:UseLockpick', function()
+    if AntiSpam then return end
+    if not NetID then return end
+    local car = NetworkGetEntityFromNetworkId(NetID)
+    if DoesEntityExist(car) then
+        local dist = #(GetEntityCoords(car) - GetEntityCoords(PlayerPedId()))
+        if dist <= 3.5 then -- 2.5 is the distance in qbcore vehiclekeys if you use more or less then please edit this.
+            if #(vector3(carCoords.x, carCoords.y, carCoords.z) - GetEntityCoords(car)) <= 6.9 then
+                AntiSpam = true
+                TriggerServerEvent('jl-laptop:server:SpawnPed')
+                RemoveBlip(missionBlip)
+                UpdateBlips()
+                SendNUIMessage({
+                    action = "boosting/setcancel",
+                    data = {
+                        status = false
+                    }
+                })
+                exports['ps-dispatch']:CarBoosting(vehicle)
+            else
+                TriggerServerEvent('jl-laptop:server:CancelBoost', NetID, Plate)
+            end
+        end
+    end
+end)
+
 -- MISSION STARTER --
 
 -- Sends information from server to client that it will start now
@@ -164,6 +167,7 @@ RegisterNetEvent('jl-laptop:client:MissionStarted',
 
         if coords then
             if Config.Boosting.Debug then SetNewWaypoint(coords.x, coords.y) end
+
             missionBlip = AddBlipForRadius(coords.x + math.random(-100, 100), coords.y + math.random(-100, 100), coords.z
                 , 250.0)
             SetBlipAlpha(missionBlip, 150)
@@ -175,6 +179,7 @@ RegisterNetEvent('jl-laptop:client:MissionStarted',
 
 RegisterNUICallback('boosting/start', function(data, cb)
     QBCore.Functions.TriggerCallback('jl-laptop:server:CanStartBoosting', function(result)
+        print(result)
         if result == "success" then
             --TriggerServerEvent('jl-laptop:server:StartBoosting', data.id, currentCops)
             cb({
@@ -227,6 +232,7 @@ local function DeliverCar()
     Notify(Lang:t('boosting.error.get_away'), 'error', 7500)
     local car = NetworkGetEntityFromNetworkId(NetID)
     FreezeEntityPosition(car, true)
+    SetVehicleDoorsLocked(car, 2)
     if PZone then
         PZone:destroy()
         PZone = nil
@@ -268,7 +274,10 @@ end
 
 local function MeVinYeah()
     local car = NetworkGetEntityFromNetworkId(NetID)
-    if Entity(car).state.isvinCar then
+    if not DoesEntityExist(car) then return end
+
+    local state = Entity(car).state
+    if state.isvinCar then
         exports['qb-target']:AddTargetEntity(car, {
             options = {
                 {
@@ -276,7 +285,7 @@ local function MeVinYeah()
                         StartVin()
                     end,
                     canInteract = function()
-                        return inVin and Entity(car).state.isvinCar
+                        return inVin and state.isvinCar
                     end,
                     label = "Scratch Vin",
                     icon = "fas fa-mask"
@@ -397,12 +406,6 @@ RegisterNetEvent('jl-laptop:client:finishContract', function(table)
     SendNUIMessage({ action = 'booting/delivered' })
 end)
 
-RegisterCommand('testshit', function()
-    if IsPedInAnyVehicle(PlayerPedId(), false) then
-        local netID = NetworkGetNetworkIdFromEntity(QBCore.Functions.GetClosestVehicle())
-        print(GetDisplayNameFromVehicleModel(GetEntityModel(QBCore.Functions.GetClosestVehicle())):lower())
-    end
-end, false)
 
 -- ** HACKING THE VEHICLE ** --
 local psUI = {
@@ -638,8 +641,8 @@ end)
 -- Cancel Contract --
 -- Todo: add the logic, Zoo's work 🙂 --
 RegisterNUICallback("boosting/cancel", function(data, cb)
-    print(data.id)
-    cb(true)
+    TriggerServerEvent('jl-laptop:server:CancelBoost', NetID, nil, true)
+    cb("success")
 end)
 
 

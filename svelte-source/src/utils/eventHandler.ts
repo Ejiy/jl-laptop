@@ -1,5 +1,10 @@
 import { onMount, onDestroy } from "svelte";
-import { handleContracts, started, startedContracts } from "@store/boosting";
+import {
+  canCancel,
+  handleContracts,
+  started,
+  startedContracts,
+} from "@store/boosting";
 import { toggleVisible } from "@store/desktop";
 import { notifications } from "@store/notifications";
 import { setCurrentDate } from "./misc";
@@ -70,6 +75,9 @@ export function handlerMessage() {
             color: event.data.data.color,
           }
         );
+        break;
+      case "boosting/setcancel":
+        canCancel.set(event.data.data.status);
         break;
     }
   }

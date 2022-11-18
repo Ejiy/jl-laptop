@@ -211,7 +211,7 @@ QBCore.Functions.CreateCallback('jl-laptop:server:CanStartBoosting', function(so
     if not currentContracts[CID][id] then return cb("notfound") end
     if Config.RenewedPhone and not exports['qb-phone']:hasEnough(src, "gne", currentContracts[CID][id].cost) then
         return cb("notenough")
-    elseif Player.PlayerData.money.crypto < currentContracts[CID][id].cost then
+    elseif not Config.RenewedPhone and Player.PlayerData.money.crypto < currentContracts[CID][id].cost then
         return cb("notenough")
     end
     local amount = 0
@@ -330,16 +330,15 @@ local function removeCooldown(car, time)
     SetTimeout(time * 1000, function()
         local state = Entity(car).state.Boosting
         local newState = {
-            boostHacks = state.Boosthacks,
+            boostHacks = state.boostHacks,
             boostCooldown = false,
         }
-
         Entity(car).state:set('Boosting', newState, true)
     end)
 end
 
 function log(text)
-    print(json.encode(text, { pretty = true, indent = "  ", align_keys = true }))
+    print(json.encode(text, { pretty = true, indent = true, align_keys = true }))
 end
 
 RegisterNetEvent('jl-laptop:server:SyncPlates', function(success)
@@ -395,10 +394,6 @@ QBCore.Functions.CreateUseableItem(Config.Boosting.HackingDevice, function(sourc
         TriggerClientEvent('jl-laptop:client:HackCar', source)
     end
 end)
-
-
-
-
 
 ----- ** EVERYTHING TO DO QUEUE ** -----
 
@@ -518,14 +513,23 @@ end)
 
 
 -- ** EVERYTHING TO DO WITH CANCELLING ** --
-RegisterNetEvent('jl-laptop:server:CancelBoost', function(netId, Plate)
+RegisterNetEvent('jl-laptop:server:CancelBoost', function(netId, Plate, b)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local CID = Player.PlayerData.citizenid
+    if not Plate then
+        Plate = GetVehicleNumberPlateText(NetworkGetEntityFromNetworkId(netId))
+    end
     if not currentRuns[CID] then return end
     if not (currentRuns[CID].NetID == netId) then return end
 
-    if DoesEntityExist(NetworkGetEntityFromNetworkId(currentRuns[CID].NetID)) then return end
+    if b then
+        if DoesEntityExist(NetworkGetEntityFromNetworkId(currentRuns[CID].NetID)) then
+            DeleteEntity(NetworkGetEntityFromNetworkId(netId))
+        end
+    else
+        if DoesEntityExist(NetworkGetEntityFromNetworkId(currentRuns[CID].NetID)) then return end
+    end
 
     ActivePlates[Plate] = nil
     currentRuns[CID] = nil
@@ -533,17 +537,6 @@ RegisterNetEvent('jl-laptop:server:CancelBoost', function(netId, Plate)
 
     Notify(src, Lang:t('boosting.error.cancelboost'), "error", 7500)
 end)
-
-
-
-
-
-RegisterCommand("git", function(source, args)
-    local src = source
-    local group = exports['qb-phone']:GetGroupByMembers(src)
-    exports['qb-phone']:DestroyGroup(group)
-
-end, false)
 
 
 
@@ -578,33 +571,35 @@ QBCore.Functions.CreateCallback('jl-laptop:server:DeclineContract', function(sou
     cb("success")
 end)
 
-QBCore.Functions.CreateCallback('jl-laptop:server:checkVin', function(source, cb, NetID)
+QBCore.Functions.CreateCallback('jl-laptop:server:checkVin', function(_, cb, NetID)
     local entity = NetworkGetEntityFromNetworkId(NetID)
-    local vinnumber
-    if DoesEntityExist(entity) then
-        local plate = GetVehicleNumberPlateText(entity)
-        local result = MySQL.query.await('SELECT vinnumber FROM player_vehicles WHERE plate = ? AND vinscratch = 1',
-            { plate })
-        if result[1] then
-            local chance = math.random(1, 100)
-            if chance >= 80 then
-                Entity(entity).state.vinchecked = {
-                    reply = "found",
-                }
-            else
-                Entity(entity).state.vinchecked = {
-                    reply = "failed",
-                    vinnumber = result[1].vinnumber
-                }
-            end
-        else
-            Entity(entity).state.vinchecked = {
+
+    if not NetID or not entity then return end
+    if not DoesEntityExist(entity) then return end
+    local plate = GetVehicleNumberPlateText(entity)
+    local result = MySQL.query.await('SELECT vinnumber FROM player_vehicles WHERE plate = ? AND vinscratch = 1',
+        { plate })
+
+    local vinTable = {
+        reply = "found",
+    }
+    if result[1] then
+        local chance = math.random(1, 100)
+        if chance >= 20 then
+            vinTable = {
                 reply = "failed",
-                vinnumber = RandomVIN()
+                vinnumber = result[1].vinnumber
             }
         end
-        return cb(Entity(entity).state.vinchecked.reply)
+    else
+        vinTable = {
+            reply = "failed",
+            vinnumber = RandomVIN()
+        }
     end
+
+    Entity(entity).state.vinchecked = vinTable
+    return cb(vinTable.reply)
 end)
 
 
@@ -672,7 +667,7 @@ end)
 
 -- ** EVERYTHING TO DO WITH GENERATING CONTRACTS ** --
 local function generateTier(boostData)
-    local chance = math.random(1, 100)
+    local chance = Config.Boosting.Debug and math.random(80, 100) or math.random(1, 100)
     local tier
     if not boostData then return end
     -- We should also get their current metadata and based on their metadata increase this luck or even cap it so they cant get s+ if they just startedt/
@@ -826,7 +821,9 @@ CreateThread(function()
                 if currentContracts[k] then
                     if #currentContracts[k] < Config.Boosting.MaxBoosts and v.active and v.online then
                         local ContractChance = math.random()
-                        print(v.skipped)
+                        if Config.Boosting.Debug then
+                            print(v.skipped)
+                        end
                         -- If skipped is bigger or equal to 25 we give player a contract for waiting
                         -- Otherwise we say if they been in queue longer than 2-7 skips and their chance is higher than 0.75 (meaning 25% chance) we will reward them with a contract
                         if v.skipped >= 25 or (v.skipped >= math.random(2, 7) and ContractChance >= 0.75) then

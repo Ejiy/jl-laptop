@@ -12,6 +12,8 @@ export function handleContracts(data: IStartedContract[]) {
   contracts.set(data);
 }
 
+export const canCancel = writable(false);
+
 export const queue = writable(false);
 
 export const started = writable(false);

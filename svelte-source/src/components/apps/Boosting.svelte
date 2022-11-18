@@ -2,7 +2,12 @@
   import moment from "moment";
   import { modals } from "@store/modals";
   import { flip } from "svelte/animate";
-  import { contracts, queue, startedContracts } from "@store/boosting";
+  import {
+    canCancel,
+    contracts,
+    queue,
+    startedContracts,
+  } from "@store/boosting";
   import { notifications } from "@store/notifications";
   import { fetchNui } from "@utils/eventHandler";
 
@@ -101,6 +106,7 @@
             ...contract,
             plate: "",
           });
+          canCancel.set(true);
         }
         notifications.send(res.message, "boosting", 5000);
       })
@@ -145,23 +151,43 @@
   }
 
   function CancelContract(id: number) {
-    modals.show({
-      show: true,
-      onOk: () => {
-        fetchNui("boosting/cancel", {
-          id,
-        }).then(() => {
-          notifications.send("You just cancel your contract", "boosting", 1000);
-        });
-        startedContracts.set(null);
-      },
-      onCancel: () => {},
-      title: "Cancel Contract",
-      okText: "Confirm",
-      cancelText: "Cancel",
-      description:
-        "Are you sure you want to cancel this contract?, you will loose it...",
-    });
+    if (!$canCancel) {
+      return notifications.send(
+        "You can't cancel the contract",
+        "boosting",
+        3000
+      );
+    } else {
+      modals.show({
+        show: true,
+        onOk: () => {
+          fetchNui("boosting/cancel", {
+            id,
+          }).then((res) => {
+            if (res == "success") {
+              startedContracts.set(null);
+              notifications.send(
+                "You just cancel your contract",
+                "boosting",
+                1000
+              );
+            } else if (res == "failure") {
+              notifications.send(
+                "You can't cancel the contract",
+                "boosting",
+                3000
+              );
+            }
+          });
+        },
+        onCancel: () => {},
+        title: "Cancel Contract",
+        okText: "Confirm",
+        cancelText: "Cancel",
+        description:
+          "Are you sure you want to cancel this contract?, you will loose it...",
+      });
+    }
   }
 
   onMount(() => {
@@ -258,7 +284,9 @@
             </div>
 
             <div class="button started">
-              <button on:click={() => CancelContract($startedContracts.id)}
+              <button
+                disabled={!$canCancel}
+                on:click={() => CancelContract($startedContracts.id)}
                 >Cancel Contract</button
               >
             </div>
