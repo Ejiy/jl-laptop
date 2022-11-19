@@ -1,5 +1,6 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local crates = {}
+local crateBlip = nil
 
 local function openCrate(crate)
     local crateID = NetworkGetNetworkIdFromEntity(crate)
@@ -87,6 +88,22 @@ end)
 RegisterNetEvent('darkweb:client:cratedrop', function(netID)
     local obj = NetworkGetEntityFromNetworkId(netID)
     PlaceObjectOnGroundProperly(obj)
+
+    if PZone then PZone:destroy() PZone = nil end
+
+    if crateBlip then RemoveBlip(crateBlip) end
+
+    local crateCoords = GetEntityCoords(obj)
+
+    if Config.Boosting.Debug then SetNewWaypoint(crateCoords.x, crateCoords.y) end
+
+    if Config.DarkWeb.CrateBlip then
+        crateBlip = AddBlipForRadius(crateCoords.x + math.random(-100, 100), crateCoords.y + math.random(-100, 100), crateCoords.z, 250.0)
+        SetBlipAlpha(crateBlip, 150)
+        SetBlipHighDetail(crateBlip, true)
+        SetBlipColour(crateBlip, 1)
+        SetBlipAsShortRange(crateBlip, true)
+    end
 
     exports['qb-target']:AddTargetEntity(obj, {
         options = {
