@@ -2,7 +2,7 @@ Config.DarkWeb = {}
 
 Config.DarkWeb.Police = 2 -- Maybe we need this? just remove it if we don't need it Zoo
 
-Config.DarkWeb.CrateBlip = false -- False disables GPS radius, true does otherwise
+Config.DarkWeb.CrateBlip = true -- Shows a radius around the dark web crate
 
 Config.DarkWeb.CrateSpawn = {
     [1] = {
