@@ -38,6 +38,7 @@ local function breakCrate(entity)
         exports['ps-ui']:Thermite(function(success)
             if success then
                 TriggerServerEvent('jl-laptop:server:crateOpened', NetworkGetNetworkIdFromEntity(entity))
+                if crateBlip then RemoveBlip(crateBlip) end
             end
         end, 10, 3, 3) -- Time, Gridsize (5, 6, 7, 8, 9, 10), IncorrectBlocks
     else
