@@ -24,6 +24,13 @@ local function Notify(text, type, time)
             "#00008B",
             time
         )
+    elseif Config.Boosting.Notifications == "npwd" then
+        TriggerServerEvent('qb-phone:server:sendNewMail', {
+            sender = Lang:t('boosting.info.phonenotify'),
+            subject = 'Boosting',
+            message = text,
+            button = {}
+        })
     else
         QBCore.Functions.Notify(text, type, time)
     end

@@ -40,19 +40,24 @@ local currentContracts = {}
 local LookingForContracts = {}
 
 
-
-
 local function Notify(src, text, type, time)
     if Config.Boosting.Notifications == "phone" then
-        TriggerClientEvent("qb-phone:client:CustomNotification", src,
+        TriggerClientEvent('qb-phone:client:CustomNotification', src,
             Lang:t('boosting.info.phonenotify'),
             text,
             "fas fa-user-secret",
             "#00008B",
             time
         )
+    elseif Config.Boosting.Notifications == "npwd" then
+        TriggerEvent('qb-phone:server:sendNewMail', {
+            sender = Lang:t('boosting.info.phonenotify'),
+            subject = 'Boosting',
+            message = text,
+            button = {}
+        })
     else
-        TriggerClientEvent('QBCore:Notify', src, text, type, time)
+        QBCore.Functions.Notify(src, text, type, time)
     end
 end
 
