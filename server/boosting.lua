@@ -672,7 +672,7 @@ end)
 
 -- ** EVERYTHING TO DO WITH GENERATING CONTRACTS ** --
 local function generateTier(boostData)
-    local chance = Config.Boosting.Debug and math.random(80, 100) or math.random(1, 100)
+    local chance = math.random(1, 100)
     local tier
     if not boostData then return end
     -- We should also get their current metadata and based on their metadata increase this luck or even cap it so they cant get s+ if they just startedt/
