@@ -125,6 +125,7 @@ QBCore.Functions.CreateCallback('jl-laptop:server:checkout', function(source, cb
         local checks = 0
         local bank = false
         local crypto = false
+        local GNE = false
         if Shop.totalBank > 0 then
             checks = checks + 1
             if Player.PlayerData.money.bank >= Shop.totalBank then
@@ -145,6 +146,16 @@ QBCore.Functions.CreateCallback('jl-laptop:server:checkout', function(source, cb
             end
         end
 
+        if Shop.totalGNE > 0 then
+            checks = checks + 1
+            if exports['qb-phone']:hasEnough(src, "gne", Shop.totalGNE) == true then
+                checks = checks - 1
+                GNE = true
+            else
+                return cb("GNE")
+            end
+        end
+
         if data['app'] == "darkweb" then
             if not darkwebCrateSpawn then
                 return cb("spaces")
@@ -158,6 +169,8 @@ QBCore.Functions.CreateCallback('jl-laptop:server:checkout', function(source, cb
             if bank then Player.Functions.RemoveMoney("bank", Shop.totalBank) end
 
             if crypto then Player.Functions.RemoveMoney("crypto", Shop.totalCrypto) end
+
+            if GNE then exports['qb-phone']:RemoveCrypto(src, "gne", Shop.totalGNE) end
 
             if data['app'] == 'darkweb' then
                 cb("done")

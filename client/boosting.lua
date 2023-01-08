@@ -21,7 +21,7 @@ local function Notify(text, type, time)
             Lang:t('boosting.info.phonenotify'),
             text,
             "fas fa-user-secret",
-            "#00008B",
+            "#ac0505",
             time
         )
     elseif Config.Boosting.Notifications == "npwd" then
@@ -140,6 +140,7 @@ RegisterNetEvent('lockpicks:UseLockpick', function()
                         status = false
                     }
                 })
+                local vehicle = QBCore.Functions.GetClosestVehicle()
                 exports['ps-dispatch']:CarBoosting(vehicle)
             else
                 TriggerServerEvent('jl-laptop:server:CancelBoost', NetID, Plate)
@@ -420,7 +421,6 @@ local psUI = {
     "alphabet",
     "alphanumeric",
     "greek",
-    "braille",
     "runes"
 }
 
@@ -443,6 +443,8 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
                 local success = Citizen.Await(pushingP)
 
                 TriggerServerEvent('jl-laptop:server:SyncPlates', success)
+                TriggerServerEvent('jl-laptop:server:degradeItem')
+
                 currentHacking = false
             else
                 Notify(Lang:t("boosting.error.no_tracker"), 'error', 7500)
@@ -693,7 +695,7 @@ end)
 
 
 RegisterNetEvent('jl-laptop:client:setvehicleFuel', function(veh)
-    exports['LegacyFuel']:SetFuel(car, 100.0)
+    exports['cdn-fuel']:SetFuel(car, 100.0)
 end)
 
 RegisterNUICallback("boosting/getqueue", function(_, cb)

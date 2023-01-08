@@ -46,7 +46,7 @@ local function Notify(src, text, type, time)
             Lang:t('boosting.info.phonenotify'),
             text,
             "fas fa-user-secret",
-            "#00008B",
+            "#ac0505",
             time
         )
     elseif Config.Boosting.Notifications == "npwd" then
@@ -328,8 +328,8 @@ RegisterNetEvent('jl-laptop:server:SyncBlips', function(coords, NetID)
     if not state then return end
 
     TriggerClientEvent('jl-laptop:client:SyncBlips', -1, coords, NetID)
-end)
 
+  end)
 -- ** Hacking Cars ** --
 local function removeCooldown(car, time)
     SetTimeout(time * 1000, function()
@@ -386,12 +386,23 @@ RegisterNetEvent('jl-laptop:server:SyncPlates', function(success)
     else
         log("Failed the hacking")
         Notify(src, Lang:t('boosting.error.disable_fail'), 'success', 7500)
-        if Player and Player.Functions.RemoveItem(Config.Boosting.HackingDevice, 1) then
-            TriggerClientEvent("inventory:client:ItemBox", src, QBCore.Shared.Items[Config.Boosting.HackingDevice],
-                "remove")
-        end
     end
 end)
+
+RegisterServerEvent('jl-laptop:server:degradeItem', function(disabler)
+	local src = source
+	local Player = QBCore.Functions.GetPlayer(src)
+    local item = Player.Functions.GetItemByName('disabler')
+    if Config.Boosting.Debug then
+        if Player.PlayerData.items[item.slot].info.quality <= 5 then
+            Player.Functions.RemoveItem(item, 1)
+            TriggerClientEvent("inventory:client:ItemBox", source, QBCore.Shared.Items[item], "remove")
+        else
+            Player.PlayerData.items[item.slot].info.quality = Player.PlayerData.items[item.slot].info.quality - 5
+            Player.Functions.SetInventory(Player.PlayerData.items)
+        end
+    end
+    end)
 
 QBCore.Functions.CreateUseableItem(Config.Boosting.HackingDevice, function(source, _)
     local Player = QBCore.Functions.GetPlayer(source)
@@ -847,7 +858,7 @@ CreateThread(function()
                 end
             end
         end
-        Wait(Config.Boosting.Debug and 200 or (math.random(1, 4) * 60000)) -- Once every 1 to 4 minutes
+        Wait(1000 or (math.random(1, 4) * 60000)) -- Once every 1 to 4 minutes
     end
 end)
 
@@ -936,6 +947,25 @@ QBCore.Commands.Add('settier', Lang:t('boosting.command.command_tier_desc'),
         end
     end, "god")
 
+    QBCore.Commands.Add('givegne', ('test'),
+    false, function(source, args)
+        if args and type(tonumber(args[1])) == "number" then
+            if args[2] and type(args[2]) == "string" then
+                local Player = QBCore.Functions.GetPlayer(tonumber(args[1]))
+                if Player then
+                    local rep = Player.PlayerData.metadata["carboostrep"] or 0
+                    rep = Config.Boosting.TiersPerRep[args[2]]
+                    Player.Functions.SetMetaData('carboostrep', rep)
+                else
+                    TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.player_offline'), 'error', 5000)
+                end
+            else
+                TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.missingarg'), "error", 5000)
+            end
+        else
+            TriggerClientEvent('QBCore:Notify', source, Lang:t('boosting.command.incorrect_format'), "error", 5000)
+        end
+    end, "god")
 
 AddEventHandler("onServerResourceStart", function(resname)
     if resname == GetCurrentResourceName() then
@@ -957,3 +987,5 @@ AddEventHandler("onServerResourceStart", function(resname)
         end
     end
 end)
+
+

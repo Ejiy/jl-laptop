@@ -96,3 +96,9 @@ RegisterNetEvent('jl-laptop:server:RemoveItem', function(item)
         Player.Functions.RemoveItem(item, 1)
     end
 end)
+
+
+
+
+
+

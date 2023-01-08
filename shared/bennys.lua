@@ -16,13 +16,27 @@ Config.Bennys.Location = {
 -- PRICE = How much it costs to buy the item
 -- TYPE = "bank" or "crypto" or "gne"
 -- stock = How many items there's available a restart
--- Category = Cosmetic Parts, Performance Parts, or Consumable Parts
+-- Category = Items, Performance Parts, or Consumable Parts
 Config.Bennys.Items = {
-    ["laptop"] = {
-        name = "laptop", -- didnt have the side skirt up there so just used this for testing
-        price = 100,
-        stock = 100,
+    ["disabler"] = {
+        name = "disabler",
+        price = 2,
+        stock = 3,
+        type = "gne",
+        category = "Items"
+    },
+    ["fakeplate"] = {
+        name = "fakeplate", 
+        price = 8000,
+        stock = 3,
         type = "bank",
-        category = "Cosmetic Parts"
+        category = "Items"
+    },
+    ["harness"] = {
+        name = "harness",
+        price = 10000,
+        stock = 3,
+        type = "bank",
+        category = "Items"
     },
 }

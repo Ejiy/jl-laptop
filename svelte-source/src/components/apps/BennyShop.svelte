@@ -25,8 +25,8 @@
     blurstrength: 15,
     color: "#1b1b1b",
   };
-  let categories = ["Cosmetic Parts", "Performance Parts", "Consumable Parts"];
-  let currentPage = "Cosmetic Parts";
+  let categories = ["Items"];
+  let currentPage = "Items";
 
   function handleAddCart(e) {
     if ($cart.filter((item) => item.name === e.detail.name).length === 0) {

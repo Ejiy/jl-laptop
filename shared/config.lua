@@ -1,15 +1,16 @@
 Config = {}
 
 Config.Inventory = "qb-inventory"
-Config.LaptopDevice = "laptop"
+Config.LaptopDevice = "pixellaptop"
 
-Config.RenewedPhone = false
+Config.RenewedPhone = true
 
 Config.Linux = false
 
 Config.PoliceJobs = {
     "police",
-    "bcso"
+    "bcso",
+    "sasp"
 }
 
 Config.Apps = {
@@ -21,7 +22,7 @@ Config.Apps = {
         color = '#fff',
         background = '#1d2029',
         job = {}, -- Must be a table
-        bannedJobs = { "police" }, -- Must be a table { 'police' }
+        bannedJobs = { "police", "sasp", "bcso" }, -- Must be a table { 'police' }
         gang = {}, -- Must be a table { 'ballas' }
         item = { "vpn" }, -- Must be a table { 'vpn' }
         default = false -- if true, it will be added by default, ignoring all the previously set parameters
@@ -49,8 +50,8 @@ Config.Apps = {
         job = {},
         bannedJobs = {},
         gang = {},
-        item = {},
-        default = true
+        item = { "vpn" },
+        default = false
     },
     ['darkweb'] = {
         app = 'darkweb',
@@ -60,9 +61,9 @@ Config.Apps = {
         color = '#fff',
         background = "black",
         job = {},
-        bannedJobs = { "police" },
+        bannedJobs = { "police", "sasp", "bcso" },
         gang = {},
-        item = { "vpn" },
+        item = { "vpn45435345" },
         default = false
     }
 }
