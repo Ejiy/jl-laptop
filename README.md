@@ -1,18 +1,11 @@
-# [CLICK THIS TO READ THE DOCS / INSTALLATION](https://justlazzy.github.io/docs/free-scripts/jl-laptop/)
+### Not alot changed from lazy just fixed a few things. 
+- Fixed gne not working with bennys
+- Gave disablers uses/quality
+- other stuff 
 
-# [CLICK THIS TO READ THE DOCS / INSTALLATION](https://justlazzy.github.io/docs/free-scripts/jl-laptop/)
 
-# [CLICK THIS TO READ THE DOCS / INSTALLATION](https://justlazzy.github.io/docs/free-scripts/jl-laptop/)
 
-# [CLICK THIS TO READ THE DOCS / INSTALLATION](https://justlazzy.github.io/docs/free-scripts/jl-laptop/)
 
-# [CLICK THIS TO READ THE DOCS / INSTALLATION](https://justlazzy.github.io/docs/free-scripts/jl-laptop/)
-
-# [CLICK THIS TO READ THE DOCS / INSTALLATION](https://justlazzy.github.io/docs/free-scripts/jl-laptop/)
-
-<tr/>
-
-A laptop script for qbcore.
 
 ### REMEMBER THIS IS STILL IN BETA PHASE DON'T EXPECT YOU WILL HAVE 0 BUGS
 
@@ -27,7 +20,10 @@ It comes with 4 default apps
 You can create app for specific job, gang, or even only when player have an item!
 
 | Join my discord server [here](https://discord.gg/fqUjRyhW2z) |
+
 | ------------------------------------------------------------ |
+# [CLICK THIS TO READ THE DOCS / INSTALLATION](https://justlazzy.github.io/docs/free-scripts/jl-laptop/)
+
 
 
 
