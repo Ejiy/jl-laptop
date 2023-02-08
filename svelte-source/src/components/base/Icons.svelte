@@ -72,8 +72,13 @@
   }
 
   .icons {
-    display: grid;
-    justify-content: left;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: start;
+    align-items: center;
+    flex-direction: column;
+    height: 100%;
+    width: fit-content;
     margin: 10px;
   }
 
