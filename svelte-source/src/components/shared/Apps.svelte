@@ -43,9 +43,6 @@
   }
 
   function onMouseMove(e: { movementX: number; movementY: number }) {
-
-
-
     if (moving) {
       if (top + e.movementY < window.innerHeight * 0.05) {
         return
