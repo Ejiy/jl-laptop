@@ -96,3 +96,8 @@ RegisterNetEvent('jl-laptop:server:RemoveItem', function(item)
         Player.Functions.RemoveItem(item, 1)
     end
 end)
+
+AddEventHandler('onResourceStart', function(resource)
+    if resource ~= cache.resource then return end
+    lib.versionCheck('Ejiy/jl-laptop')
+end)

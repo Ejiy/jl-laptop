@@ -1,5 +1,7 @@
 fx_version 'cerulean'
 
+version '1.0.0'
+
 game 'gta5'
 
 author 'JL Development, Renewed, and others'
