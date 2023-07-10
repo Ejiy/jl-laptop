@@ -3,7 +3,6 @@ local QBCore = exports['qb-core']:GetCoreObject()
 RegisterNUICallback('bennys/getitems', function(_, cb)
     local translated = {}
     for _, v in pairs(Config.Bennys.Items) do
-
         translated[#translated + 1] = {
             name = v.name,
             label = QBCore.Shared.Items[v.name].label,
@@ -29,14 +28,9 @@ end
 local ped = nil
 local blip = nil
 CreateThread(function()
-
     local v = Config.Bennys.Location
 
-    RequestModel(v.ped)
-
-    while not HasModelLoaded(v.ped) do
-        Wait(0)
-    end
+    lib.requestModel(v.ped)
 
     ped = CreatePed(0, joaat(v.ped), v.coords.x, v.coords.y, v.coords.z - 1, v.coords.w, false, false)
     TaskStartScenarioInPlace(ped, v.scenario, 0, true)

@@ -7,8 +7,9 @@ author 'JL Development, Renewed, and others'
 lua54 'yes' -- Add in case you want to use lua 5.4 (https://www.lua.org/manual/5.4/manual.html)
 
 shared_scripts {
+    '@ox_lib/init.lua',
     '@qb-core/shared/locale.lua',
-	'locales/*.lua',
+    'locales/*.lua',
     'shared/config.lua',
     'shared/boosting.lua',
     'shared/bennys.lua',
@@ -16,11 +17,6 @@ shared_scripts {
 }
 
 client_scripts {
-    '@PolyZone/client.lua',
-    '@PolyZone/BoxZone.lua',
-    '@PolyZone/EntityZone.lua',
-    '@PolyZone/CircleZone.lua',
-    '@PolyZone/ComboZone.lua',
     'client/*.lua'
 }
 
