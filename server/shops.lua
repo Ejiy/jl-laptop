@@ -14,7 +14,6 @@ local function AddItems(stash, Items)
         if not inventory then
             exports.ox_inventory:RegisterStash(stash, label, 50, 100000, owner)
         end
-        print(json.encode(inventory))
         for k, v in pairs(Items) do
             local item = itemNames[k:lower()]
             exports.ox_inventory:AddItem({
@@ -88,6 +87,9 @@ local function boxDeletionTimer(netID)
     Wait(60 * 1000 * 60) -- 1 hour ( i think )
     DeleteEntity(NetworkGetEntityFromNetworkId(netID))
     SetCrateCoordsState(crates[netID]['coords'])
+    if GetResourceState("ox_inventory"):match("start") then
+        exports.ox_inventory:ClearInventory("DarkWebCrate_" .. crates[netID]['id'])
+    end
     crates[netID] = nil
 end
 
@@ -193,11 +195,10 @@ local hookid
 
 -- For dev environment
 AddEventHandler('onResourceStop', function(resource)
-    if resource == cache.resource then return end
-    if next(crates) ~= nil then
-        for box, _ in pairs(crates) do
-            DeleteEntity(NetworkGetEntityFromNetworkId(box))
-        end
+    if resource ~= cache.resource then return end
+    
+    for box, _ in pairs(crates) do
+        DeleteEntity(NetworkGetEntityFromNetworkId(box))
     end
     if hookid then
         exports.ox_inventory:removeHooks(hookid)
