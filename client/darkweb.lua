@@ -8,11 +8,15 @@ local function openCrate(crate)
         if data.isOpened then
             openCrate(data.crate)
         else
-            TriggerServerEvent("inventory:server:OpenInventory", "stash", "DarkWebCrate_" .. data.crateID, {
-                maxweight = 100000,
-                slots = 25,
-            })
-            TriggerEvent("inventory:client:SetCurrentStash", "DarkWebCrate_" .. data.crateID)
+            if GetResourceState("ox_inventory"):match("start") then
+                exports.ox_inventory:openInventory('stash', 'DarkWebCrate_' .. data.crateID)
+            else
+                TriggerServerEvent("inventory:server:OpenInventory", "stash", "DarkWebCrate_" .. data.crateID, {
+                    maxweight = 100000,
+                    slots = 25,
+                })
+                TriggerEvent("inventory:client:SetCurrentStash", "DarkWebCrate_" .. data.crateID)
+            end
         end
     end, crateID, crate)
 end
@@ -90,7 +94,10 @@ RegisterNetEvent('darkweb:client:cratedrop', function(netID)
     local obj = NetworkGetEntityFromNetworkId(netID)
     PlaceObjectOnGroundProperly(obj)
 
-    if PZone then PZone:destroy() PZone = nil end
+    if PZone then
+        PZone:destroy()
+        PZone = nil
+    end
 
     if crateBlip then RemoveBlip(crateBlip) end
 
@@ -99,7 +106,8 @@ RegisterNetEvent('darkweb:client:cratedrop', function(netID)
     if Config.Boosting.Debug then SetNewWaypoint(crateCoords.x, crateCoords.y) end
 
     if Config.DarkWeb.CrateBlip then
-        crateBlip = AddBlipForRadius(crateCoords.x + math.random(-100, 100), crateCoords.y + math.random(-100, 100), crateCoords.z, 250.0)
+        crateBlip = AddBlipForRadius(crateCoords.x + math.random(-100, 100), crateCoords.y + math.random(-100, 100),
+            crateCoords.z, 250.0)
         SetBlipAlpha(crateBlip, 150)
         SetBlipHighDetail(crateBlip, true)
         SetBlipColour(crateBlip, 1)
