@@ -12,8 +12,11 @@ RegisterNUICallback('bennys/getitems', function(_, cb)
             category = v.category,
         }
     end
-    print(json.encode(translated))
     cb(translated)
+end)
+
+RegisterNUICallback("bennys/getCategories", function(_, cb)
+    cb(Config.Bennys.Categories)
 end)
 
 local function openStash()
