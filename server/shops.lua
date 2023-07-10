@@ -2,31 +2,49 @@ local QBCore = exports['qb-core']:GetCoreObject()
 local crateCount = 0
 crates = {} -- Table which stores crate netIDs with its contents ( shop items )
 
+---@param stash string
+---@param Items table
 local function AddItems(stash, Items)
     local items = {}
-
-    for k, v in pairs(Items) do
-        local itemInfo = QBCore.Shared.Items[k:lower()]
-        items[#items + 1] = {
-            name = itemInfo["name"],
-            amount = tonumber(v),
-            info = {}, --Fixed The Weapons Issue
-            label = itemInfo["label"],
-            description = itemInfo["description"] ~= nil and itemInfo["description"] or "",
-            weight = itemInfo["weight"],
-            type = itemInfo["type"],
-            unique = itemInfo["unique"],
-            useable = itemInfo["useable"],
-            image = itemInfo["image"],
-            slot = #items + 1,
-        }
+    if GetResourceState("ox_inventory"):match("start") then
+        local itemNames = exports.ox_inventory:Items()
+        local owner = stash:match("BennyShop_") and stash:gsub("BennyShop_", "") or false
+        local inventory = exports.ox_inventory:GetInventory(stash, owner)
+        local label = stash:match("BennyShop_") and "Benny Shop" or "Crate"
+        if not inventory then
+            exports.ox_inventory:RegisterStash(stash, label, 50, 100000, owner)
+        end
+        for k, v in pairs(Items) do
+            local item = itemNames[k:lower()]
+            exports.ox_inventory:AddItem({
+                id = stash,
+                owner = owner,
+            }, item.name, tonumber(v))
+        end
+    else
+        for k, v in pairs(Items) do
+            local itemInfo = QBCore.Shared.Items[k:lower()]
+            items[#items + 1] = {
+                name = itemInfo["name"],
+                amount = tonumber(v),
+                info = {}, --Fixed The Weapons Issue
+                label = itemInfo["label"],
+                description = itemInfo["description"] ~= nil and itemInfo["description"] or "",
+                weight = itemInfo["weight"],
+                type = itemInfo["type"],
+                unique = itemInfo["unique"],
+                useable = itemInfo["useable"],
+                image = itemInfo["image"],
+                slot = #items + 1,
+            }
+        end
+        MySQL.Async.insert(
+            'INSERT INTO stashitems (stash, items) VALUES (:stash, :items) ON DUPLICATE KEY UPDATE items = :items'
+            , {
+                ['stash'] = stash,
+                ['items'] = json.encode(items)
+            })
     end
-
-    MySQL.Async.insert('INSERT INTO stashitems (stash, items) VALUES (:stash, :items) ON DUPLICATE KEY UPDATE items = :items'
-        , {
-        ['stash'] = stash,
-        ['items'] = json.encode(items)
-    })
 end
 
 local function HasStashItems(stashId)
@@ -69,13 +87,14 @@ local function boxDeletionTimer(netID)
     Wait(60 * 1000 * 60) -- 1 hour ( i think )
     DeleteEntity(NetworkGetEntityFromNetworkId(netID))
     SetCrateCoordsState(crates[netID]['coords'])
+    if GetResourceState("ox_inventory"):match("start") then
+        exports.ox_inventory:ClearInventory("DarkWebCrate_" .. crates[netID]['id'])
+    end
     crates[netID] = nil
 end
 
-
-
 local function createCrate(items, coords)
-    local crateObj = CreateObject(`prop_lev_crate_01`, coords.x, coords.y, coords.z - 1.0, true, false)
+    local crateObj = CreateObject(`prop_lev_crate_01`, coords.x, coords.y, coords.z - 1.0, true, false, false)
     while not DoesEntityExist(crateObj) do
         Wait(50)
     end
@@ -168,16 +187,38 @@ QBCore.Functions.CreateCallback('jl-laptop:server:checkout', function(source, cb
                 AddItems("BennyShop_" .. Player.PlayerData.citizenid, Shop.items)
                 cb("done")
             end
-
         end
     end
 end)
 
+local hookid
+
 -- For dev environment
 AddEventHandler('onResourceStop', function(resource)
-    if resource == GetCurrentResourceName() then
-        for box, _ in pairs(crates) do
-            DeleteEntity(NetworkGetEntityFromNetworkId(box))
-        end
+    if resource ~= cache.resource then return end
+    
+    for box, _ in pairs(crates) do
+        DeleteEntity(NetworkGetEntityFromNetworkId(box))
+    end
+    if hookid then
+        exports.ox_inventory:removeHooks(hookid)
+    end
+end)
+
+AddEventHandler("onResourceStart", function(resource)
+    if resource ~= cache.resource then return end
+    if GetResourceState("ox_inventory"):match("start") then
+        -- make sure they can only take the item, not storing it
+        hookid = exports.ox_inventory:registerHook('swapItems', function(payload)
+            if payload?.fromType == "player" then
+                return false
+            end
+        end, {
+            print = true,
+            inventoryFilter = {
+                '^BennyShop_[%w]+',
+                '^DarkWebCrate_[%w]+'
+            }
+        })
     end
 end)

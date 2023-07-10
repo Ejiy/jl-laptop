@@ -3,7 +3,6 @@ local QBCore = exports['qb-core']:GetCoreObject()
 RegisterNUICallback('bennys/getitems', function(_, cb)
     local translated = {}
     for _, v in pairs(Config.Bennys.Items) do
-
         translated[#translated + 1] = {
             name = v.name,
             label = QBCore.Shared.Items[v.name].label,
@@ -13,30 +12,35 @@ RegisterNUICallback('bennys/getitems', function(_, cb)
             category = v.category,
         }
     end
-    print(json.encode(translated))
     cb(translated)
+end)
+
+RegisterNUICallback("bennys/getCategories", function(_, cb)
+    cb(Config.Bennys.Categories)
 end)
 
 local function openStash()
     local CID = QBCore.Functions.GetPlayerData().citizenid
-    TriggerServerEvent("inventory:server:OpenInventory", "stash", "BennyShop_" .. CID, {
-        maxweight = 100000,
-        slots = 25,
-    })
-    TriggerEvent("inventory:client:SetCurrentStash", "BennyShop_" .. CID)
+    if GetResourceState("ox_inventory"):match("start") then
+        exports.ox_inventory:openInventory('stash', {
+            id = "BennyShop_" .. CID,
+            owner = CID
+        })
+    else
+        TriggerServerEvent("inventory:server:OpenInventory", "stash", "BennyShop_" .. CID, {
+            maxweight = 100000,
+            slots = 25,
+        })
+        TriggerEvent("inventory:client:SetCurrentStash", "BennyShop_" .. CID)
+    end
 end
 
 local ped = nil
 local blip = nil
 CreateThread(function()
-
     local v = Config.Bennys.Location
 
-    RequestModel(v.ped)
-
-    while not HasModelLoaded(v.ped) do
-        Wait(0)
-    end
+    lib.requestModel(v.ped)
 
     ped = CreatePed(0, joaat(v.ped), v.coords.x, v.coords.y, v.coords.z - 1, v.coords.w, false, false)
     TaskStartScenarioInPlace(ped, v.scenario, 0, true)

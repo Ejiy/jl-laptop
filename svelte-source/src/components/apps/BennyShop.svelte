@@ -18,6 +18,7 @@
   import StoreCartCard from "./utility/Bennys/StoreCartCard.svelte";
   import { notifications } from "@store/notifications";
   import { onMount } from "svelte";
+  import type { Categories } from "src/@types/bennys";
   let topdata = {
     title: "Bennys Shop",
     background: "#1c1b22",
@@ -25,8 +26,9 @@
     blurstrength: 15,
     color: "#1b1b1b",
   };
-  let categories = ["Cosmetic Parts", "Performance Parts", "Consumable Parts"];
-  let currentPage = "Cosmetic Parts";
+  let categories: Categories[] = [];
+  let currentPage = "";
+  let dataLoaded = false;
 
   function handleAddCart(e) {
     if ($cart.filter((item) => item.name === e.detail.name).length === 0) {
@@ -39,6 +41,8 @@
       });
     }
   }
+
+  function GetDefaultCategory() {}
 
   function handleCheckout() {
     fetchNui("laptop/checkout", {
@@ -54,6 +58,18 @@
     });
   }
 
+  function GetCategoryItemLength(category) {
+    let itemCount = 0;
+    if ($items?.length) {
+      $items.forEach((x) => {
+        if (x.category == category) {
+          itemCount += 1;
+        }
+      });
+    }
+    return itemCount;
+  }
+
   function handleCartChange(e: CustomEvent, name: string) {
     cart.update((c) => {
       c.filter((it) => it.name === name)[0].quantity = e.detail;
@@ -66,111 +82,153 @@
   }
 
   onMount(() => {
-    fetchNui("bennys/getitems", {}).then((res) => {
-      items.set(res);
-    });
+    fetchNui("bennys/getCategories", {})
+      .then((x) => {
+        categories = x;
+        categories.forEach((x) => {
+          if (x.default) {
+            currentPage = x.name;
+          }
+        });
+      })
+      .catch((e) => {});
+    fetchNui("bennys/getitems", {})
+      .then((res) => {
+        items.set(res);
+      })
+      .catch((e) => {
+        items.set([
+          {
+            name: "Coca-Cola",
+            price: 300,
+            image:
+              "https://images.tokopedia.net/img/cache/500-square/VqbcmM/2020/9/16/09b4e6e5-53c9-49ca-86d3-96d7815d3f65.jpg",
+            stock: 100,
+            category: "Consumable Parts",
+            label: "Coca-Cola",
+          },
+          {
+            name: "Pepsi",
+            price: 300,
+            image:
+              "https://awsimages.detik.net.id/community/media/visual/2019/02/13/9dfb225a-637b-46e2-beb7-a31cab0553d2.jpeg",
+            stock: 100,
+            label: "Fanta",
+            category: "Consumable Parts",
+          },
+        ]);
+      })
+      .then(() => {
+        dataLoaded = true;
+      });
   });
 </script>
 
-<Apps appname="bennys" {topdata} debug={false}>
-  <div class="shop">
-    <div class="navigation">
-      <div class="left">
-        {#each categories as category}
-          <button
-            class:active={category === currentPage}
-            on:click={() => {
-              currentPage = category;
-            }}
-          >
-            {category}
-          </button>
-        {/each}
-      </div>
-      <div class="right">
-        {#if $cart.length > 0 && currentPage == "Cart"}
-          <div
-            class="btn"
-            in:fly|local={{ y: -100, easing: cubicOut, duration: 500 }}
-            out:fly|local={{ y: -100, easing: cubicIn, duration: 300 }}
-          >
-            <button style="width: 120px;" on:click={handleCheckout}>
-              <ion-icon name="bag-check" />
-              Checkout</button
-            >
-          </div>
-        {/if}
-
-        <button
-          on:click={() => {
-            currentPage = "Cart";
-          }}
-        >
-          <ion-icon name="cart" style="font-size: 20px;" />
-          Cart
-          {#if $cart.length > 0}
-            <div
-              in:scale={{ duration: 300, easing: backOut }}
-              out:scale={{ duration: 300, easing: quadInOut }}
-              class="circle"
-            >
-              {$cart.length}
-            </div>
-          {/if}
-        </button>
-      </div>
-    </div>
-    <div class="pages">
-      {#if currentPage !== "Cart"}
-        <div class="main-page">
-          {#each $items as data (data.name)}
-            <div class="card" class:hide={data.category !== currentPage}>
-              <StoreCard
-                on:addCart={handleAddCart}
-                image={`nui://${data.image}`}
-                name={data.name}
-                title={data.label}
-                stock={data.stock}
-                price={data.price}
-              />
-            </div>
+{#if dataLoaded}
+  <Apps appname="bennys" {topdata} debug={false}>
+    <div class="shop">
+      <div class="navigation">
+        <div class="left">
+          {#each categories as { name, label } (name)}
+            {#if GetCategoryItemLength(name)}
+              <button
+                class:active={name === currentPage}
+                on:click={() => {
+                  currentPage = name;
+                }}
+              >
+                {label}
+              </button>
+            {/if}
           {/each}
         </div>
-      {:else}
-        <div class="cart-page">
-          <div class="cart">
-            {#each $cart as itemcart (itemcart.name)}
-              <div
-                class="cart-items"
-                animate:flip={{ duration: 300, easing: quadInOut }}
-                in:fly|local={{ x: -300, duration: 200, easing: quadOut }}
-                out:fly|local={{ x: -300, duration: 200, easing: quadIn }}
+        <div class="right">
+          {#if $cart.length > 0 && currentPage == "Cart"}
+            <div
+              class="btn"
+              in:fly|local={{ y: -100, easing: cubicOut, duration: 500 }}
+              out:fly|local={{ y: -100, easing: cubicIn, duration: 300 }}
+            >
+              <button style="width: 120px;" on:click={handleCheckout}>
+                <ion-icon name="bag-check" />
+                Checkout</button
               >
-                <StoreCartCard
-                  on:theChange={(e) => {
-                    handleCartChange(e, itemcart.name);
-                  }}
-                  on:remove={() => {
-                    handleRemoveCart(itemcart.name);
-                  }}
-                  image={itemcart.image}
-                  title={itemcart.label}
-                  quantity={itemcart.quantity}
-                  max={$items.filter((item) => item.name === itemcart.name)[0]
-                    .stock}
-                />
+            </div>
+          {/if}
+
+          <button
+            on:click={() => {
+              currentPage = "Cart";
+            }}
+          >
+            <ion-icon name="cart" style="font-size: 20px;" />
+            Cart
+            {#if $cart.length > 0}
+              <div
+                in:scale={{ duration: 300, easing: backOut }}
+                out:scale={{ duration: 300, easing: quadInOut }}
+                class="circle"
+              >
+                {$cart.length}
               </div>
-            {:else}
-              <div class="empty" transition:fade|local={{ duration: 300 }}>
-                <span>Cart is empty</span>
-              </div>
+            {/if}
+          </button>
+        </div>
+      </div>
+      <div class="pages">
+        {#if currentPage !== "Cart"}
+          <div class="main-page">
+            {#each $items as data (data.name)}
+              {#if data.category == currentPage}
+                <div class="card">
+                  <StoreCard
+                    on:addCart={handleAddCart}
+                    image={`nui://${data.image}`}
+                    name={data.name}
+                    title={data.label}
+                    stock={data.stock}
+                    price={data.price}
+                  />
+                </div>
+              {/if}
             {/each}
           </div>
-        </div>
-      {/if}
+        {:else}
+          <div class="cart-page">
+            <div class="cart">
+              {#each $cart as itemcart (itemcart.name)}
+                <div
+                  class="cart-items"
+                  animate:flip={{ duration: 300, easing: quadInOut }}
+                  in:fly|local={{ x: -300, duration: 200, easing: quadOut }}
+                  out:fly|local={{ x: -300, duration: 200, easing: quadIn }}
+                >
+                  <StoreCartCard
+                    on:theChange={(e) => {
+                      handleCartChange(e, itemcart.name);
+                    }}
+                    on:remove={() => {
+                      handleRemoveCart(itemcart.name);
+                    }}
+                    image={itemcart.image}
+                    title={itemcart.label}
+                    quantity={itemcart.quantity}
+                    max={$items.filter((item) => item.name === itemcart.name)[0]
+                      .stock}
+                  />
+                </div>
+              {:else}
+                <div class="empty" transition:fade|local={{ duration: 300 }}>
+                  <span>Cart is empty</span>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
+      </div>
     </div>
-  </div>
-</Apps>
+  </Apps>
+{/if}
 
 <style>
   .cart-items {
@@ -205,9 +263,6 @@
     align-items: center;
     justify-content: center;
     margin-bottom: 30px;
-  }
-  .card.hide {
-    display: none;
   }
   .main-page {
     padding: 30px;

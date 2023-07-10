@@ -103,7 +103,6 @@ end
 
 ---- Animation for opening the laptop ----
 local function Animation()
-
     local tabletDict = "amb@code_human_in_bus_passenger_idles@female@tablet@base"
     local tabletAnim = "base"
     local tabletProp = 'prop_cs_tablet'
@@ -113,25 +112,19 @@ local function Animation()
 
     if not display then return end
     -- Animation
-    if not HasAnimDictLoaded(tabletDict) then
-        RequestAnimDict(tabletDict)
-        while not HasAnimDictLoaded(tabletDict) do Citizen.Wait(100) end
-    end
+    lib.requestAnimDict(tabletDict)
 
     -- Model
-    if not HasModelLoaded(tabletProp) then
-        RequestModel(tabletProp)
-        while not HasModelLoaded(tabletProp) do Citizen.Wait(100) end
-    end
+    lib.requestModel(tabletProp)
 
-    local plyPed = PlayerPedId()
+    local plyPed = cache.ped
 
     local tabletObj = CreateObject(tabletProp, 0.0, 0.0, 0.0, true, true, false)
 
     local tabletBoneIndex = GetPedBoneIndex(plyPed, tabletBone)
 
     AttachEntityToEntity(tabletObj, plyPed, tabletBoneIndex, tabletOffset.x, tabletOffset.y, tabletOffset.z, tabletRot.x
-        , tabletRot.y, tabletRot.z, true, false, false, false, 2, true)
+    , tabletRot.y, tabletRot.z, true, false, false, false, 2, true)
     SetModelAsNoLongerNeeded(tabletProp)
 
     CreateThread(function()
@@ -314,7 +307,6 @@ RegisterNUICallback('laptop/checkout', function(data, cb)
                     message = Lang:t('main.checkout.done_else')
                 })
             end
-
         end
     end, newData)
 end)
@@ -323,7 +315,9 @@ end)
 RegisterNUICallback('setting/save', function(data, cb)
     -- prevents spamming metadata and server side settings
     if data["setting"].darkfont == PlayerData.metadata['laptop'].darkfont and
-        data["setting"].background == PlayerData.metadata['laptop'].background then return end
+        data["setting"].background == PlayerData.metadata['laptop'].background then
+        return
+    end
     cb("ok")
     TriggerServerEvent("jl-laptop:server:settings:set", data["setting"])
 end)

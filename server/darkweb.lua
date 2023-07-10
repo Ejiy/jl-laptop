@@ -15,7 +15,7 @@ QBCore.Functions.CreateCallback('jl-laptop:server:getCrateStatus', function(sour
         crateID = crates[crateNetID].id,
         crate = crateentity
     }
-	cb(data)
+    cb(data)
 end)
 
 QBCore.Functions.CreateCallback('jl-laptop:server:getAllCrates', function(source, cb)

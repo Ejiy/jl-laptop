@@ -13,7 +13,6 @@
   let notif: any = $notifications;
 
   function removeNotif(id) {
-    console.log(id);
     notifications.set(notif.filter((i) => i.id !== id));
   }
   // I will find the better solution later 😂

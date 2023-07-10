@@ -1,7 +1,7 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local Contracts = {}
-local PZone = nil
-local PZone2 = nil
+local CZone = nil
+local CZone2 = nil
 local NetID = nil
 local missionBlip = nil
 local inZone = false
@@ -48,9 +48,7 @@ local function UpdateBlips()
     local State = Entity(car).state.Boosting
     if State and State.boostHacks then
         CreateThread(function()
-
             while State and State.boostHacks > 0 do
-
                 local checks = 0
                 if DoesEntityExist(car) then
                     local pos = GetEntityCoords(car)
@@ -64,7 +62,8 @@ local function UpdateBlips()
 
 
                 Wait((Config.Boosting.Frequency * 1000) / State.boostHacks) -- Max 10 seconds, the more times hacked the less time it updates
-                State = Entity(car).state.Boosting -- Makes it so that it dosnt get the state from the car twice on first run
+                State = Entity(car).state
+                    .Boosting                                               -- Makes it so that it dosnt get the state from the car twice on first run
             end
 
             if DoesEntityExist(car) then
@@ -111,11 +110,11 @@ local function CheckVin(NetworkID)
                     QBCore.Functions.Notify("The vin number is scratched!", "error")
                 end
                 IsCheckingVin = false
-                ClearPedTasks(PlayerPedId())
+                ClearPedTasks(cache.ped)
             end, function() -- Play When Cancel
-            ClearPedTasks(PlayerPedId())
-            IsCheckingVin = false
-        end)
+                ClearPedTasks(cache.ped)
+                IsCheckingVin = false
+            end)
     end
 end
 
@@ -127,7 +126,7 @@ RegisterNetEvent('lockpicks:UseLockpick', function()
     if not NetID then return end
     local car = NetworkGetEntityFromNetworkId(NetID)
     if DoesEntityExist(car) then
-        local dist = #(GetEntityCoords(car) - GetEntityCoords(PlayerPedId()))
+        local dist = #(GetEntityCoords(car) - GetEntityCoords(cache.ped))
         if dist <= 3.5 then -- 2.5 is the distance in qbcore vehiclekeys if you use more or less then please edit this.
             if #(vector3(carCoords.x, carCoords.y, carCoords.z) - GetEntityCoords(car)) <= 6.9 then
                 AntiSpam = true
@@ -168,14 +167,18 @@ RegisterNetEvent('jl-laptop:client:MissionStarted',
         })
         --print(coords)
 
-        if PZone then PZone:destroy() PZone = nil end
+        if CZone then
+            CZone:remove()
+            CZone = nil
+        end
 
         if missionBlip then RemoveBlip(missionBlip) end
 
         if coords then
             if Config.Boosting.Debug then SetNewWaypoint(coords.x, coords.y) end
 
-            missionBlip = AddBlipForRadius(coords.x + math.random(-100, 100), coords.y + math.random(-100, 100), coords.z
+            missionBlip = AddBlipForRadius(coords.x + math.random(-100, 100), coords.y + math.random(-100, 100), coords
+                .z
                 , 250.0)
             SetBlipAlpha(missionBlip, 150)
             SetBlipHighDetail(missionBlip, true)
@@ -240,9 +243,9 @@ local function DeliverCar()
     local car = NetworkGetEntityFromNetworkId(NetID)
     FreezeEntityPosition(car, true)
     SetVehicleDoorsLocked(car, 2)
-    if PZone then
-        PZone:destroy()
-        PZone = nil
+    if CZone then
+        CZone:remove()
+        CZone = nil
     end
 
     Wait(7500)
@@ -273,10 +276,10 @@ local function StartVin()
             TriggerServerEvent('jl-laptop:server:finishBoost', NetID, true)
             Entity(car).state.isvinCar = false
             exports['qb-target']:RemoveTargetEntity(car, "Scratch Vin")
-            ClearPedTasks(PlayerPedId())
+            ClearPedTasks(cache.ped)
         end, function() -- Play When Cancel
-        ClearPedTasks(PlayerPedId())
-    end)
+            ClearPedTasks(cache.ped)
+        end)
 end
 
 local function MeVinYeah()
@@ -306,37 +309,33 @@ local function MeVinYeah()
 end
 
 local function VehicleCheck(isvin)
-    CreateThread(function()
-        local inCar = false
-        while inZone do
-            local ped = PlayerPedId()
-            if IsPedInAnyVehicle(ped, false) then
-                inCar = true
+    local car = cache.vehicle
+    if car and NetID and car == NetworkGetEntityFromNetworkId(NetID) then
+        if not GetIsVehicleEngineRunning(cache.vehicle) then
+            if isvin then
+                MeVinYeah()
+            else
+                DeliverCar()
             end
-
-            if inCar and not IsPedInAnyVehicle(ped, false) then
-                local veh = GetVehiclePedIsIn(ped, true)
-                if veh == NetworkGetEntityFromNetworkId(NetID) then
-                    if not GetIsVehicleEngineRunning(veh) then
-                        if isvin then
-                            inZone = false
-                            MeVinYeah()
-                        else
-                            inZone = false
-                            DeliverCar()
-                        end
-                    end
-                end
-            end
-            Wait(100)
         end
-    end)
+    end
 end
 
 RegisterNetEvent('jl-laptop:client:ReturnCar', function(coords)
-    PZone = CircleZone:Create(coords, 15, {
-        name = "NewReturnWhoDis",
-        debugPoly = Config.Boosting.Debug,
+    -- CZone = CircleZone:Create(coords, 15, {
+    --     name = "NewReturnWhoDis",
+    --     debugPoly = Config.Boosting.Debug,
+    -- })
+
+    local function InSide()
+        VehicleCheck()
+    end
+
+    CZone = lib.zones.sphere({
+        coords = coords,
+        radius = 15,
+        inside = InSide,
+        debug = Config.Boosting.Debug
     })
 
     local info = {
@@ -346,14 +345,14 @@ RegisterNetEvent('jl-laptop:client:ReturnCar', function(coords)
         },
     }
 
-    PZone:onPlayerInOut(function(isPointInside)
-        if isPointInside then
-            inZone = true
-            VehicleCheck()
-        else
-            inZone = false
-        end
-    end)
+    -- CZone:onPlayerInOut(function(isPointInside)
+    --     if isPointInside then
+    --         inZone = true
+    --         VehicleCheck()
+    --     else
+    --         inZone = false
+    --     end
+    -- end)
 
     Notify(Lang:t('boosting.success.gps_dropoff'), 'success', 7500)
 
@@ -368,9 +367,20 @@ RegisterNetEvent('jl-laptop:client:ReturnCar', function(coords)
 end)
 
 RegisterNetEvent("jl-laptop:client:ToVinScratch", function(coords)
-    PZone = CircleZone:Create(coords, 15, {
-        name = "VinGoesBrum",
-        debugPoly = Config.Boosting.Debug
+    local function Inside()
+        VehicleCheck(true)
+    end
+    CZone = lib.zones.sphere({
+        coords = coords,
+        radius = 15,
+        inside = Inside,
+        onEnter = function()
+            inVin = true
+        end,
+        onExit = function()
+            inVin = false
+        end,
+        debug = Config.Boosting.Debug
     })
     local info = {
         blip = {
@@ -378,16 +388,6 @@ RegisterNetEvent("jl-laptop:client:ToVinScratch", function(coords)
             coords = coords
         }
     }
-    PZone:onPlayerInOut(function(isPointInside)
-        if isPointInside then
-            inZone = true
-            inVin = true
-            VehicleCheck(true)
-        else
-            inVin = false
-            inZone = false
-        end
-    end)
     Notify(Lang:t('boosting.success.vin_dropoff'), "success", 7000)
     dropoffBlip = AddBlipForCoord(info.blip.coords.x, info.blip.coords.y, info.blip.coords.z)
     SetBlipSprite(dropoffBlip, 326)
@@ -401,11 +401,23 @@ end)
 
 -- Just a netevent that retracts all the booleans and properly resets the client --
 RegisterNetEvent('jl-laptop:client:finishContract', function(table)
-    if PZone then PZone:destroy() PZone = nil end
-    if PZone2 then PZone2:destroy() PZone2 = nil end
+    if CZone then
+        CZone:remove()
+        CZone = nil
+    end
+    if CZone2 then
+        CZone2:remove()
+        CZone2 = nil
+    end
     NetID = nil
-    if missionBlip then RemoveBlip(missionBlip) missionBlip = nil end
-    if dropoffBlip then RemoveBlip(dropoffBlip) dropoffBlip = nil end
+    if missionBlip then
+        RemoveBlip(missionBlip)
+        missionBlip = nil
+    end
+    if dropoffBlip then
+        RemoveBlip(dropoffBlip)
+        dropoffBlip = nil
+    end
     inZone = false
 
     Contracts = table
@@ -430,10 +442,10 @@ RegisterNetEvent('jl-laptop:client:HackCar', function()
     -- Makes it so if they are doing hacking or whatever it will not let them do it again, as people could hard spam before the delay was added --
     if currentHacking then return end
     currentHacking = true
-    local ped = PlayerPedId()
+    local ped = cache.ped
     if haveItem(Config.Boosting.HackingDevice) then
-        if IsPedInAnyVehicle(ped, false) then
-            local car = GetVehiclePedIsIn(ped, false)
+        if cache.vehicle then
+            local car = cache.vehicle
             local State = Entity(car).state.Boosting
             if State and State.boostHacks > 0 and not State.boostCooldown then
                 local pushingP = promise.new()
@@ -497,7 +509,7 @@ RegisterNetEvent('jl-laptop:client:SpawnPeds', function(netIds, Location)
         SetPedCombatAttributes(APed, 0, false)
         SetPedAccuracy(APed, 60)
         SetPedCombatAbility(APed, 100)
-        TaskCombatPed(APed, PlayerPedId(), 0, 16)
+        TaskCombatPed(APed, cache.ped, 0, 16)
         SetPedKeepTask(APed, true)
         SetPedSeeingRange(APed, 150.0)
         SetPedHearingRange(APed, 150.0)
@@ -517,7 +529,10 @@ local blips = {} -- Stores all the blips in a table so that PD can see multiple 
 
 -- The event that does everything for the blips, checks if the client is police then checks if the blip is active and if it is then remove it and spawn a new
 RegisterNetEvent('jl-laptop:client:SyncBlips', function(coords, newNet)
-    if not Config.Boosting.Debug and not isPolice() then print("Not police") return end
+    if not Config.Boosting.Debug and not isPolice() then
+        print("Not police")
+        return
+    end
     print(coords, newNet)
     if blips[newNet] then RemoveBlip(blips[newNet]) end
 

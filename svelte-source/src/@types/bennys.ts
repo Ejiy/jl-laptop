@@ -1,23 +1,29 @@
-export interface Items {
+export type Items = {
   name: string;
   label: string;
   image: string;
   price: number;
   stock: number;
-}
+};
 
-export interface BennysItem extends Items {
-  category: "Cosmetic Parts" | "Performance Parts" | "Consumable Parts";
-}
+export type Categories = {
+  name: string;
+  label: string;
+  default?: boolean;
+};
 
-export interface DarkWebItems extends Items {
+export type BennysItem = Items & {
+  category: string;
+};
+
+export type DarkWebItems = Items & {
   category: "hacking" | "guns" | "drugs";
-}
+};
 
-export interface BennysCartItems extends BennysItem {
+export type BennysCartItems = BennysItem & {
   quantity: number;
-}
+};
 
-export interface DarkWebCartItems extends DarkWebItems {
+export type DarkWebCartItems = DarkWebItems & {
   quantity: number;
-}
+};

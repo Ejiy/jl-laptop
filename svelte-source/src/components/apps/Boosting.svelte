@@ -111,7 +111,6 @@
         notifications.send(res.message, "boosting", 5000);
       })
       .catch((err) => {
-        console.log(err);
         notifications.send(
           "You can't start a contract right now, try again later",
           "boosting",
@@ -125,7 +124,6 @@
       show: true,
       onOk: (value) => {
         if (value) {
-          console.log(value);
           fetchNui("boosting/transfer", {
             playerid: value,
             contractID: id,

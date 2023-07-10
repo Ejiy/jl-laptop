@@ -5,7 +5,7 @@ Config.LaptopDevice = "laptop"
 
 Config.RenewedPhone = false
 
-Config.Linux = false
+Config.Linux = true
 
 Config.PoliceJobs = {
     "police",
@@ -20,11 +20,11 @@ Config.Apps = {
         useimage = true,
         color = '#fff',
         background = '#1d2029',
-        job = {}, -- Must be a table
+        job = {},                  -- Must be a table
         bannedJobs = { "police" }, -- Must be a table { 'police' }
-        gang = {}, -- Must be a table { 'ballas' }
-        item = { "vpn" }, -- Must be a table { 'vpn' }
-        default = false -- if true, it will be added by default, ignoring all the previously set parameters
+        gang = {},                 -- Must be a table { 'ballas' }
+        item = { "vpn" },          -- Must be a table { 'vpn' }
+        default = false            -- if true, it will be added by default, ignoring all the previously set parameters
     },
     ['setting'] = {
         app = 'setting',
