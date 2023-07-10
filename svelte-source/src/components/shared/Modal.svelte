@@ -13,7 +13,6 @@
   }
 
   function _onClose() {
-    console.log("close");
     modals.reset();
   }
 </script>

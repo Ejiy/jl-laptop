@@ -55,10 +55,8 @@ export function handlerMessage() {
         notifications.send("You have completed the contact", "boosting", 5000);
         break;
       case "boosting/horseboosting":
-        console.log(event.data?.data.plate);
         setTimeout(() => {
           startedContracts.update((segs) => {
-            console.log(segs);
             segs.plate = event.data?.data.plate;
             return segs;
           });
