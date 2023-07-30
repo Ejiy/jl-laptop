@@ -361,7 +361,7 @@ RegisterNetEvent('jl-laptop:server:SyncPlates', function(success)
     end
 
     local ped = GetPlayerPed(src)
-    local car = cache.vehicle
+    local car = GetVehiclePedIsIn(ped, false)
     local state = Entity(car).state.Boosting
 
     if not state then
