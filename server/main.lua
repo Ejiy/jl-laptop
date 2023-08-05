@@ -98,6 +98,6 @@ RegisterNetEvent('jl-laptop:server:RemoveItem', function(item)
 end)
 
 AddEventHandler('onResourceStart', function(resource)
-    if resource ~= cache.resource then return end
+    if resource ~= GetCurrentResourceName() then return end
     lib.versionCheck('Ejiy/jl-laptop')
 end)

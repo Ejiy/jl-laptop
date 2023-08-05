@@ -195,7 +195,7 @@ local hookid
 
 -- For dev environment
 AddEventHandler('onResourceStop', function(resource)
-    if resource ~= cache.resource then return end
+    if resource ~= GetCurrentResourceName() then return end
     
     for box, _ in pairs(crates) do
         DeleteEntity(NetworkGetEntityFromNetworkId(box))
@@ -206,7 +206,7 @@ AddEventHandler('onResourceStop', function(resource)
 end)
 
 AddEventHandler("onResourceStart", function(resource)
-    if resource ~= cache.resource then return end
+    if resource ~= GetCurrentResourceName() then return end
     if GetResourceState("ox_inventory"):match("start") then
         -- make sure they can only take the item, not storing it
         hookid = exports.ox_inventory:registerHook('swapItems', function(payload)
